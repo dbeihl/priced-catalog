@@ -26,19 +26,19 @@ function HowToRead() {
       </h2>
       <dl className="mt-3 space-y-3 text-[12px] leading-snug">
         <div className="flex gap-3">
-          <dt className="fig w-[5.5rem] shrink-0 font-medium">
+          <dt className="fig w-[7rem] shrink-0 font-medium">
             $4.50/linear ft
           </dt>
           <dd className="text-ink-2">what he charges</dd>
         </div>
         <div className="flex gap-3">
-          <dt className="fig w-[5.5rem] shrink-0">25 ft an hour</dt>
+          <dt className="fig w-[7rem] shrink-0">25 ft an hour</dt>
           <dd className="text-ink-2">
             the pace behind it, so you can do the division yourself
           </dd>
         </div>
         <div className="flex gap-3">
-          <dt className="w-[5.5rem] shrink-0 pt-1">
+          <dt className="w-[7rem] shrink-0 pt-1">
             <span aria-hidden="true" className="relative block h-2 w-full">
               <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-rule" />
               <span className="absolute left-0 top-0 bottom-0 w-px bg-rule" />

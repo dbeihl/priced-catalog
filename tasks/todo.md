@@ -141,3 +141,26 @@ Written for someone who has never opened a terminal. Numbered, with before/after
 ## 6. Not in v1
 
 Shareable estimate URLs · print stylesheet · localStorage persistence · CI/CD workflow · photo galleries.
+
+---
+
+## 7. Built — what shipped, and where it differs from this plan
+
+All phases complete. `npm run typecheck && npm run lint && npm run test && npm run build` all green; 31 tests; screenshots taken at 390px and 1440px in a real browser.
+
+### Deviations, and why
+
+| # | Plan said | Shipped | Why |
+|---|---|---|---|
+| 1 | Focus ring in `--mark` | Focus ring in `--ink`, `--mark` as a backing tint | Yellow on paper measures 1.8:1. A focus indicator needs 3:1, so the ring itself had to be ink. The accent survives as the fill behind it. |
+| 2 | Category filter as a left gutter of ruled tags | Sticky filter bar above the list | The running-tally rail already claims a column. A third column at 1440px left the catalog rows too narrow to hold price, hours, and band on one line. |
+| 3 | `AddOn` exactly as specified | `AddOn` gained an optional `unit` | Correctness, not flexibility. Outlet box extenders are priced per box on a wall measured in square feet, and transitions per linear foot on a floor measured in square feet. Without `unit`, both would multiply by the parent quantity and be wrong by a factor of a hundred. |
+| 4 | Bathroom floor and LVP as separate rows | One service carrying the override | One source of truth for the number. |
+| 5 | — | `SOURCES.md` added | Every band's URL, so a customer can check the band rather than take it on faith. Two bands are inferences rather than published figures and say so in the catalog itself. |
+| 6 | — | Em-dashes stripped from prose | House style. **Service names still carry the em-dash from the source catalog file** (`Water softener — existing loop`), because that is David's own wording. Say the word and they change. |
+
+### One thing found while encoding the rules
+
+The small-room override has a price cliff, and it is in the catalog's pricing, not in the code. A 99 sq ft floor is $475–$650. A 100 sq ft floor is $325. The per-sq-ft rate does not catch up to the bottom of the flat range until about 146 sq ft, so for every room between 100 and 146 square feet, a bigger floor costs less than a smaller one.
+
+The calculator encodes the rule exactly as specified, and the tests pin the boundary at 99 / 100 / 101. Fixing it is a pricing decision, not a code one. The obvious options are a taper between 100 and 150 sq ft, or raising the threshold so the two curves meet.
