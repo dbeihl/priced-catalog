@@ -181,6 +181,18 @@ npm run typecheck && npm run lint && npm run test && npm run build
 
 If any of them fail, the change is not ready. `npm run test` in particular checks the estimate arithmetic — the minimum job sizes, the small-room flat price, the first-one-costs-more pricing, and the visit minimum.
 
+## Publishing it
+
+Pushing to `master` builds the site and publishes it to GitHub Pages at
+**https://dbeihl.github.io/priced-catalog/**. `.github/workflows/deploy.yml` runs the lint, the tests, and the typechecking build first, so a broken change never reaches the live page.
+
+Two things have to be true in the repository's own settings before the first deploy succeeds, and neither can be set from a file in the repo:
+
+1. **The repository is public**, or the account is on a paid plan. GitHub Pages will not serve a private repository on the free tier.
+2. **Settings → Pages → Source is set to "GitHub Actions"** (not "Deploy from a branch").
+
+After that, every push to `master` republishes. The Actions tab shows each run, and the run's `deploy` step links the published URL.
+
 ## Publishing it somewhere else
 
 The site is currently built to live at `/priced-catalog/` on GitHub Pages. To publish it at the root of your own domain instead, build it with one extra setting:
