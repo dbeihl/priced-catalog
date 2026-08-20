@@ -1,0 +1,80 @@
+@import "@fontsource-variable/archivo/index.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Graphite, not black. A carpenter's pencil on stock. */
+  --ink: #15181b;
+  /* 5.6:1 on paper — the source line is legible, not decorative. */
+  --ink-2: #5a6169;
+  /* Cool grey-green plan stock. Deliberately not cream. */
+  --paper: #f2f3f1;
+  --field: #ffffff;
+  /* The sheet's ruling. Density is handled by rules, not whitespace. */
+  --rule: #d3d7d2;
+  /* Level-vial yellow. Fill only, never text on paper. --ink on it is 9.3:1. */
+  --mark: #e8b004;
+
+  /* APWA uniform utility-marking code — the colours already on the ground. */
+  --tag-water: #0b63c5;
+  --tag-comms: #e2650b;
+  --tag-electric: #c8102e;
+  --tag-neutral: #5a6169;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Archivo Variable", Archivo, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Every figure on this site is measured, so every figure is monospaced. */
+.fig {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/*
+ * Focus ring is ink, not mark: yellow on paper is 1.8:1 and would fail as an
+ * indicator. The mark still shows up, as a backing plate behind the ring.
+ */
+:where(a, button, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  background-color: color-mix(in srgb, var(--mark) 22%, transparent);
+}
+
+input,
+select,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,1267 @@
+import type { Service } from "../types";
+
+/**
+ * Every price here was derived at an $85/hr effective rate (see pricing.effectiveRate
+ * in site.config.ts). The rate itself is never rendered, the hours are, so anyone
+ * can divide.
+ *
+ * Every marketBand.source is a real 2026 figure. SOURCES.md carries the URLs.
+ * A service without a defensible basis and marketBand does not belong in this file.
+ */
+export const services: Service[] = [
+  // ── Water & Plumbing ──────────────────────────────────────────────────────
+  {
+    id: "softener-existing-loop",
+    name: "Water softener — existing loop",
+    category: "water",
+    blurb: "The house already has a softener loop. Unit in, old one out.",
+    description:
+      "Your builder roughed in a softener loop and it has been sitting empty, or the old unit has failed. This is the straightforward case: shut off, drain, swap, connect, program, and run it through a regeneration cycle before I leave.",
+    pricing: {
+      model: "flat",
+      price: 250,
+      unit: "project",
+      assumptions: [
+        "A dedicated loop with shutoffs already exists",
+        "Drain within reach of the existing standpipe",
+      ],
+    },
+    basis: {
+      hours: 2.5,
+      note: "Most of the time is programming and the regeneration cycle, not the plumbing.",
+    },
+    marketBand: {
+      low: 150,
+      high: 1250,
+      unit: "project",
+      source: "Angi / TapWaterData, 2026",
+      note: "The $150 floor is a pre-plumbed loop like this one. Most homeowners nationally pay $500–$700 because most jobs are not this one.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Removal and haul-off of the old unit",
+      "Bypass check",
+      "Programming",
+      "One full regeneration cycle before I leave",
+    ],
+    excludes: ["The softener itself", "Salt"],
+    addOns: [
+      { id: "drain-line", name: "Drain line run", price: 125, note: "1.5 hr" },
+      { id: "pre-filter", name: "Pre-filter housing", price: 95, note: "1 hr" },
+    ],
+    confirmBy: "photos",
+    status: "offered",
+  },
+  {
+    id: "softener-pex-cutin",
+    name: "Water softener — PEX cut-in, no loop",
+    category: "water",
+    blurb: "No loop. Cutting into PEX to build one.",
+    description:
+      "No softener loop exists, and the main is PEX. I cut in, build the loop with a bypass and shutoffs so the next person has the easy job, then set and program the unit.",
+    pricing: {
+      model: "flat",
+      price: 375,
+      unit: "project",
+      assumptions: ["PEX main, accessible", "Drain and power within reach"],
+    },
+    basis: {
+      hours: 3.5,
+      note: "The loop and bypass are the job. The softener itself is the last 40 minutes.",
+    },
+    marketBand: {
+      low: 300,
+      high: 1250,
+      unit: "project",
+      source: "Angi / TapWaterData, 2026",
+      note: "Most homeowners nationally land at $500–$700 for exactly this scope.",
+    },
+    materials: "pass-through",
+    materialsLow: 60,
+    materialsHigh: 140,
+    includes: [
+      "Bypass and shutoffs",
+      "Loop built to code",
+      "Programming",
+      "One full regeneration cycle",
+    ],
+    excludes: ["The softener itself", "Salt"],
+    addOns: [
+      { id: "drain-line", name: "Drain line run", price: 125, note: "1.5 hr" },
+      { id: "pre-filter", name: "Pre-filter housing", price: 95, note: "1 hr" },
+    ],
+    confirmBy: "photos",
+    status: "offered",
+  },
+  {
+    id: "softener-copper",
+    name: "Water softener — copper cut-in",
+    category: "water",
+    blurb:
+      "Cutting a live copper main. Priced for the risk, confirmed from photos.",
+    description:
+      "Copper main means cutting a live line and either sweating joints or setting SharkBite fittings. The work is not harder than PEX so much as less forgiving, and the downside if it goes wrong is a wet basement. I confirm this one from photos of your existing setup before I quote it.",
+    pricing: {
+      model: "flat",
+      price: 450,
+      unit: "project",
+      assumptions: [
+        "Copper main, accessible",
+        "No corroded or unsupported runs discovered on cutting",
+      ],
+    },
+    basis: {
+      hours: 5,
+      note: "Five hours because of the live main, not because there is more plumbing to do.",
+    },
+    marketBand: {
+      low: 300,
+      high: 1250,
+      unit: "project",
+      source: "Angi / TapWaterData, 2026",
+      note: "Copper sits in the upper half of this band everywhere.",
+    },
+    materials: "pass-through",
+    materialsLow: 90,
+    materialsHigh: 200,
+    includes: [
+      "Bypass and shutoffs",
+      "Joints sweated or SharkBite per what the run allows",
+      "Programming",
+      "One full regeneration cycle",
+    ],
+    excludes: [
+      "The softener itself",
+      "Salt",
+      "Repair of pre-existing corrosion found on cutting",
+    ],
+    addOns: [
+      { id: "drain-line", name: "Drain line run", price: 125, note: "1.5 hr" },
+      { id: "pre-filter", name: "Pre-filter housing", price: 95, note: "1 hr" },
+    ],
+    confirmBy: "photos",
+    status: "offered",
+  },
+  {
+    id: "toilet-replacement",
+    name: "Toilet replacement",
+    category: "water",
+    blurb: "Old one out and gone, new one set and sealed.",
+    description:
+      "Same location, existing supply and flange. New wax or foam seal, new supply line, bolts snugged in stages so nothing cracks, and the old unit leaves with me.",
+    pricing: {
+      model: "flat",
+      price: 185,
+      unit: "project",
+      assumptions: ["Existing flange is sound", "Same location"],
+    },
+    basis: {
+      hours: 2,
+      note: "Two hours including haul-off. The haul-off is a real part of it, a toilet does not fit in a car.",
+    },
+    marketBand: {
+      low: 150,
+      high: 450,
+      unit: "project",
+      source: "Plumbing By The Book / RateYourPlumber, 2026",
+      note: "Labor only, same location.",
+    },
+    materials: "pass-through",
+    materialsLow: 15,
+    materialsHigh: 40,
+    includes: [
+      "New seal and supply line",
+      "Haul-off of the old unit",
+      "Leak check under load",
+    ],
+    excludes: ["The toilet", "Flange repair or replacement"],
+    status: "offered",
+  },
+  {
+    id: "faucet-replacement",
+    name: "Faucet replacement",
+    category: "water",
+    blurb: "Kitchen or bath. Existing supply lines.",
+    description:
+      "Out with the old, in with the new. New supply lines regardless of what the old ones look like, because that is where the callback comes from.",
+    pricing: {
+      model: "flat",
+      price: 165,
+      unit: "project",
+      assumptions: ["Existing shutoffs work", "No deck or sink modification"],
+    },
+    basis: {
+      hours: 1.75,
+      note: "Under-sink access is what drives the time, not the faucet.",
+    },
+    marketBand: {
+      low: 120,
+      high: 250,
+      unit: "project",
+      source: "HomeGuide, 2026",
+      note: "Labor only.",
+    },
+    materials: "pass-through",
+    materialsLow: 15,
+    materialsHigh: 35,
+    includes: ["New supply lines", "Leak check under load"],
+    excludes: ["The faucet", "Shutoff valve replacement"],
+    status: "offered",
+  },
+  {
+    id: "vanity-faucet-swap",
+    name: "Vanity + faucet swap",
+    category: "water",
+    blurb: "Same footprint, same plumbing location.",
+    description:
+      "Old vanity out, new one set level and secured to studs, faucet and drain plumbed, top sealed. Assumes the drain and supplies come out of the wall where they already do.",
+    pricing: {
+      model: "flat",
+      price: 425,
+      unit: "project",
+      assumptions: [
+        "No plumbing relocation",
+        "New vanity is within an inch or two of the old footprint",
+      ],
+    },
+    basis: {
+      hours: 5,
+      note: "Setting it level in an out-of-plumb wall is the part that takes the time.",
+    },
+    marketBand: {
+      low: 150,
+      high: 700,
+      unit: "project",
+      source: "HomeGuide / Angi, 2026",
+      note: "Labor only for a premade vanity into an existing footprint.",
+    },
+    materials: "pass-through",
+    materialsLow: 25,
+    materialsHigh: 75,
+    includes: [
+      "Old vanity removal and haul-off",
+      "Shimming and securing to studs",
+      "Faucet and drain",
+      "Caulk and seal",
+    ],
+    excludes: [
+      "The vanity, top, and faucet",
+      "Any plumbing relocation",
+      "Wall repair behind the old unit",
+    ],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "disposal-replacement",
+    name: "Garbage disposal replacement",
+    category: "water",
+    blurb: "Like-for-like swap under an existing sink.",
+    description:
+      "Old unit off, mounting ring checked or replaced, new unit hung, drain re-plumbed, dishwasher inlet knocked out if the new one needs it. Tested under a full sink of water.",
+    pricing: {
+      model: "flat",
+      price: 165,
+      unit: "project",
+      assumptions: [
+        "Existing dedicated outlet and switch",
+        "No cabinet modification",
+      ],
+    },
+    basis: {
+      hours: 1.75,
+      note: "Holding a disposal overhead while you turn the ring is the whole job.",
+    },
+    marketBand: {
+      low: 100,
+      high: 250,
+      unit: "project",
+      source: "HomeGuide, 2026",
+      note: "Labor only.",
+    },
+    materials: "pass-through",
+    materialsLow: 10,
+    materialsHigh: 35,
+    includes: [
+      "Haul-off of the old unit",
+      "Drain re-plumb",
+      "Full-sink leak test",
+    ],
+    excludes: ["The disposal", "Electrical work if there is no outlet"],
+    status: "offered",
+  },
+
+  // ── Smart Home & Networking ───────────────────────────────────────────────
+  {
+    id: "shelly-leak-shutoff",
+    name: "Shelly leak sensor + shutoff controller",
+    category: "smart-home",
+    blurb: "Mounted, paired, automated, and wet-tested before I leave.",
+    description:
+      "The mounting is ten minutes. The rest is the reason it costs what it costs: getting it onto 2.4GHz, into your account, building the automation that actually closes the valve, and then pouring water on the sensor to prove it works. A device that is installed but not tested is not installed.",
+    pricing: {
+      model: "flat",
+      firstPrice: 95,
+      additionalPrice: 65,
+      unit: "device",
+      assumptions: [
+        "2.4GHz Wi-Fi reaches the location",
+        "Existing shutoff is operable",
+      ],
+    },
+    basis: {
+      hours: [0.75, 1],
+      note: "One hour for the first, forty-five minutes for each one after, because the account and network work is already done.",
+    },
+    marketBand: {
+      low: 100,
+      high: 400,
+      unit: "device",
+      source: "Angi / HomeGuide, 2026",
+      note: "Per-device smart-home installation. The wide end of that band includes the hardware.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Mounting",
+      "2.4GHz pairing",
+      "Account setup",
+      "One working automation",
+      "A wet test you watch",
+    ],
+    excludes: ["The devices", "Plumbing changes to fit a motorised valve"],
+    confirmBy: "photos",
+    status: "offered",
+  },
+  {
+    id: "ethernet-drop",
+    name: "Ethernet drop",
+    category: "smart-home",
+    blurb:
+      "Run, terminated, faceplate, tested. Bundle and each one gets cheaper.",
+    description:
+      'A real drop: cable run through attic or basement, terminated at both ends, keystone in a faceplate, and certified with a tester rather than "the light came on." Additional drops on the same visit cost less because the ladder is already up and the panel is already open.',
+    pricing: {
+      model: "flat",
+      firstPrice: 225,
+      additionalPrice: 150,
+      unit: "drop",
+      assumptions: [
+        "Attic or basement access to the run",
+        "No finished-ceiling fishing between floors",
+      ],
+    },
+    basis: {
+      hours: [1.25, 2],
+      pace: "about one drop every two hours for the first, then 75 minutes each",
+      note: "Getting into the space costs the same whether you pull one cable or four.",
+    },
+    marketBand: {
+      low: 125,
+      high: 350,
+      unit: "drop",
+      source: "One and Done Prep / Data Wire Solutions, 2026",
+      note: "Isolated single drops sit at the top of this band because minimum labor dominates. Bundling saves $30–$50 a drop, which is why the second one here is cheaper.",
+    },
+    materials: "pass-through",
+    materialsLow: 15,
+    materialsHigh: 45,
+    includes: [
+      "Cable run",
+      "Termination both ends",
+      "Keystone and faceplate",
+      "Certified test result",
+    ],
+    excludes: ["Cable and faceplates", "Fishing walls between finished floors"],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "wifi-ap",
+    name: "Wi-Fi access point or mesh node",
+    category: "smart-home",
+    blurb: "Mounted, wired or meshed, and tuned rather than left on defaults.",
+    description:
+      "Placement, mount, connect, then the part most installs skip: setting channels and power so your nodes stop shouting over each other. Tuning is what separates this from unboxing.",
+    pricing: {
+      model: "flat",
+      firstPrice: 175,
+      additionalPrice: 125,
+      unit: "device",
+      assumptions: [
+        "A drop or power source is already at the location, or an ethernet drop is added",
+      ],
+    },
+    basis: {
+      hours: [1, 1.5],
+      note: "Ninety minutes for the first because the controller and the channel plan get set up once.",
+    },
+    marketBand: {
+      low: 155,
+      high: 645,
+      unit: "device",
+      source: "Homewyse, Jan 2026",
+      note: "The high end of that band includes the hardware. Labor-only network contractors run $50–$100 an hour.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Mounting",
+      "Controller adoption",
+      "Channel and power tuning",
+      "Before-and-after speed check",
+    ],
+    excludes: ["The access point", "The ethernet drop that feeds it"],
+    status: "offered",
+  },
+  {
+    id: "wifi-survey",
+    name: "Whole-home Wi-Fi survey and retune",
+    category: "smart-home",
+    blurb: "Measure the whole house, then fix what the measurements show.",
+    description:
+      "Walk the house with a meter, map the dead spots, then change what needs changing: channels, power, band steering, node placement, firmware. You get the before and after readings, not an assurance.",
+    pricing: {
+      model: "flat",
+      price: 350,
+      unit: "project",
+      assumptions: [
+        "Existing equipment stays; this is tuning, not replacement",
+      ],
+    },
+    basis: {
+      hours: 4,
+      note: "Half the time is walking and measuring. Guessing would be faster and would not work.",
+    },
+    marketBand: {
+      low: 250,
+      high: 1125,
+      unit: "project",
+      source: "HomeGuide, 2026",
+      note: "Whole-home Wi-Fi work averages $690 nationally.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Room-by-room signal map",
+      "Channel and power plan",
+      "Firmware check",
+      "Before and after readings",
+    ],
+    excludes: ["New hardware", "Ethernet drops"],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "network-rack-cleanup",
+    name: "Network rack or panel cleanup",
+    category: "smart-home",
+    blurb: "Half a day turning a rat king into something labelled.",
+    description:
+      "Every cable pulled, measured, re-run to length, terminated where it needs it, dressed, and labelled at both ends. You end up with a panel where the next person, including future you, can tell what goes where.",
+    pricing: {
+      model: "flat",
+      price: 425,
+      unit: "project",
+      assumptions: ["Existing rack or panel stays in place"],
+    },
+    basis: {
+      hours: 4,
+      note: "A half day. Labelling both ends is the part that makes it worth doing at all.",
+    },
+    marketBand: {
+      low: 120,
+      high: 600,
+      unit: "project",
+      source: "Running Cables / Data Wire Solutions, 2026",
+      note: "Residential low-voltage labor runs $30–$150 an hour, and a cleanup is one to four hours depending on how bad it got.",
+    },
+    materials: "pass-through",
+    materialsLow: 20,
+    materialsHigh: 80,
+    includes: [
+      "Re-run to length",
+      "Dressing and management",
+      "Labels at both ends",
+      "A port map you keep",
+    ],
+    excludes: ["New rack hardware", "New drops"],
+    confirmBy: "photos",
+    status: "offered",
+  },
+  {
+    id: "smart-switch",
+    name: "Smart switch or dimmer swap",
+    category: "smart-home",
+    blurb:
+      "Swapped, paired, and named something you will recognise in the app.",
+    description:
+      "Power off at the panel, old switch out, neutral confirmed, new switch in, paired and named. Neutral is the thing that stops these jobs, older Indiana boxes often do not have one, which is why I ask for a photo of the box first.",
+    pricing: {
+      model: "flat",
+      firstPrice: 85,
+      additionalPrice: 65,
+      unit: "device",
+      assumptions: [
+        "A neutral wire is present in the box",
+        "Single-pole or the kit supports 3-way",
+      ],
+    },
+    basis: {
+      hours: [0.75, 1],
+      note: "An hour for the first because the app and hub pairing happens once.",
+    },
+    marketBand: {
+      low: 85,
+      high: 200,
+      unit: "device",
+      source: "HomeGuide / Fixr, 2026",
+      note: "Smart switch installs run $85–$150 nationally; dimmers $80–$200 including the device.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Neutral confirmation",
+      "Pairing and naming",
+      "Function test on every switch in the circuit",
+    ],
+    excludes: ["The switches", "Running a neutral where none exists"],
+    confirmBy: "photos",
+    status: "offered",
+  },
+  {
+    id: "video-doorbell",
+    name: "Video doorbell — existing wiring",
+    category: "smart-home",
+    blurb: "Existing doorbell wiring and chime. Mounted, wired, configured.",
+    description:
+      "Transformer checked first, because an undersized one is the reason most video doorbells reboot themselves forever. Then mount, wire, chime kit if needed, app setup, and motion zones tuned so it is not pinging you about the mailman.",
+    pricing: {
+      model: "flat",
+      price: 175,
+      unit: "project",
+      assumptions: [
+        "Existing doorbell wiring and chime",
+        "Transformer is adequate or a kit handles it",
+      ],
+    },
+    basis: {
+      hours: 2,
+      note: "Half the two hours is app setup and motion-zone tuning, which is the part that decides whether you keep it.",
+    },
+    marketBand: {
+      low: 100,
+      high: 250,
+      unit: "project",
+      source: "Angi, 2026",
+      note: "Labor only.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Transformer check",
+      "Mounting and wiring",
+      "App setup",
+      "Motion zones tuned",
+    ],
+    excludes: ["The doorbell", "Transformer replacement"],
+    status: "offered",
+  },
+  {
+    id: "tv-mount",
+    name: "TV mount",
+    category: "smart-home",
+    blurb: "Into studs, levelled, cables managed.",
+    description:
+      "Studs found and confirmed, mount lagged in, TV hung level, cables managed. Drywall anchors are not a mounting method for a television and I will not use them.",
+    pricing: {
+      model: "flat",
+      price: 225,
+      unit: "project",
+      assumptions: ["Drywall over wood studs", "Mount and TV on site"],
+    },
+    basis: {
+      hours: 2.5,
+      note: "Levelling a full-motion mount on a wall that is not plumb is most of the two and a half hours.",
+    },
+    marketBand: {
+      low: 150,
+      high: 400,
+      unit: "project",
+      source: "Angi / HomeGuide, 2026",
+      note: "National average is $250. Brick, stone, and over-fireplace are not in this band.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Stud location and confirmation",
+      "Levelling",
+      "Cable management",
+    ],
+    excludes: ["The mount and the TV", "Masonry or over-fireplace mounting"],
+    addOns: [
+      {
+        id: "in-wall-conceal",
+        name: "In-wall cable concealment",
+        price: 95,
+        note: "1 hr. Market runs $75–$150 for the same add-on.",
+      },
+    ],
+    status: "offered",
+  },
+
+  // ── Flooring ──────────────────────────────────────────────────────────────
+  {
+    id: "floor-lvp-tile",
+    name: "Floor install — LVP or tile",
+    category: "flooring",
+    blurb:
+      "Per square foot above 100 sq ft. Below that it is a flat price, and here is why.",
+    description:
+      "Above 100 square feet this is honest per-square-foot work and the rate is the rate. Below it, per-square-foot pricing lies. A 40 sq ft guest bath is not a small floor job, it is pulling and resetting the toilet, cutting around the vanity and the flange, undercutting the jamb, and setting a transition. That is five to six hours no matter how small the room is, because mobilisation is a fixed cost. So small rooms get a flat price instead of a rate that would price the job at $140 and lose money on every one.",
+    pricing: {
+      model: "per-unit",
+      rate: 3.25,
+      unit: "sq-ft",
+      flatBelowUnits: 100,
+      flatBelowPrice: [475, 650],
+      assumptions: [
+        "Existing subfloor is sound",
+        "Material on site and acclimated",
+      ],
+    },
+    basis: {
+      hours: [5, 6],
+      pace: "150–250 sq ft a day above the flat-price threshold",
+      note: "Five to six hours is the small-room case. The toilet pull, the jamb undercuts, and the transition do not shrink with the room.",
+    },
+    marketBand: {
+      low: 1.5,
+      high: 4,
+      unit: "sq-ft",
+      source: "D&G Flooring, Apr 2026",
+      note: "Installers drop the rate on large jobs because mobilisation is fixed. $3.25 is mid-band for single rooms, and a whole-house flooring crew will beat it, they should.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Layout",
+      "Cuts and undercuts",
+      "Toilet pull and reset where applicable",
+      "Transitions set",
+    ],
+    excludes: [
+      "Flooring, underlayment, and trim",
+      "Subfloor repair",
+      "Furniture moving",
+    ],
+    addOns: [
+      {
+        id: "demo-haul",
+        name: "Demo and haul-off of existing floor",
+        rate: 1.25,
+        note: "Per square foot of the same floor.",
+      },
+      {
+        id: "transitions",
+        name: "Transitions and quarter round",
+        rate: 4,
+        unit: "linear-ft",
+        note: "Priced by the linear foot of transition, not by the floor area.",
+      },
+    ],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "subfloor-repair",
+    name: "Subfloor repair",
+    category: "flooring",
+    blurb: "Quote only. Nobody can price this before the old floor comes up.",
+    description:
+      "Soft spots, water damage, or a bouncing floor. What is under there decides everything, and anyone who gives you a number before the old floor is off is guessing. This gets quoted after demo, in writing, before any of it is done.",
+    pricing: { model: "quote-only", unit: "room" },
+    basis: {
+      hours: [1, 8],
+      note: "One hour if it is a single sheet. A full day if the joists are involved. That spread is exactly why it is quote-only.",
+    },
+    marketBand: {
+      low: 500,
+      high: 1200,
+      unit: "room",
+      source: "HomeGuide, 2026",
+      note: "Most per-room repairs land here. Severely damaged areas run far above it.",
+    },
+    materials: "pass-through",
+    includes: ["Written quote after demo, before work starts"],
+    excludes: ["Mold remediation", "Structural or joist replacement"],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+
+  // ── Carpentry & Trim ──────────────────────────────────────────────────────
+  {
+    id: "baseboard-new",
+    name: "Baseboard — new install",
+    category: "carpentry",
+    blurb: "Bare walls. Coped inside corners, mitred outside.",
+    description:
+      "New baseboard onto walls that do not have any. Inside corners coped rather than mitred, because coped joints stay closed when the house moves and mitres do not. Nailed to studs, filled, and left ready for paint.",
+    pricing: {
+      model: "per-unit",
+      rate: 4.5,
+      unit: "linear-ft",
+      minimumUnits: 40,
+      assumptions: ["Bare walls, no removal", "Material on site"],
+    },
+    basis: {
+      hours: 1,
+      pace: "about 25 linear feet an hour",
+      note: "The 40-foot minimum is not a sales tactic. Below it, setup and cleanup are most of the visit.",
+    },
+    marketBand: {
+      low: 3,
+      high: 8,
+      unit: "linear-ft",
+      source: "D&G Flooring, Jun 2026",
+      note: "Most jobs land $4–$6. Angi puts labor at $5–$7.75. $4.50 is the bottom of the Midwest band, which is where a solo operator should be.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Coped inside corners",
+      "Nail holes filled",
+      "Cut list and offcuts left tidy",
+    ],
+    excludes: ["The baseboard", "Paint unless added below"],
+    addOns: [
+      { id: "paint-stain", name: "Paint or stain", rate: 1.5 },
+      { id: "quarter-round", name: "Quarter round", rate: 2.5 },
+    ],
+    status: "offered",
+  },
+  {
+    id: "baseboard-replacement",
+    name: "Baseboard — replacement",
+    category: "carpentry",
+    blurb: "Old trim off, wall patched, new trim on.",
+    description:
+      "Higher than new install because removal is the messy half: pulling old trim without tearing the drywall paper, patching what comes off anyway, and prepping the wall before anything new goes on.",
+    pricing: {
+      model: "per-unit",
+      rate: 6,
+      unit: "linear-ft",
+      minimumUnits: 40,
+      assumptions: ["Drywall behind is sound", "Material on site"],
+    },
+    basis: {
+      hours: 1,
+      pace: "about 17 linear feet an hour, removal included",
+      note: "Removal, patch, and prep are roughly a third of the time and all of the mess.",
+    },
+    marketBand: {
+      low: 3,
+      high: 8,
+      unit: "linear-ft",
+      source: "D&G Flooring, Jun 2026",
+      note: "Replacement always sits above new-install pricing in this band; Angi has labor at $5–$7.75.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Careful removal",
+      "Wall patch and prep",
+      "Coped inside corners",
+      "Nail holes filled",
+      "Old trim hauled off",
+    ],
+    excludes: ["The baseboard", "Paint unless added below"],
+    addOns: [
+      { id: "paint-stain", name: "Paint or stain", rate: 1.5 },
+      { id: "quarter-round", name: "Quarter round", rate: 2.5 },
+    ],
+    status: "offered",
+  },
+  {
+    id: "shiplap-wall",
+    name: "Shiplap accent wall",
+    category: "carpentry",
+    blurb:
+      "One wall, laid out from the top down so the last board is not a sliver.",
+    description:
+      "Layout first, the whole difference between a shiplap wall that looks built and one that looks stuck on is whether the top and bottom boards are equal, and that is decided before the first nail. Outlets extended, edges returned, seams staggered off studs.",
+    pricing: {
+      model: "per-unit",
+      rate: 4.75,
+      unit: "sq-ft",
+      minimumUnits: 80,
+      assumptions: [
+        "Flat, framed interior wall",
+        "Material on site and acclimated",
+      ],
+    },
+    basis: {
+      hours: [6, 10],
+      note: "A typical wall is six to ten hours, and the first of those is layout with nothing to show for it.",
+    },
+    marketBand: {
+      low: 3.5,
+      high: 9,
+      unit: "sq-ft",
+      source: "HomeGuide / Adnan, 2026",
+      note: "Handyman-grade shiplap runs $1–$4 a square foot; finish crews $3.50–$9. This is priced as finish carpentry because that is what the wall ends up being.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Layout",
+      "Staggered seams",
+      "Edge returns",
+      "Nail holes filled",
+    ],
+    excludes: ["The shiplap", "Paint unless added below", "Electrical work"],
+    addOns: [
+      { id: "paint-finish", name: "Paint or finish", rate: 1.25 },
+      {
+        id: "box-extenders",
+        name: "Outlet box extenders",
+        rate: 15,
+        unit: "device",
+        note: "Priced per box, not per square foot.",
+      },
+    ],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "board-batten-wall",
+    name: "Board-and-batten accent wall",
+    category: "carpentry",
+    blurb: "More layout than shiplap, and the layout is the price difference.",
+    description:
+      "Battens have to be evenly spaced, plumb, and land sensibly around outlets, switches, and the ends of the wall. That arithmetic is the job. Everything after it is cutting and nailing.",
+    pricing: {
+      model: "per-unit",
+      rate: 5.5,
+      unit: "sq-ft",
+      minimumUnits: 80,
+      assumptions: [
+        "Flat, framed interior wall",
+        "Material on site and acclimated",
+      ],
+    },
+    basis: {
+      hours: [7, 11],
+      note: "Roughly an hour more than the same wall in shiplap, all of it in layout.",
+    },
+    marketBand: {
+      low: 2,
+      high: 8,
+      unit: "sq-ft",
+      source: "Inch Calculator, 2026",
+      note: "Wainscoting labor runs $2–$8 a square foot, and board-and-batten sits above the plain-panel end of it because of the layout.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Batten spacing layout",
+      "Plumb checks on every batten",
+      "Edge returns",
+      "Nail holes filled",
+    ],
+    excludes: ["The material", "Paint unless added below", "Electrical work"],
+    addOns: [
+      { id: "paint-finish", name: "Paint or finish", rate: 1.25 },
+      {
+        id: "box-extenders",
+        name: "Outlet box extenders",
+        rate: 15,
+        unit: "device",
+        note: "Priced per box, not per square foot.",
+      },
+    ],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "door-casing",
+    name: "Door casing",
+    category: "carpentry",
+    blurb: "Per linear foot of casing. A standard opening is about 17 feet.",
+    description:
+      "Casing around a door opening, mitred and reveal-set consistently so all the doors in a hallway match. Priced by the foot rather than by the opening so an oversized or arched opening is not quietly the same price as a standard one.",
+    pricing: {
+      model: "per-unit",
+      rate: 5.5,
+      unit: "linear-ft",
+      assumptions: ["Square opening", "Material on site"],
+    },
+    basis: {
+      hours: 1,
+      pace: "about 20 linear feet an hour",
+      note: "A standard 6′8″ opening is roughly 17 linear feet of casing.",
+    },
+    marketBand: {
+      low: 6,
+      high: 12,
+      unit: "linear-ft",
+      source: "HomeGuide, 2026",
+      note: "The trim-carpentry labor band. Casing is often quoted per opening at $100–$200 including material, which works out to about the same place.",
+    },
+    materials: "client-supplied",
+    includes: ["Consistent reveal", "Mitred corners", "Nail holes filled"],
+    excludes: ["The casing", "Paint"],
+    status: "offered",
+  },
+  {
+    id: "crown-molding",
+    name: "Crown molding",
+    category: "carpentry",
+    blurb: "Corners drive the time, not the footage.",
+    description:
+      "A room with four corners and a room with nine corners have the same linear footage and are not the same job. Priced by the foot with a 40-foot minimum, and the walkthrough is where I count corners and tell you if your room is one of the expensive ones.",
+    pricing: {
+      model: "per-unit",
+      rate: 7.5,
+      unit: "linear-ft",
+      minimumUnits: 40,
+      assumptions: ["Standard ceiling height", "Material on site"],
+    },
+    basis: {
+      hours: 1,
+      pace: "about 11 linear feet an hour",
+      note: "Corners drive the time. Every inside corner is coped, every outside corner is a compound cut fitted to a wall that is not square.",
+    },
+    marketBand: {
+      low: 6,
+      high: 12,
+      unit: "linear-ft",
+      source: "HomeGuide, 2026",
+      note: "One worker at $6 a foot, an expert carpenter up to $12.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Coped inside corners",
+      "Compound-cut outside corners",
+      "Nail holes filled",
+    ],
+    excludes: ["The molding", "Paint", "Ceilings above nine feet"],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "interior-door-slab",
+    name: "Interior door — slab only",
+    category: "carpentry",
+    blurb: "New slab into a jamb that is staying.",
+    description:
+      "The existing jamb and hinge locations stay. New slab mortised for the existing hinges, bored for the hardware, and planed to the reveal. Only works if the jamb is square and sound, which the photos tell me.",
+    pricing: {
+      model: "flat",
+      price: 185,
+      unit: "project",
+      assumptions: [
+        "Existing jamb is square and sound",
+        "Existing hinge locations reused",
+      ],
+    },
+    basis: {
+      hours: 2,
+      note: "Mortising hinges to match an existing jamb is the whole two hours.",
+    },
+    marketBand: {
+      low: 100,
+      high: 300,
+      unit: "project",
+      source: "Angi / HomeGuide, 2026",
+      note: "Labor only, per door.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Hinge mortises",
+      "Hardware bore",
+      "Reveal set and swing checked",
+    ],
+    excludes: ["The door and hardware", "Jamb repair"],
+    confirmBy: "photos",
+    status: "offered",
+  },
+  {
+    id: "interior-door-prehung",
+    name: "Interior door — pre-hung",
+    category: "carpentry",
+    blurb: "Old unit out, new one shimmed plumb, casing on.",
+    description:
+      "Full replacement including the jamb. Shimmed plumb in an opening that is almost certainly not, secured, casing on both sides, and the door checked so it neither swings open nor drifts shut on its own.",
+    pricing: {
+      model: "flat",
+      price: 325,
+      unit: "project",
+      assumptions: [
+        "Rough opening is standard and sound",
+        "No structural work",
+      ],
+    },
+    basis: {
+      hours: 4,
+      note: "Shimming is the job. A pre-hung door hung fast is a door that swings shut by itself for the next ten years.",
+    },
+    marketBand: {
+      low: 150,
+      high: 500,
+      unit: "project",
+      source: "Angi / HomeGuide, 2026",
+      note: "Labor only, per door.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Old unit removal and haul-off",
+      "Shimming and securing",
+      "Casing both sides",
+      "Swing checked",
+    ],
+    excludes: [
+      "The door unit and hardware",
+      "Paint",
+      "Rough opening modification",
+    ],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+
+  // ── Doors & Windows ───────────────────────────────────────────────────────
+  {
+    id: "storm-door",
+    name: "Screen or storm door install",
+    category: "doors",
+    blurb: "Hung, squared, closer set, sweep adjusted.",
+    description:
+      "Storm doors are sold as an easy install and are not, because the opening they go into is rarely square. Hung, checked, closer set to the right tension, sweep adjusted so it seals without dragging.",
+    pricing: {
+      model: "flat",
+      price: 275,
+      unit: "project",
+      assumptions: ["Opening is within tolerance", "Door on site"],
+    },
+    basis: {
+      hours: [2.5, 3],
+      note: "The spread is entirely about how far out of square the opening turns out to be.",
+    },
+    marketBand: {
+      low: 175,
+      high: 350,
+      unit: "project",
+      source: "HomeGuide, 2026",
+      note: "Labor only. Installs typically run 2–4 hours at $60–$150 an hour.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Hanging and squaring",
+      "Closer set",
+      "Sweep adjusted",
+      "Latch aligned",
+    ],
+    excludes: ["The door", "Brickmold or trim work unless added below"],
+    addOns: [
+      {
+        id: "out-of-square",
+        name: "Out-of-square opening — shim and true",
+        price: 95,
+      },
+      { id: "brickmold", name: "New brickmold or trim", price: 125 },
+    ],
+    confirmBy: "photos",
+    status: "offered",
+  },
+
+  // ── General ───────────────────────────────────────────────────────────────
+  {
+    id: "small-mount",
+    name: "Curtain rod, towel bar, shelf, or grab bar",
+    category: "general",
+    blurb:
+      "$65 each, into blocking or proper anchors. The visit minimum applies.",
+    description:
+      "Half an hour each, mounted into studs or blocking where they exist and into the right anchors where they do not. A grab bar into drywall anchors is not a grab bar. One of these on its own hits the visit minimum, so this is the category where it is worth batching.",
+    pricing: {
+      model: "per-unit",
+      rate: 65,
+      unit: "device",
+      assumptions: ["Drywall or wood; tile priced below"],
+    },
+    basis: {
+      hours: 0.5,
+      pace: "about two an hour once I am on site",
+      note: "Half an hour each. The visit is the cost, which is why the second and third one are the good deal, not the first.",
+    },
+    marketBand: {
+      low: 60,
+      high: 350,
+      unit: "device",
+      source: "HomeGuide / Homewyse, 2026",
+      note: "Grab-bar-specific guides run $158–$398 per bar installed. A handyman doing three in one visit is at the bottom of that, which is what this is.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Stud or blocking location",
+      "Correct anchor for the substrate",
+      "Level check",
+      "Load test on grab bars",
+    ],
+    excludes: ["The hardware"],
+    addOns: [
+      {
+        id: "tile-drilling",
+        name: "Drilling into tile",
+        rate: 45,
+        unit: "device",
+        note: "Per item drilled into tile, not per item overall.",
+      },
+    ],
+    status: "offered",
+  },
+  {
+    id: "fixture-swap",
+    name: "Ceiling fan or light fixture swap",
+    category: "general",
+    blurb: "Existing box, existing wiring, like-for-like.",
+    description:
+      "Power off at the panel and confirmed dead, old fixture down, new one up, tested. For a fan the box has to be fan-rated, a light box is not automatically fan-rated, and hanging a fan off one is how ceilings end up on floors.",
+    pricing: {
+      model: "flat",
+      price: 150,
+      unit: "project",
+      assumptions: [
+        "Existing box and wiring",
+        "Box is fan-rated if a fan is going on it",
+      ],
+    },
+    basis: {
+      hours: 1.5,
+      note: "Ninety minutes, most of it overhead with your arms up.",
+    },
+    marketBand: {
+      low: 100,
+      high: 300,
+      unit: "project",
+      source: "HomeGuide, 2026",
+      note: "Labor only for a like-for-like replacement on an existing box.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Circuit confirmed dead",
+      "Box rating checked",
+      "Mounting and wiring",
+      "Function test",
+    ],
+    excludes: ["The fixture", "Box replacement", "New wiring"],
+    status: "offered",
+  },
+  {
+    id: "new-fixture-box",
+    name: "New fixture location or box replacement",
+    category: "general",
+    blurb: "Quote only. No existing box, or the box will not take the load.",
+    description:
+      "There is no box where you want the light, or the box that is there is not rated for a fan. Either means opening the ceiling, and what is above the ceiling decides the price. Quoted in writing after I look.",
+    pricing: { model: "quote-only", unit: "project" },
+    basis: {
+      hours: [0.5, 4],
+      note: "Half an hour if the attic is open above it. Four if it is a finished ceiling with a joist in the way.",
+    },
+    marketBand: {
+      low: 50,
+      high: 150,
+      unit: "project",
+      source: "HomeGuide, 2026",
+      note: "Swapping a non-rated box for a fan-rated one runs $50–$150 when the attic is accessible. New locations in a finished ceiling run well above that.",
+    },
+    materials: "pass-through",
+    includes: ["Written quote before work starts"],
+    excludes: ["New circuits", "Panel work"],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "punch-list-half",
+    name: "Punch list — half day",
+    category: "general",
+    blurb: "Four hours, your list, worst thing first.",
+    description:
+      "For the pile of small things. Send the list ahead, I order it worst-first, and we get through as much of it as four hours allows. Anything left over is on the list for next time rather than rushed.",
+    pricing: {
+      model: "flat",
+      price: 340,
+      unit: "day",
+      assumptions: ["List sent ahead", "Materials on site"],
+    },
+    basis: {
+      hours: 4,
+      note: "Four hours on site. No travel or shopping time billed inside it.",
+    },
+    marketBand: {
+      low: 180,
+      high: 340,
+      unit: "day",
+      source: "HomeBlue (Indianapolis), 2026",
+      note: "Four hours of Indianapolis handyman time runs $180–$340 plus materials. Local solo rates are $65–$95 an hour.",
+    },
+    materials: "pass-through",
+    includes: [
+      "Four hours on site",
+      "Your list, ordered worst-first",
+      "A written note of what was not reached",
+    ],
+    excludes: ["Materials", "Anything that turns out to need a permit"],
+    status: "offered",
+  },
+  {
+    id: "punch-list-full",
+    name: "Punch list — full day",
+    category: "general",
+    blurb: "Eight hours, priced slightly under two halves.",
+    description:
+      "The same thing at double the length, and cheaper by the hour because I only mobilise once. If your list is longer than a half day, this is the one that costs you less.",
+    pricing: {
+      model: "flat",
+      price: 650,
+      unit: "day",
+      assumptions: ["List sent ahead", "Materials on site"],
+    },
+    basis: {
+      hours: 8,
+      note: "Eight hours on site. $650 rather than $680 because one mobilisation covers two halves.",
+    },
+    marketBand: {
+      low: 360,
+      high: 680,
+      unit: "day",
+      source: "HomeBlue (Indianapolis), 2026",
+      note: "Doubled from the local four-hour band, which is an inference rather than a published day rate. Indianapolis solo rates of $65–$95 an hour put a full day at $520–$760.",
+    },
+    materials: "pass-through",
+    includes: [
+      "Eight hours on site",
+      "Your list, ordered worst-first",
+      "A written note of what was not reached",
+    ],
+    excludes: ["Materials", "Anything that turns out to need a permit"],
+    status: "offered",
+  },
+  {
+    id: "walkthrough",
+    name: "Walkthrough and estimate",
+    category: "general",
+    blurb: "Free. It is the underwriting step, not a sales call.",
+    description:
+      "I come out, measure, look at the things that decide the price, the jamb, the box, the subfloor, the panel, and you get a written estimate. It is free because it is how I avoid quoting a job I have not seen, which is a bigger saving to me than the hour costs.",
+    pricing: { model: "flat", price: 0, unit: "project" },
+    basis: {
+      hours: 1,
+      note: "An hour, unbilled. The walkthrough is what makes every other number on this site honest.",
+    },
+    marketBand: {
+      low: 0,
+      high: 175,
+      unit: "project",
+      source: "TM International, Apr 2026",
+      note: "Indianapolis minimum service fees run $95–$175 just to come out. This one is $0.",
+    },
+    materials: "client-supplied",
+    includes: [
+      "Measurements",
+      "A written estimate",
+      "A straight answer about anything I would not take on",
+    ],
+    status: "offered",
+  },
+];

@@ -1,0 +1,40 @@
+# Market band sources
+
+Every `marketBand` in `src/data/services.ts` comes from one of these. The `source` field on a service is the short name; this file carries the link, so a customer who wants to check the band can.
+
+All figures were pulled in August 2026. Bands drift, so re-check anything older than a year before quoting from it.
+
+| Short name in the catalog                     | What it gave us                                                                                                         | Link                                                                                       |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Angi / TapWaterData, 2026                     | Water softener labor $300–$1,250 nationally, $150 floor for a pre-plumbed loop, most homeowners $500–$700               | Carried over from the source catalog note                                                  |
+| Plumbing By The Book / RateYourPlumber, 2026  | Toilet replacement labor $150–$450, same location                                                                       | https://rateyourplumber.com/guides/cost-to-replace-a-toilet                                |
+| HomeGuide, 2026 (faucet)                      | Kitchen faucet labor $120–$250                                                                                          | https://homeguide.com/costs/faucet-installation-cost                                       |
+| HomeGuide, 2026 (disposal)                    | Garbage disposal labor $100–$250                                                                                        | https://homeguide.com/costs/garbage-disposal-installation-cost                             |
+| HomeGuide / Angi, 2026 (vanity)               | Vanity install labor $150–$700 for a premade unit into an existing footprint                                            | https://homeguide.com/costs/bathroom-vanity-installation-cost                              |
+| Angi / HomeGuide, 2026 (smart-home device)    | Per-device smart-home installation $100–$400                                                                            | https://homeguide.com/costs/smart-home-cost                                                |
+| One and Done Prep / Data Wire Solutions, 2026 | Ethernet drops $125–$350 each in a finished home; bundling saves $30–$50 a drop                                         | https://datawiresolutions.com/blog/network-cabling-cost                                    |
+| Homewyse, Jan 2026 (networking)               | Home networking $265–$644 per access point, Wi-Fi install $155–$329 per router                                          | https://homewyse.com/services/cost_to_install_home_networking.html                         |
+| HomeGuide, 2026 (whole-home Wi-Fi)            | Whole-home Wi-Fi $250–$1,125, national average $690                                                                     | https://www.fixr.com/costs/install-wireless-computer-network                               |
+| Running Cables / Data Wire Solutions, 2026    | Residential network labor $30–$150/hr; rack cleanup 1–4 hours                                                           | https://runningcables.com/residential-pricing/                                             |
+| HomeGuide / Fixr, 2026 (switches)             | Smart switch install $85–$150 nationally, dimmer $80–$200 with the device                                               | https://homeguide.com/costs/cost-to-install-or-replace-a-light-switch                      |
+| Angi, 2026 (doorbell)                         | Doorbell install labor $100–$250                                                                                        | https://www.angi.com/articles/doorbell-installation-cost.htm                               |
+| Angi / HomeGuide, 2026 (TV mount)             | TV mounting $150–$400, national average $250; in-wall concealment $75–$150                                              | https://homeguide.com/costs/tv-mount-installation-cost                                     |
+| D&G Flooring, Apr 2026                        | LVP labor $1.50–$4.00/sq ft; installers drop the rate on large jobs                                                     | Carried over from the source catalog note                                                  |
+| HomeGuide, 2026 (subfloor)                    | Subfloor repair $500–$1,200 per room for most jobs                                                                      | https://homeguide.com/costs/cost-to-replace-a-subfloor                                     |
+| D&G Flooring, Jun 2026                        | Baseboard labor $3–$8/lf, most jobs $4–$6; Angi puts it at $5–$7.75                                                     | Carried over from the source catalog note                                                  |
+| HomeGuide / Adnan, 2026                       | Shiplap $1–$4/sq ft handyman, $3.50–$9 finish crew                                                                      | Carried over from the source catalog note                                                  |
+| Inch Calculator, 2026                         | Wainscoting labor $2–$8/sq ft; board-and-batten sits above the plain-panel end                                          | https://www.inchcalculator.com/wainscoting-cost-guide/                                     |
+| HomeGuide, 2026 (trim)                        | Crown molding labor $6/lf for one worker, up to $12 for an expert carpenter; casing $100–$200 per opening with material | https://homeguide.com/costs/crown-molding-cost                                             |
+| Angi / HomeGuide, 2026 (interior doors)       | Interior door labor $100–$300 per door for a slab, $150–$500 for a pre-hung                                             | https://www.angi.com/articles/how-much-does-it-cost-install-interior-door.htm              |
+| HomeGuide, 2026 (storm door)                  | Storm door labor $175–$350; installs run 2–4 hours at $60–$150/hr                                                       | https://homeguide.com/costs/storm-door-installation-cost                                   |
+| HomeGuide / Homewyse, 2026 (small mounts)     | Grab bars $158–$398 per bar installed; a handyman doing three in a visit is at the bottom                               | https://homeguide.com/costs/grab-bar-installation-cost                                     |
+| HomeGuide, 2026 (ceiling fan)                 | Fan or fixture swap labor $100–$300; fan-rated box swap $50–$150                                                        | https://homeguide.com/costs/ceiling-fan-installation-cost                                  |
+| HomeBlue (Indianapolis), 2026                 | Four hours of local handyman time $180–$340 plus materials; solo rates $65–$95/hr                                       | https://www.homeblue.com/handyman/indianapolis-in-handyman-prices.htm                      |
+| TM International, Apr 2026                    | Indianapolis minimum service fees $95–$175; local handyman $65–$125/hr                                                  | https://tmgroupdc.com/blog/handyman-services-in-indianapolis-in-2026-pricing-hiring-guide/ |
+
+## Two bands that are inferences, not published figures
+
+Both are marked in the catalog's `note` field so nobody mistakes them for a quoted source.
+
+- **Punch list, full day.** Doubled from the local four-hour band, because nobody publishes a residential handyman day rate. The Indianapolis solo range of $65–$95/hr independently puts a full day at $520–$760, which brackets the same place.
+- **Board-and-batten accent wall.** Uses the wainscoting labor band, since board-and-batten is a wainscoting style rather than a separately surveyed category.
