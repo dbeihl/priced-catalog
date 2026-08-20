@@ -2,7 +2,7 @@
 
 A static site that answers one question: what should this job cost, and how do you know? Every price ships next to the hours behind it and the market band around it.
 
-Status: **plan, awaiting approval.** Nothing built yet.
+Status: **built and pushed.** All four gates green, screenshots taken at 390px and 1440px. See section 7 for what differs from this plan.
 
 ---
 
