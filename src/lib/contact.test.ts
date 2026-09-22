@@ -41,32 +41,8 @@ describe("walkthrough selection", () => {
 });
 
 describe("contact configuration", () => {
-  it("withholds actions until every contact value is configured", () => {
-    for (const contact of [
-      {
-        email: "TODO_EMAIL",
-        phone: "555-0100",
-        phoneHref: "5550100",
-      },
-      {
-        email: "aaron@example.com",
-        phone: "TODO_PHONE",
-        phoneHref: "5550100",
-      },
-      {
-        email: "aaron@example.com",
-        phone: "555-0100",
-        phoneHref: "TODO_PHONE_DIGITS",
-      },
-    ]) {
-      expect(isContactConfigured(contact)).toBe(false);
-    }
-    expect(
-      isContactConfigured({
-        email: "aaron@example.com",
-        phone: "555-0100",
-        phoneHref: "5550100",
-      }),
-    ).toBe(true);
+  it("withholds actions until the email is configured", () => {
+    expect(isContactConfigured({ email: "TODO_EMAIL" })).toBe(false);
+    expect(isContactConfigured({ email: "aaron@example.com" })).toBe(true);
   });
 });

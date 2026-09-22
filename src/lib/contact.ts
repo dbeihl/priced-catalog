@@ -17,8 +17,6 @@ export function walkthroughSelection(
 
 export interface ContactConfig {
   email: string;
-  phone: string;
-  phoneHref: string;
 }
 
 export function isContactConfigured(contact: ContactConfig) {
