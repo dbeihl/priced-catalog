@@ -153,7 +153,7 @@ All phases complete. `npm run typecheck && npm run lint && npm run test && npm r
 | # | Plan said | Shipped | Why |
 |---|---|---|---|
 | 1 | Focus ring in `--mark` | Focus ring in `--ink`, `--mark` as a backing tint | Yellow on paper measures 1.8:1. A focus indicator needs 3:1, so the ring itself had to be ink. The accent survives as the fill behind it. |
-| 2 | Category filter as a left gutter of ruled tags | Sticky filter bar above the list | The running-tally rail already claims a column. A third column at 1440px left the catalog rows too narrow to hold price, hours, and band on one line. |
+| 2 | Category filter as a left gutter of ruled tags | Filter bar above the list, sticky from `lg` up | The running-tally rail already claims a column. A third column at 1440px left the catalog rows too narrow to hold price, hours, and band on one line. |
 | 3 | `AddOn` exactly as specified | `AddOn` gained an optional `unit` | Correctness, not flexibility. Outlet box extenders are priced per box on a wall measured in square feet, and transitions per linear foot on a floor measured in square feet. Without `unit`, both would multiply by the parent quantity and be wrong by a factor of a hundred. |
 | 4 | Bathroom floor and LVP as separate rows | One service carrying the override | One source of truth for the number. |
 | 5 | — | `SOURCES.md` added | Every band's URL, so a customer can check the band rather than take it on faith. Two bands are inferences rather than published figures and say so in the catalog itself. |
