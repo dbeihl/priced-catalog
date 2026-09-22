@@ -219,7 +219,7 @@ export default function App() {
                 </div>
                 <span
                   aria-hidden="true"
-                  className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2 lg:hidden"
+                  className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2 md:hidden"
                 >
                   Swipe for more categories →
                 </span>
