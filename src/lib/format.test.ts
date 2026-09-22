@@ -16,9 +16,9 @@ describe("headlinePrice", () => {
 });
 
 describe("awaitingPrice", () => {
-  it("sends only painting and small repairs to the quote link", () => {
+  it("sends no service to the quote link after the lead prices are signed off", () => {
     expect(services.filter(awaitingPrice).map((service) => service.id)).toEqual(
-      ["painting", "small-repairs"],
+      [],
     );
   });
 
