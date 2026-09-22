@@ -62,32 +62,42 @@ export function ServiceRow({
           )}
         </div>
 
-        {/* hours — the reason the site exists */}
         <div className="lg:text-right">
-          <span className="fig text-[13px]">
-            {hoursLabel(service.basis.hours)}
-          </span>
-          {service.basis.pace && (
-            <span className="block text-[11px] leading-tight text-ink-2 lg:mt-0.5">
-              {service.basis.pace}
-            </span>
+          {service.basis && (
+            <>
+              <span className="fig text-[13px]">
+                {hoursLabel(service.basis.hours)}
+              </span>
+              {service.basis.pace && (
+                <span className="block text-[11px] leading-tight text-ink-2 lg:mt-0.5">
+                  {service.basis.pace}
+                </span>
+              )}
+            </>
           )}
         </div>
 
-        {/* market band */}
         <div className="min-w-0">
-          <BandRule service={service} />
+          {service.marketBand && <BandRule service={service} />}
         </div>
 
-        {/* add */}
         <div className="lg:text-right">
-          <button
-            type="button"
-            onClick={onAdd}
-            className="border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark"
-          >
-            {inEstimate ? "Add again" : "Add"}
-          </button>
+          {service.pricing.model === "quote-only" ? (
+            <a
+              href="#contact"
+              className="inline-block border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark"
+            >
+              Ask for a quote
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={onAdd}
+              className="border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark"
+            >
+              {inEstimate ? "Add again" : "Add"}
+            </button>
+          )}
         </div>
       </div>
     </li>

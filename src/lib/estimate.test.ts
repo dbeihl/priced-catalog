@@ -150,6 +150,20 @@ describe("rule 3 — visit minimum", () => {
 });
 
 describe("rule 6 — quote-only", () => {
+  it("keeps painting and small repairs out of the priced total", () => {
+    const e = run([
+      { serviceId: "painting" },
+      { serviceId: "small-repairs" },
+    ]);
+    expect(e.lines.map((line) => line.name)).toEqual([
+      "Painting",
+      "Small repairs",
+    ]);
+    expect(e.quoteRequired).toBe(true);
+    expect(e.totalLow).toBe(0);
+    expect(e.totalHigh).toBe(0);
+  });
+
   it("contributes $0 and flags the whole estimate", () => {
     const e = run([{ serviceId: "subfloor-repair" }]);
     expect(e.lines[0]!.low).toBe(0);
@@ -281,13 +295,34 @@ describe("range behaviour", () => {
 });
 
 describe("catalog integrity", () => {
-  it("every service carries a basis and a market band", () => {
+  it("leads with the services Aaron wants to be known for", () => {
+    expect(services.slice(0, 3).map((service) => service.name)).toEqual([
+      "Shiplap accent wall",
+      "Painting",
+      "Small repairs",
+    ]);
+  });
+
+  it("keeps quote-only lead services free of pricing evidence", () => {
+    const quoteOnlyLeads = services.filter((service) =>
+      ["painting", "small-repairs"].includes(service.id),
+    );
+    expect(quoteOnlyLeads).toHaveLength(2);
+    for (const service of quoteOnlyLeads) {
+      expect(service.pricing).toEqual({ model: "quote-only", unit: "project" });
+      expect(service.basis).toBeUndefined();
+      expect(service.marketBand).toBeUndefined();
+    }
+  });
+
+  it("every priced service carries a basis and a market band", () => {
     for (const service of services) {
+      if (service.pricing.model === "quote-only") continue;
       expect(service.basis, service.id).toBeTruthy();
-      expect(service.basis.hours, service.id).toBeDefined();
-      expect(service.marketBand.source, service.id).toBeTruthy();
-      expect(service.marketBand.high, service.id).toBeGreaterThan(
-        service.marketBand.low,
+      expect(service.basis?.hours, service.id).toBeDefined();
+      expect(service.marketBand?.source, service.id).toBeTruthy();
+      expect(service.marketBand?.high, service.id).toBeGreaterThan(
+        service.marketBand?.low ?? 0,
       );
     }
   });

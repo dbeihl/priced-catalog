@@ -23,6 +23,7 @@ export function BandRule({
 }) {
   const position = bandPosition(service);
   const value = bandValue(service);
+  if (!service.marketBand) return null;
   const { low, high, unit, source, note } = service.marketBand;
   const suffix =
     unit === "project" || unit === "room" || unit === "day"

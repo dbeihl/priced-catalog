@@ -1,14 +1,10 @@
 import type { Service } from "../types";
 
 /**
- * Every price here was derived at an $85/hr effective rate (see pricing.effectiveRate
- * in site.config.ts). The rate itself is never rendered, the hours are, so anyone
- * can divide.
- *
- * Every marketBand.source is a real 2026 figure. SOURCES.md carries the URLs.
- * A service without a defensible basis and marketBand does not belong in this file.
+ * Priced entries publish their hours and market bands; SOURCES.md carries the links.
+ * Quote-only entries intentionally omit both until their prices are signed off.
  */
-export const services: Service[] = [
+const catalogServices: Service[] = [
   // ── Water & Plumbing ──────────────────────────────────────────────────────
   {
     id: "softener-existing-loop",
@@ -824,6 +820,32 @@ export const services: Service[] = [
     status: "offered",
   },
   {
+    id: "painting",
+    name: "Painting",
+    category: "general",
+    blurb: "Interior walls, trim, touch-ups, and the prep they need.",
+    description:
+      "Interior painting for walls, trim, touch-ups, and the preparation needed for a durable finish. I confirm the surfaces, prep, paint, and scope in a walkthrough before providing a written quote.",
+    pricing: { model: "quote-only", unit: "project" },
+    materials: "client-supplied",
+    includes: ["Walkthrough", "Scope confirmation", "Written quote"],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
+    id: "small-repairs",
+    name: "Small repairs",
+    category: "general",
+    blurb: "The loose, worn, or damaged things that need attention.",
+    description:
+      "Small household repairs such as loose trim, damaged drywall, sticking doors, and hardware fixes. I look at the condition and materials in a walkthrough, then provide a written quote for the right repair.",
+    pricing: { model: "quote-only", unit: "project" },
+    materials: "client-supplied",
+    includes: ["Walkthrough", "Scope confirmation", "Written quote"],
+    confirmBy: "walkthrough",
+    status: "offered",
+  },
+  {
     id: "board-batten-wall",
     name: "Board-and-batten accent wall",
     category: "carpentry",
@@ -1265,3 +1287,14 @@ export const services: Service[] = [
     status: "offered",
   },
 ];
+
+const leadServiceIds = ["shiplap-wall", "painting", "small-repairs"];
+
+export const services = [...catalogServices].sort((a, b) => {
+  const aIndex = leadServiceIds.indexOf(a.id);
+  const bIndex = leadServiceIds.indexOf(b.id);
+  if (aIndex === -1 && bIndex === -1) return 0;
+  if (aIndex === -1) return 1;
+  if (bIndex === -1) return -1;
+  return aIndex - bIndex;
+});
