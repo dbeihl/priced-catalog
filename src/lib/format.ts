@@ -51,6 +51,11 @@ export function headlinePrice(service: Service): string {
   return money(p.price ?? 0);
 }
 
+/** Services still waiting on a signed-off price get a quote link instead of Add. */
+export function awaitingPrice(service: Service): boolean {
+  return service.basis === undefined;
+}
+
 export function marketBandLabel(service: Service): string {
   if (!service.marketBand) return "";
   const { low, high, unit } = service.marketBand;

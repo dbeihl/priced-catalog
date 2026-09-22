@@ -1,7 +1,13 @@
 import { useEffect, useRef } from "react";
 import type { Service } from "../types";
 import { BandRule } from "./BandRule";
-import { headlinePrice, hoursLabel, money, unitLabel } from "../lib/format";
+import {
+  awaitingPrice,
+  headlinePrice,
+  hoursLabel,
+  money,
+  unitLabel,
+} from "../lib/format";
 import { materialsNote } from "../site.config";
 
 const materialsCopy: Record<Service["materials"], string> = {
@@ -205,7 +211,7 @@ export function DetailPanel({
                 Request a walkthrough
               </a>
             )}
-            {service.pricing.model === "quote-only" ? (
+            {awaitingPrice(service) ? (
               <a
                 href="#contact"
                 onClick={onClose}

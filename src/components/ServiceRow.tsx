@@ -1,6 +1,6 @@
 import type { Category, Service } from "../types";
 import { BandRule } from "./BandRule";
-import { headlinePrice, hoursLabel, unitLabel } from "../lib/format";
+import { awaitingPrice, headlinePrice, hoursLabel, unitLabel } from "../lib/format";
 
 const tagColor: Record<Category, string> = {
   water: "var(--tag-water)",
@@ -82,7 +82,7 @@ export function ServiceRow({
         </div>
 
         <div className="lg:text-right">
-          {service.pricing.model === "quote-only" ? (
+          {awaitingPrice(service) ? (
             <a
               href="#contact"
               className="inline-block border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark"
