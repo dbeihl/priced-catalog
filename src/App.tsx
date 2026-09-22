@@ -179,40 +179,50 @@ export default function App() {
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-8">
           <main id="catalog" className="scroll-mt-4">
             {/* ── Filters ── */}
-            <div className="sticky top-0 z-[5] -mx-4 border-b border-rule bg-paper px-4 py-3 lg:mx-0 lg:px-0">
+            <div className="-mx-4 border-b border-rule bg-paper px-4 py-3 lg:sticky lg:top-0 lg:z-[5] lg:mx-0 lg:px-0">
               <label className="block">
                 <span className="sr-only">Search services</span>
                 <input
                   type="search"
+                  id="catalog-search"
+                  name="catalog-search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search the catalog"
                   className="w-full border border-rule bg-field px-3 py-2 text-[14px]"
                 />
               </label>
-              <div
-                role="group"
-                aria-label="Filter by category"
-                className="mt-2 flex gap-1.5 overflow-x-auto pb-1"
-              >
-                {(["all", ...categoryOrder] as const).map((c) => {
-                  const active = category === c;
-                  return (
-                    <button
-                      key={c}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => setCategory(c)}
-                      className={`shrink-0 border px-2.5 py-1 text-[12px] ${
-                        active
-                          ? "border-ink bg-mark font-medium"
-                          : "border-rule bg-field text-ink-2"
-                      }`}
-                    >
-                      {c === "all" ? "Everything" : categoryNames[c]}
-                    </button>
-                  );
-                })}
+              <div className="mt-2">
+                <div
+                  role="group"
+                  aria-label="Filter by category"
+                  className="flex gap-1.5 overflow-x-auto pb-1"
+                >
+                  {(["all", ...categoryOrder] as const).map((c) => {
+                    const active = category === c;
+                    return (
+                      <button
+                        key={c}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setCategory(c)}
+                        className={`min-h-11 shrink-0 border px-2.5 py-1 text-[12px] ${
+                          active
+                            ? "border-ink bg-mark font-medium"
+                            : "border-rule bg-field text-ink-2"
+                        }`}
+                      >
+                        {c === "all" ? "Everything" : categoryNames[c]}
+                      </button>
+                    );
+                  })}
+                </div>
+                <span
+                  aria-hidden="true"
+                  className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2 md:hidden"
+                >
+                  Swipe for more categories →
+                </span>
               </div>
             </div>
 
