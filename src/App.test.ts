@@ -98,5 +98,14 @@ describe("catalog form fields", () => {
     expect(page).toContain(
       'name="estimate[mobile][17][box-extenders][quantity]"',
     );
+
+    const inputs = page.match(/<input\b[^>]*>/g) ?? [];
+    expect(inputs.length).toBeGreaterThan(0);
+    for (const input of inputs) {
+      expect(input).toMatch(/\bid="[^"]+"/);
+      expect(input).toMatch(/\bname="[^"]+"/);
+    }
+    expect(page).toContain('id="estimate-desktop-addon-17-box-extenders"');
+    expect(page).toContain('name="estimate[mobile][17][box-extenders][on]"');
   });
 });

@@ -121,6 +121,8 @@ function Body({
                         <label className="flex items-center gap-1.5 text-[12px]">
                           <input
                             type="checkbox"
+                            id={`estimate-${fieldNamespace}-addon-${selection.key}-${addOn.id}`}
+                            name={`estimate[${fieldNamespace}][${selection.key}][${addOn.id}][on]`}
                             checked={on}
                             onChange={() =>
                               onToggleAddOn(selection.key, addOn.id)
