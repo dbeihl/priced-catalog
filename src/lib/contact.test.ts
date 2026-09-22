@@ -2,14 +2,15 @@ import { describe, expect, it } from "vitest";
 import { buildWalkthroughMailto, isContactConfigured } from "./contact";
 
 describe("walkthrough email", () => {
-  it("builds an email with the selected service quantities and no pricing", () => {
+  it("builds an email with the selected service quantities in their units and no pricing", () => {
     expect(
       buildWalkthroughMailto("aaron@example.com", [
-        { name: "Faucet replacement", quantity: 2 },
-        { name: "TV mount", quantity: 1 },
+        { name: "Faucet replacement", quantity: 2, unit: "each" },
+        { name: "Baseboard", quantity: 120, unit: "linear ft" },
+        { name: "TV mount" },
       ]),
     ).toBe(
-      "mailto:aaron@example.com?subject=Walkthrough%20request&body=Hi%20Aaron%2C%0A%0AI%27d%20like%20to%20request%20a%20walkthrough%20for%3A%0A-%202%20%C3%97%20Faucet%20replacement%0A-%201%20%C3%97%20TV%20mount%0A%0AThank%20you.",
+      "mailto:aaron@example.com?subject=Walkthrough%20request&body=Hi%2C%0A%0AI%27d%20like%20to%20request%20a%20walkthrough%20for%3A%0A-%20Faucet%20replacement%3A%202%20each%0A-%20Baseboard%3A%20120%20linear%20ft%0A-%20TV%20mount%0A%0AThank%20you.",
     );
   });
 });

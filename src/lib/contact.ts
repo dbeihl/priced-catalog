@@ -1,7 +1,6 @@
-export interface WalkthroughSelection {
-  name: string;
-  quantity: number;
-}
+export type WalkthroughSelection =
+  | { name: string }
+  | { name: string; quantity: number; unit: string };
 
 export interface ContactConfig {
   email: string;
@@ -19,10 +18,14 @@ export function buildWalkthroughMailto(
 ) {
   const subject = "Walkthrough request";
   const body = [
-    "Hi Aaron,",
+    "Hi,",
     "",
     "I'd like to request a walkthrough for:",
-    ...selections.map(({ name, quantity }) => `- ${quantity} × ${name}`),
+    ...selections.map((selection) =>
+      "quantity" in selection
+        ? `- ${selection.name}: ${selection.quantity} ${selection.unit}`
+        : `- ${selection.name}`,
+    ),
     "",
     "Thank you.",
   ].join("\n");
