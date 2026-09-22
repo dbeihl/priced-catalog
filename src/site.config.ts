@@ -6,10 +6,10 @@ import type { Category } from "./types";
  * (src/lib/contact.ts checks the prefix to hide contact actions until set).
  */
 export const site = {
-  name: "TODO_NAME",
+  name: "Kamotec Services",
   tagline:
     "Published prices, the hours behind them, and what the market charges.",
-  serviceArea: "TODO_AREA",
+  serviceArea: "Indiana and Kentucky",
   email: "TODO_EMAIL",
   phone: "TODO_PHONE",
   /** Digits only, for the tel: href. */
