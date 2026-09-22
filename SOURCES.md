@@ -1,6 +1,6 @@
 # Market band sources
 
-Every `marketBand` in `src/data/services.ts` comes from one of these. The `source` field on a service is the short name; this file carries the link, so a customer who wants to check the band can.
+Every `marketBand` in `src/data/services.ts` comes from one of these. A service's `marketBand.sourceKey` names its row here by short name, and `source` is the label the customer sees; this file carries the link, so a customer who wants to check the band can.
 
 All figures were pulled in August 2026. Bands drift, so re-check anything older than a year before quoting from it.
 
