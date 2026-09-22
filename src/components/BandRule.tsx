@@ -6,6 +6,25 @@ import {
   marketBandLabel,
   perUnit,
 } from "../lib/format";
+import { sourceForService } from "../data/sources";
+
+function SourceCitation({ service }: { service: Service }) {
+  const citation = sourceForService(service.id);
+  const label = service.marketBand.source;
+
+  if (!citation?.url) return <>{label}</>;
+
+  return (
+    <a
+      href={citation.url}
+      target="_blank"
+      rel="noreferrer"
+      className="underline decoration-rule underline-offset-2 hover:decoration-ink"
+    >
+      {label}
+    </a>
+  );
+}
 
 /**
  * The signature element: a measured scale spanning the market band, with his
@@ -24,7 +43,7 @@ export function BandRule({
   const position = bandPosition(service);
   const value = bandValue(service);
   if (!service.marketBand) return null;
-  const { low, high, unit, source, note } = service.marketBand;
+  const { low, high, unit, note } = service.marketBand;
   const suffix =
     unit === "project" || unit === "room" || unit === "day"
       ? ""
@@ -33,7 +52,7 @@ export function BandRule({
   if (position === null || value === null) {
     return (
       <p className="fig text-[11px] leading-tight text-ink-2">
-        Market {marketBandLabel(service)} · {source}
+        Market {marketBandLabel(service)} · <SourceCitation service={service} />
       </p>
     );
   }
@@ -72,7 +91,7 @@ export function BandRule({
 
       {expanded && (
         <p className="mt-1.5 text-[12px] leading-snug text-ink-2">
-          Source: {source}
+          Source: <SourceCitation service={service} />
           {note ? `. ${note}` : ""}
         </p>
       )}
