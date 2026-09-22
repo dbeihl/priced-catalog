@@ -1,7 +1,13 @@
 import { useEffect, useRef } from "react";
 import type { Service } from "../types";
 import { BandRule } from "./BandRule";
-import { headlinePrice, hoursLabel, money, unitLabel } from "../lib/format";
+import {
+  awaitingPrice,
+  headlinePrice,
+  hoursLabel,
+  money,
+  unitLabel,
+} from "../lib/format";
 import { materialsNote } from "../site.config";
 
 const materialsCopy: Record<Service["materials"], string> = {
@@ -70,9 +76,11 @@ export function DetailPanel({
               </h2>
               <p className="fig mt-1 text-[15px]">
                 {headlinePrice(service)}
-                <span className="ml-2 text-[13px] text-ink-2">
-                  {hoursLabel(service.basis.hours)}
-                </span>
+                {service.basis && (
+                  <span className="ml-2 text-[13px] text-ink-2">
+                    {hoursLabel(service.basis.hours)}
+                  </span>
+                )}
               </p>
             </div>
             <button
@@ -87,21 +95,25 @@ export function DetailPanel({
           <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
             <p className="text-[14px] leading-relaxed">{service.description}</p>
 
-            <Section title="Where this number comes from">
-              <p className="text-[14px] leading-relaxed">
-                {hoursLabel(service.basis.hours)} of work.
-                {service.basis.pace ? ` Pace is ${service.basis.pace}.` : ""}
-              </p>
-              {service.basis.note && (
-                <p className="mt-1.5 text-[14px] leading-relaxed text-ink-2">
-                  {service.basis.note}
+            {service.basis && (
+              <Section title="Where this number comes from">
+                <p className="text-[14px] leading-relaxed">
+                  {hoursLabel(service.basis.hours)} of work.
+                  {service.basis.pace ? ` Pace is ${service.basis.pace}.` : ""}
                 </p>
-              )}
-            </Section>
+                {service.basis.note && (
+                  <p className="mt-1.5 text-[14px] leading-relaxed text-ink-2">
+                    {service.basis.note}
+                  </p>
+                )}
+              </Section>
+            )}
 
-            <Section title="What the market charges">
-              <BandRule service={service} expanded />
-            </Section>
+            {service.marketBand && (
+              <Section title="What the market charges">
+                <BandRule service={service} expanded />
+              </Section>
+            )}
 
             {service.pricing.assumptions &&
               service.pricing.assumptions.length > 0 && (
@@ -199,13 +211,23 @@ export function DetailPanel({
                 Request a walkthrough
               </a>
             )}
-            <button
-              type="button"
-              onClick={() => onAdd(service.id)}
-              className="w-full border border-ink bg-mark px-3 py-2 text-[13px] font-semibold hover:bg-transparent"
-            >
-              Add to estimate
-            </button>
+            {awaitingPrice(service) ? (
+              <a
+                href="#contact"
+                onClick={onClose}
+                className="block w-full border border-ink bg-mark px-3 py-2 text-center text-[13px] font-semibold hover:bg-transparent"
+              >
+                Ask for a quote
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onAdd(service.id)}
+                className="w-full border border-ink bg-mark px-3 py-2 text-[13px] font-semibold hover:bg-transparent"
+              >
+                Add to estimate
+              </button>
+            )}
           </footer>
         </div>
       )}

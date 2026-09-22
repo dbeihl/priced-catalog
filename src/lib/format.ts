@@ -36,7 +36,7 @@ export function hoursLabel(hours: number | [number, number]): string {
 /** The headline price for a catalog row. */
 export function headlinePrice(service: Service): string {
   const p = service.pricing;
-  if (p.model === "quote-only") return "Quote";
+  if (p.model === "quote-only") return "Ask for a quote";
   if (p.firstPrice !== undefined) {
     const additional = p.additionalPrice;
     return additional === undefined
@@ -51,7 +51,13 @@ export function headlinePrice(service: Service): string {
   return money(p.price ?? 0);
 }
 
+/** Services still waiting on a signed-off price get a quote link instead of Add. */
+export function awaitingPrice(service: Service): boolean {
+  return service.basis === undefined;
+}
+
 export function marketBandLabel(service: Service): string {
+  if (!service.marketBand) return "";
   const { low, high, unit } = service.marketBand;
   const suffix =
     unit === "project" || unit === "room" || unit === "day"
@@ -66,6 +72,7 @@ export function marketBandLabel(service: Service): string {
  */
 export function bandPosition(service: Service): number | null {
   const p = service.pricing;
+  if (!service.marketBand) return null;
   const value =
     p.rate ??
     p.firstPrice ??

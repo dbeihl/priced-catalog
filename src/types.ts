@@ -45,13 +45,12 @@ export interface Service {
     assumptions?: string[];
   };
 
-  // The reason this site exists. Required, not optional.
-  basis: {
+  basis?: {
     hours: number | [number, number];
     pace?: string;
     note?: string;
   };
-  marketBand: {
+  marketBand?: {
     low: number;
     high: number;
     unit: Unit;
