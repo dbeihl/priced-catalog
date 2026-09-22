@@ -20,45 +20,47 @@ let nextKey = 1;
 
 function HowToRead() {
   return (
-    <details className="mt-5 border border-rule bg-field p-4 lg:mt-0">
-      <summary className="cursor-pointer text-[11px] uppercase tracking-wider text-ink-2 marker:text-ink">
-        How to read a row
-      </summary>
-      <dl className="mt-3 space-y-3 border-t border-rule pt-3 text-[12px] leading-snug">
-        <div className="flex gap-3">
-          <dt className="fig w-[7rem] shrink-0 font-medium">
-            $4.50/linear ft
-          </dt>
-          <dd className="text-ink-2">what he charges</dd>
-        </div>
-        <div className="flex gap-3">
-          <dt className="fig w-[7rem] shrink-0">25 ft an hour</dt>
-          <dd className="text-ink-2">
-            the pace behind it, so you can do the division yourself
-          </dd>
-        </div>
-        <div className="flex gap-3">
-          <dt className="w-[7rem] shrink-0 pt-1">
-            <span aria-hidden="true" className="relative block h-2 w-full">
-              <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-rule" />
-              <span className="absolute left-0 top-0 bottom-0 w-px bg-rule" />
-              <span className="absolute right-0 top-0 bottom-0 w-px bg-rule" />
-              <span
-                className="absolute top-0 bottom-0 w-[3px] -translate-x-1/2 bg-mark ring-1 ring-ink/80"
-                style={{ left: "30%" }}
-              />
-            </span>
-          </dt>
-          <dd className="text-ink-2">
-            what the going rate is for the same job, with his price marked
-            inside it
-          </dd>
-        </div>
-      </dl>
+    <div className="mt-5 border border-rule bg-field p-4 lg:mt-0">
+      <details>
+        <summary className="cursor-pointer text-[11px] uppercase tracking-wider text-ink-2 marker:text-ink">
+          How to read a row
+        </summary>
+        <dl className="mt-3 space-y-3 border-t border-rule pt-3 text-[12px] leading-snug">
+          <div className="flex gap-3">
+            <dt className="fig w-[7rem] shrink-0 font-medium">
+              $4.50/linear ft
+            </dt>
+            <dd className="text-ink-2">what he charges</dd>
+          </div>
+          <div className="flex gap-3">
+            <dt className="fig w-[7rem] shrink-0">25 ft an hour</dt>
+            <dd className="text-ink-2">
+              the pace behind it, so you can do the division yourself
+            </dd>
+          </div>
+          <div className="flex gap-3">
+            <dt className="w-[7rem] shrink-0 pt-1">
+              <span aria-hidden="true" className="relative block h-2 w-full">
+                <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-rule" />
+                <span className="absolute left-0 top-0 bottom-0 w-px bg-rule" />
+                <span className="absolute right-0 top-0 bottom-0 w-px bg-rule" />
+                <span
+                  className="absolute top-0 bottom-0 w-[3px] -translate-x-1/2 bg-mark ring-1 ring-ink/80"
+                  style={{ left: "30%" }}
+                />
+              </span>
+            </dt>
+            <dd className="text-ink-2">
+              what the going rate is for the same job, with his price marked
+              inside it
+            </dd>
+          </div>
+        </dl>
+      </details>
       <p className="mt-3 border-t border-rule pt-3 text-[12px] leading-snug text-ink-2">
         Nothing here is a quote until a walkthrough confirms it.
       </p>
-    </details>
+    </div>
   );
 }
 
@@ -159,7 +161,7 @@ export default function App() {
         </header>
 
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-8">
-          <main>
+          <main id="catalog" className="scroll-mt-4">
             {/* ── Filters ── */}
             <div className="sticky top-0 z-[5] -mx-4 border-b border-rule bg-paper px-4 py-3 lg:mx-0 lg:px-0">
               <label className="block">
@@ -199,7 +201,7 @@ export default function App() {
             </div>
 
             {/* ── Catalog ── */}
-            <div id="catalog" className="min-h-[70dvh] scroll-mt-4">
+            <div className="min-h-[70dvh]">
               <p className="fig py-3 text-[11px] uppercase tracking-wider text-ink-2">
                 {visible.length} of {services.length} services
               </p>
