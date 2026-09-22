@@ -2,6 +2,9 @@ import type { AddOn, Service } from "../types";
 
 /** Pure. No React, no DOM, no imports from site.config beyond plain numbers passed in. */
 
+export const needsQuantity = (s: Service) =>
+  s.pricing.model === "per-unit" || s.pricing.firstPrice !== undefined;
+
 export interface AddOnSelection {
   id: string;
   /** Only read for add-ons that carry their own `unit` (see AddOn.unit). */

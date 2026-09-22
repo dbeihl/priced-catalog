@@ -4,7 +4,7 @@ A website that publishes your prices next to the hours behind them and what the 
 
 Everything you would want to change lives in two files:
 
-- `src/site.config.ts` — your name, service area, email, phone, the visit minimum, and the draft-pricing banner.
+- `src/site.config.ts` — your name, service area, email, phone, the visit minimum, and the draft-pricing banner. The "Request a walkthrough" buttons and the email and phone links stay hidden until the email and both phone values no longer start with `TODO_`.
 - `src/data/services.ts` — every service and every price.
 
 You do not need to understand the rest of the code to change either one.
