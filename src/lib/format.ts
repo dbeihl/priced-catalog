@@ -21,6 +21,7 @@ export const unitLabel: Record<Unit, string> = {
   device: "each",
   drop: "drop",
   room: "room",
+  visit: "visit",
   day: "day",
 };
 

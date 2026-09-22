@@ -31,6 +31,8 @@ All figures were pulled in August 2026. Bands drift, so re-check anything older 
 | HomeGuide, 2026 (ceiling fan)                 | Fan or fixture swap labor $100–$300; fan-rated box swap $50–$150                                                        | https://homeguide.com/costs/ceiling-fan-installation-cost                                  |
 | HomeBlue (Indianapolis), 2026                 | Four hours of local handyman time $180–$340 plus materials; solo rates $65–$95/hr                                       | https://www.homeblue.com/handyman/indianapolis-in-handyman-prices.htm                      |
 | TM International, Apr 2026                    | Indianapolis minimum service fees $95–$175; local handyman $65–$125/hr                                                  | https://tmgroupdc.com/blog/handyman-services-in-indianapolis-in-2026-pricing-hiring-guide/ |
+| This Old House, Apr 2026                      | Interior bedroom painting $300–$800 nationally; professional project prices include materials                           | https://www.thisoldhouse.com/painting/interior-painting-cost                               |
+| TM International, Apr 2026 (small repairs)    | Indianapolis small-repair projects $150–$450                                                                            | https://tmgroupdc.com/blog/handyman-services-in-indianapolis-in-2026-pricing-hiring-guide/ |
 
 ## Two bands that are inferences, not published figures
 

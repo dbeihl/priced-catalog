@@ -130,7 +130,7 @@ Copy an existing service block that is closest to the one you want, paste it dir
   },
 ```
 
-A priced service needs both `basis` and `marketBand`. If you cannot say how many hours a job takes and what other people charge for it, its price is not ready yet. Until it is, list it with `pricing: { model: "quote-only", unit: "project" }` and leave out `basis` and `marketBand`. The site then shows "Ask for a quote" with a link to the contact section instead of an Add button, the way Painting and Small repairs work.
+A priced service needs both `basis` and `marketBand`. If you cannot say how many hours a job takes and what other people charge for it, its price is not ready yet. Until it is, list it with `pricing: { model: "quote-only", unit: "project" }` and leave out `basis` and `marketBand`. The site then shows "Ask for a quote" with a link to the contact section instead of an Add button.
 
 ## 4. Hide a service
 

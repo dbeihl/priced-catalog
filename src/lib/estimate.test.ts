@@ -150,15 +150,11 @@ describe("rule 3 — visit minimum", () => {
 });
 
 describe("rule 6 — quote-only", () => {
-  it("keeps painting and small repairs out of the priced total", () => {
+  it("keeps other quote-only work out of the priced total", () => {
     const e = run([
-      { serviceId: "painting" },
-      { serviceId: "small-repairs" },
+      { serviceId: "subfloor-repair" },
     ]);
-    expect(e.lines.map((line) => line.name)).toEqual([
-      "Painting",
-      "Small repairs",
-    ]);
+    expect(e.lines.map((line) => line.name)).toEqual(["Subfloor repair"]);
     expect(e.quoteRequired).toBe(true);
     expect(e.totalLow).toBe(0);
     expect(e.totalHigh).toBe(0);
@@ -204,6 +200,24 @@ describe("rule 6 — quote-only", () => {
     const e = run([{ serviceId: "no-such-service" }, { serviceId: "tv-mount" }]);
     expect(e.lines).toHaveLength(1);
     expect(e.totalLow).toBe(225);
+  });
+});
+
+describe("signed-off lead services", () => {
+  it("adds the bedroom repaint for its literal $510 total", () => {
+    const e = run([{ serviceId: "painting" }]);
+
+    expect(e.quoteRequired).toBe(false);
+    expect(e.totalLow).toBe(510);
+    expect(e.totalHigh).toBe(510);
+  });
+
+  it("adds the two-hour repair visit for its literal $170 total", () => {
+    const e = run([{ serviceId: "small-repairs" }]);
+
+    expect(e.quoteRequired).toBe(false);
+    expect(e.totalLow).toBe(170);
+    expect(e.totalHigh).toBe(170);
   });
 });
 
@@ -298,21 +312,41 @@ describe("catalog integrity", () => {
   it("leads with the services Aaron wants to be known for", () => {
     expect(services.slice(0, 3).map((service) => service.name)).toEqual([
       "Shiplap accent wall",
-      "Painting",
-      "Small repairs",
+      "Interior bedroom repaint",
+      "Two-hour repair visit",
     ]);
   });
 
-  it("keeps quote-only lead services free of pricing evidence", () => {
-    const quoteOnlyLeads = services.filter((service) =>
-      ["painting", "small-repairs"].includes(service.id),
+  it("keeps the signed-off lead services at their approved prices and hours", () => {
+    const painting = services.find((service) => service.id === "painting");
+    const smallRepairs = services.find(
+      (service) => service.id === "small-repairs",
     );
-    expect(quoteOnlyLeads).toHaveLength(2);
-    for (const service of quoteOnlyLeads) {
-      expect(service.pricing).toEqual({ model: "quote-only", unit: "project" });
-      expect(service.basis).toBeUndefined();
-      expect(service.marketBand).toBeUndefined();
-    }
+
+    expect(painting?.pricing).toMatchObject({
+      model: "flat",
+      price: 510,
+      unit: "room",
+    });
+    expect(painting?.basis?.hours).toBe(6);
+    expect(painting?.marketBand).toMatchObject({
+      low: 300,
+      high: 800,
+      unit: "room",
+      source: "This Old House, Apr 2026",
+    });
+    expect(smallRepairs?.pricing).toMatchObject({
+      model: "flat",
+      price: 170,
+      unit: "visit",
+    });
+    expect(smallRepairs?.basis?.hours).toBe(2);
+    expect(smallRepairs?.marketBand).toMatchObject({
+      low: 150,
+      high: 450,
+      unit: "project",
+      source: "TM International, Apr 2026 (small repairs)",
+    });
   });
 
   it("every priced service carries a basis and a market band", () => {

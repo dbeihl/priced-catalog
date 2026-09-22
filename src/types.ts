@@ -1,6 +1,13 @@
 export type PricingModel = "flat" | "range" | "per-unit" | "quote-only";
 export type Unit =
-  "project" | "linear-ft" | "sq-ft" | "device" | "drop" | "room" | "day";
+  | "project"
+  | "linear-ft"
+  | "sq-ft"
+  | "device"
+  | "drop"
+  | "room"
+  | "visit"
+  | "day";
 
 export type Category =
   "water" | "smart-home" | "flooring" | "carpentry" | "doors" | "general";
