@@ -47,42 +47,26 @@ function setMeta(
   key: string,
   content: string | undefined,
 ) {
-  const selector = `meta[${attribute}="${key}"]`;
-  const existing = document.head.querySelector<HTMLMetaElement>(selector);
-  if (!content) {
-    existing?.remove();
-    return;
-  }
-
-  const element = existing ?? document.createElement("meta");
+  if (!content) return;
+  const element = document.createElement("meta");
   element.setAttribute(attribute, key);
   element.content = content;
-  if (!existing) document.head.append(element);
+  document.head.append(element);
 }
 
 export function applyMetadata(site: SiteMetadataInput) {
   const metadata = buildMetadata(site);
-  if (metadata.title) {
-    document.title = metadata.title;
-  } else {
-    document.head.querySelector("title")?.remove();
-  }
+  if (metadata.title) document.title = metadata.title;
   setMeta("name", "description", metadata.description);
   setMeta("property", "og:title", metadata.openGraph.title);
   setMeta("property", "og:description", metadata.openGraph.description);
   setMeta("property", "og:url", metadata.openGraph.url);
   setMeta("property", "og:image", metadata.openGraph.image);
 
-  const canonical = document.head.querySelector<HTMLLinkElement>(
-    'link[rel="canonical"]',
-  );
-  if (!metadata.canonical) {
-    canonical?.remove();
-    return;
+  if (metadata.canonical) {
+    const link = document.createElement("link");
+    link.rel = "canonical";
+    link.href = metadata.canonical;
+    document.head.append(link);
   }
-
-  const link = canonical ?? document.createElement("link");
-  link.rel = "canonical";
-  link.href = metadata.canonical;
-  if (!canonical) document.head.append(link);
 }
