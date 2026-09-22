@@ -1,5 +1,9 @@
 import type { Service } from "../types";
-import type { Estimate, LineSelection } from "../lib/estimate";
+import {
+  needsQuantity,
+  type Estimate,
+  type LineSelection,
+} from "../lib/estimate";
 import { money, moneyRange, unitLabel } from "../lib/format";
 import { disclaimer, materialsNote, pricing } from "../site.config";
 
@@ -17,9 +21,6 @@ interface Props {
   onRemove: (key: number) => void;
   walkthroughHref?: string;
 }
-
-const needsQuantity = (s: Service) =>
-  s.pricing.model === "per-unit" || s.pricing.firstPrice !== undefined;
 
 function Total({ estimate }: { estimate: Estimate }) {
   if (estimate.isEmpty)

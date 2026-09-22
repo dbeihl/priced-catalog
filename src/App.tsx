@@ -2,8 +2,11 @@ import { useMemo, useState } from "react";
 import type { Category, Service } from "./types";
 import { services } from "./data/services";
 import { calculateEstimate } from "./lib/estimate";
-import { buildWalkthroughMailto, isContactConfigured } from "./lib/contact";
-import { unitLabel } from "./lib/format";
+import {
+  buildWalkthroughMailto,
+  isContactConfigured,
+  walkthroughSelection,
+} from "./lib/contact";
 import {
   categoryNames,
   categoryOrder,
@@ -98,13 +101,7 @@ export default function App() {
         selections.flatMap((selection) => {
           const service = services.find((item) => item.id === selection.serviceId);
           return service
-            ? [
-                {
-                  name: service.name,
-                  quantity: selection.quantity ?? 1,
-                  unit: unitLabel[service.pricing.unit],
-                },
-              ]
+            ? [walkthroughSelection(service, selection.quantity)]
             : [];
         }),
       )
