@@ -6,10 +6,9 @@ export function SourceRegistry() {
       <h2 className="text-[20px] font-semibold">Market band sources</h2>
       <div className="mt-2 max-w-3xl space-y-2 text-[14px] leading-relaxed text-ink-2">
         <p>
-          Every <code>marketBand</code> in <code>src/data/services.ts</code>{" "}
-          comes from one of these. The <code>source</code> field on a service
-          is the short name; this file carries the link, so a customer who
-          wants to check the band can.
+          Every market range on this page comes from one of these published
+          cost guides. Where a guide is online, the link is here so you can
+          check the range yourself.
         </p>
         <p>
           All figures were pulled in August 2026. Bands drift, so re-check
@@ -21,8 +20,8 @@ export function SourceRegistry() {
         <table className="w-full min-w-[46rem] border-collapse text-left text-[12px] leading-snug">
           <thead className="border-b border-rule bg-paper text-[11px] uppercase tracking-wider text-ink-2">
             <tr>
-              <th className="px-3 py-2 font-medium">Short name in the catalog</th>
-              <th className="px-3 py-2 font-medium">What it gave us</th>
+              <th className="px-3 py-2 font-medium">Source</th>
+              <th className="px-3 py-2 font-medium">What it says</th>
               <th className="px-3 py-2 font-medium">Link</th>
             </tr>
           </thead>
@@ -46,7 +45,7 @@ export function SourceRegistry() {
                       {source.url}
                     </a>
                   ) : (
-                    "Carried over from the source catalog note"
+                    "No public link"
                   )}
                 </td>
               </tr>
@@ -60,8 +59,8 @@ export function SourceRegistry() {
           Two bands that are inferences, not published figures
         </h3>
         <p className="mt-1">
-          Both are marked in the catalog&apos;s <code>note</code> field so nobody
-          mistakes them for a quoted source.
+          Both are noted next to their range so nobody mistakes them for a
+          quoted figure.
         </p>
         <ul className="mt-2 space-y-2">
           {sourceNotes.map((note) => (

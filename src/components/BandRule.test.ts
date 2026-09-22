@@ -28,4 +28,14 @@ describe("BandRule source citation", () => {
     expect(markup).toContain("Angi / TapWaterData, 2026");
     expect(markup).not.toContain("<a");
   });
+
+  it("keeps the unconfirmed wifi-survey citation unlinked", () => {
+    const service = services.find((item) => item.id === "wifi-survey")!;
+    const markup = renderToStaticMarkup(
+      createElement(BandRule, { service, expanded: true }),
+    );
+
+    expect(markup).toContain("HomeGuide, 2026");
+    expect(markup).not.toContain("<a");
+  });
 });

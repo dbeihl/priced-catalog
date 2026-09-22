@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { services } from "./services";
 import { sourceFor } from "./sources";
 
 describe("source citations", () => {
@@ -10,5 +11,14 @@ describe("source citations", () => {
 
   it("keeps a source with no published URL unlinked", () => {
     expect(sourceFor("Angi / TapWaterData, 2026")?.url).toBeUndefined();
+  });
+
+  it("resolves every service's source key to a registry row", () => {
+    const missing = services
+      .filter(({ marketBand }) => marketBand.sourceKey !== null)
+      .filter(({ marketBand }) => !sourceFor(marketBand.sourceKey!))
+      .map(({ id }) => id);
+
+    expect(missing).toEqual([]);
   });
 });

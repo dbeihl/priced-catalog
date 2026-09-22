@@ -4,7 +4,7 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 
 - Add durable project-specific notes here as they are discovered through real work.
 
-- Market-band sources are maintained in `SOURCES.md` and published through `src/data/sources.ts`; use `sourceForService` so service citations remain unlinked when the registry has no URL.
+- Market-band sources are maintained in `SOURCES.md` and published through `src/data/sources.ts`; each `marketBand.sourceKey` names its registry row exactly, and `null` keeps a citation unlinked until its source is confirmed.
 - Page metadata is configured in `src/site.config.ts` and applied through `src/site-metadata.ts`; `TODO_` values intentionally produce no metadata tag.
 
 ## Maintaining this file

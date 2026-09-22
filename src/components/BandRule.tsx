@@ -6,11 +6,11 @@ import {
   marketBandLabel,
   perUnit,
 } from "../lib/format";
-import { sourceForService } from "../data/sources";
+import { sourceFor } from "../data/sources";
 
 function SourceCitation({ service }: { service: Service }) {
-  const citation = sourceForService(service.id);
-  const label = service.marketBand.source;
+  const { source: label, sourceKey } = service.marketBand;
+  const citation = sourceKey ? sourceFor(sourceKey) : undefined;
 
   if (!citation?.url) return <>{label}</>;
 
