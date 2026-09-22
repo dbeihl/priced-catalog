@@ -1,9 +1,11 @@
 import type { Category } from "./types";
 
 /**
- * Everything that identifies the business lives here and nowhere else.
- * A grep for TODO_ placeholder values should only ever hit this file
- * (src/lib/contact.ts checks the prefix to hide contact actions until set).
+ * Everything that identifies the business lives here, except the static
+ * <title> in index.html, which repeats `name`.
+ * Outside tests, a grep for TODO_ placeholder values in src should only ever
+ * hit this file (src/lib/contact.ts checks the prefix to hide contact actions
+ * until set).
  */
 export const site = {
   name: "Kamotec Services",
