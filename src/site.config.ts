@@ -3,19 +3,15 @@ import type { Category } from "./types";
 /**
  * Everything that identifies the business lives here, except the static
  * <title> in index.html, which repeats `name`.
- * Outside tests, a grep for TODO_ placeholder values in src should only ever
- * hit this file (src/lib/contact.ts checks the prefix to hide contact actions
- * until set).
+ * Contact actions remain hidden until src/lib/contact.ts finds a configured
+ * email address.
  */
 export const site = {
   name: "Kamotec Services",
   tagline:
     "Published prices, the hours behind them, and what the market charges.",
   serviceArea: "Indiana and Kentucky",
-  email: "TODO_EMAIL",
-  phone: "TODO_PHONE",
-  /** Digits only, for the tel: href. */
-  phoneHref: "TODO_PHONE_DIGITS",
+  email: "info@kamotec.io",
 } as const;
 
 export const pricing = {
@@ -23,8 +19,6 @@ export const pricing = {
   effectiveRate: 85,
   visitMinimum: 125,
   materialsPolicy: "pass-through",
-  /** Banner stays up until he has signed off on every number. */
-  draftPricing: true,
 } as const;
 
 export const materialsNote =

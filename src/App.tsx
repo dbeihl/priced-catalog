@@ -124,12 +124,6 @@ export default function App() {
 
   return (
     <div className="min-h-dvh">
-      {pricing.draftPricing && (
-        <div className="border-b border-ink bg-mark px-4 py-2 text-center text-[12px] font-medium text-ink">
-          Draft pricing. These numbers are under review and are not yet a quote.
-        </div>
-      )}
-
       <div className="mx-auto max-w-[86rem] px-4 pb-28 lg:px-8 lg:pb-8">
         {/* ── Hero ── */}
         <header className="border-b border-rule py-6 lg:py-8">
@@ -281,29 +275,30 @@ export default function App() {
 
         {/* ── Contact ── */}
         <footer id="contact" className="mt-10 border-t border-rule py-8 scroll-mt-4">
-          <h2 className="text-[20px] font-semibold">Get a walkthrough</h2>
+          <figure className="max-w-2xl border-l-2 border-mark pl-4">
+            <blockquote className="text-[15px] leading-relaxed text-ink">
+              Aaron put shiplap in our bedroom and downstairs bathroom and
+              painted it out. It looks awesome, and he did it right the first
+              time.
+            </blockquote>
+            <figcaption className="mt-2 text-[13px] text-ink-2">
+              David B.
+            </figcaption>
+          </figure>
+          <h2 className="mt-8 text-[20px] font-semibold">Get a walkthrough</h2>
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-2">
             {disclaimer}
           </p>
-          {contactConfigured && (
-            <div className="mt-4 flex flex-wrap gap-3">
-              <a
-                href={`mailto:${site.email}`}
-                className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark"
-              >
-                {site.email}
-              </a>
-              <a
-                href={`tel:${site.phoneHref}`}
-                className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark"
-              >
-                {site.phone}
-              </a>
-            </div>
-          )}
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a
+              href={`mailto:${site.email}`}
+              className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark"
+            >
+              {site.email}
+            </a>
+          </div>
           <p className="fig mt-6 text-[11px] uppercase tracking-wider text-ink-2">
-            {site.serviceArea} · No forms, no tracking, nothing collected on
-            this site.
+            {site.serviceArea}
           </p>
         </footer>
       </div>
