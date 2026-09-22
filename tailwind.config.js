@@ -10,6 +10,7 @@ export default {
         field: 'var(--field)',
         rule: 'var(--rule)',
         mark: 'var(--mark)',
+        'on-mark': 'var(--on-mark)',
         'tag-water': 'var(--tag-water)',
         'tag-comms': 'var(--tag-comms)',
         'tag-electric': 'var(--tag-electric)',

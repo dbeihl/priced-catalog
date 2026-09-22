@@ -85,7 +85,7 @@ export function ServiceRow({
           {awaitingPrice(service) ? (
             <a
               href="#contact"
-              className="inline-flex min-h-11 items-center border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark"
+              className="inline-flex min-h-11 items-center border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark hover:text-on-mark"
             >
               Ask for a quote
             </a>
@@ -93,7 +93,7 @@ export function ServiceRow({
             <button
               type="button"
               onClick={onAdd}
-              className="min-h-11 border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark"
+              className="min-h-11 border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark hover:text-on-mark"
             >
               {inEstimate ? "Add again" : "Add"}
             </button>
