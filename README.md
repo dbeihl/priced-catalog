@@ -4,7 +4,7 @@ A website that publishes your prices next to the hours behind them and what the 
 
 Everything you would want to change lives in two files:
 
-- `src/site.config.ts` — your name, service area, email, and the visit minimum. The "Request a walkthrough" buttons stay hidden until the email no longer starts with `TODO_`. The browser-tab title in `index.html` repeats the name, so change it there too.
+- `src/site.config.ts` — your name, service area, email, the visit minimum, and the page description, web address, and link-preview image. The "Request a walkthrough" buttons stay hidden until the email no longer starts with `TODO_`. Any other value still starting with `TODO_` is left off the page. The browser-tab title in `index.html` repeats the name, so change it there too.
 - `src/data/services.ts` — every service and every price.
 
 You do not need to understand the rest of the code to change either one.
@@ -73,6 +73,7 @@ Before:
       high: 450,
       unit: "project",
       source: "Plumbing By The Book / RateYourPlumber, 2026",
+      sourceKey: "Plumbing By The Book / RateYourPlumber, 2026",
       note: "Labor only, same location.",
     },
 ```
@@ -89,13 +90,14 @@ After (the job actually takes two and a half hours, and you found a better sourc
       high: 425,
       unit: "project",
       source: "Angi, Sep 2026",
+      sourceKey: "Angi, Sep 2026",
       note: "Labor only, same location.",
     },
 ```
 
 For a range of hours, use square brackets: `hours: [2, 3]`.
 
-Whenever you change a `marketBand`, add or update the matching row in `SOURCES.md` with the link you got the numbers from. That file is what makes the band checkable rather than just published.
+Whenever you change a `marketBand`, add or update the matching row in `SOURCES.md` with the link you got the numbers from. That file is what makes the band checkable rather than just published: the site publishes it as the sources table and links each band's citation to that row's web page. `source` is the label the customer sees; `sourceKey` must match the row's first column in `SOURCES.md` exactly (`npm run test` checks this). Use `sourceKey: null` to show the label without a link until the source is confirmed.
 
 ## 3. Add a service
 
@@ -118,6 +120,7 @@ Copy an existing service block that is closest to the one you want, paste it dir
       high: 800,
       unit: "project",
       source: "HomeGuide, 2026",
+      sourceKey: null,                         // or the matching SOURCES.md row
     },
     materials: "client-supplied",              // client-supplied | pass-through | included
     includes: ["Old unit removal", "Framing", "Trim"],

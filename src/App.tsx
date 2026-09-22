@@ -16,6 +16,7 @@ import {
 } from "./site.config";
 import { ServiceRow } from "./components/ServiceRow";
 import { DetailPanel } from "./components/DetailPanel";
+import { SourceRegistry } from "./components/SourceRegistry";
 import {
   EstimateBuilder,
   type KeyedSelection,
@@ -272,6 +273,8 @@ export default function App() {
             walkthroughHref={walkthroughHref}
           />
         </div>
+
+        <SourceRegistry />
 
         {/* ── Contact ── */}
         <footer id="contact" className="mt-10 border-t border-rule py-8 scroll-mt-4">

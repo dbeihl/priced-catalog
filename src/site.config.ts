@@ -10,8 +10,12 @@ export const site = {
   name: "Kamotec Services",
   tagline:
     "Published prices, the hours behind them, and what the market charges.",
+  description:
+    "Published prices, the hours behind them, and the market band for each job.",
   serviceArea: "Indiana and Kentucky",
   email: "info@kamotec.io",
+  url: "TODO_DOMAIN",
+  socialImageUrl: "TODO_SOCIAL_IMAGE",
 } as const;
 
 export const pricing = {

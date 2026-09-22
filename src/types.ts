@@ -55,6 +55,7 @@ export interface Service {
     high: number;
     unit: Unit;
     source: string;
+    sourceKey: string | null;
     note?: string;
   };
 

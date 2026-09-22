@@ -6,6 +6,28 @@ import {
   marketBandLabel,
   perUnit,
 } from "../lib/format";
+import { sourceFor } from "../data/sources";
+
+function SourceCitation({
+  band: { source: label, sourceKey },
+}: {
+  band: NonNullable<Service["marketBand"]>;
+}) {
+  const citation = sourceKey ? sourceFor(sourceKey) : undefined;
+
+  if (!citation?.url) return <>{label}</>;
+
+  return (
+    <a
+      href={citation.url}
+      target="_blank"
+      rel="noreferrer"
+      className="underline decoration-rule underline-offset-2 hover:decoration-ink"
+    >
+      {label}
+    </a>
+  );
+}
 
 /**
  * The signature element: a measured scale spanning the market band, with his
@@ -24,7 +46,7 @@ export function BandRule({
   const position = bandPosition(service);
   const value = bandValue(service);
   if (!service.marketBand) return null;
-  const { low, high, unit, source, note } = service.marketBand;
+  const { low, high, unit, note } = service.marketBand;
   const suffix =
     unit === "project" || unit === "room" || unit === "day"
       ? ""
@@ -33,7 +55,7 @@ export function BandRule({
   if (position === null || value === null) {
     return (
       <p className="fig text-[11px] leading-tight text-ink-2">
-        Market {marketBandLabel(service)} · {source}
+        Market {marketBandLabel(service)} · <SourceCitation band={service.marketBand} />
       </p>
     );
   }
@@ -72,7 +94,7 @@ export function BandRule({
 
       {expanded && (
         <p className="mt-1.5 text-[12px] leading-snug text-ink-2">
-          Source: {source}
+          Source: <SourceCitation band={service.marketBand} />
           {note ? `. ${note}` : ""}
         </p>
       )}
