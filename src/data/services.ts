@@ -888,6 +888,7 @@ const catalogServices: Service[] = [
     materials: "client-supplied",
     includes: ["Up to two hours on site", "Straightforward repair work"],
     excludes: ["Materials", "Permitted work", "Specialty-trade work"],
+    confirmBy: "walkthrough",
     status: "offered",
   },
   {
