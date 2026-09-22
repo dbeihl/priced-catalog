@@ -220,7 +220,7 @@ function Body({
         )}
         <p>{materialsNote}</p>
         {estimate.quoteRequired && (
-          <p className="border border-ink bg-mark px-2 py-1.5 text-ink">
+          <p className="border border-ink bg-mark px-2 py-1.5 text-on-mark">
             One or more lines are quote-only and contribute $0 here. This
             estimate is not complete until those are quoted in writing.
           </p>
@@ -229,7 +229,7 @@ function Body({
         {walkthroughHref && (
           <a
             href={walkthroughHref}
-            className="block border border-ink px-3 py-2 text-center text-[13px] font-semibold text-ink hover:bg-mark"
+            className="block border border-ink px-3 py-2 text-center text-[13px] font-semibold text-ink hover:bg-mark hover:text-on-mark"
           >
             Request a walkthrough
           </a>
@@ -263,7 +263,7 @@ export function EstimateBuilder(props: Props) {
        * shows a total does not read as tappable.
        */}
       {!props.estimate.isEmpty && (
-        <details className="group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_rgba(21,24,27,0.35)] lg:hidden">
+        <details className="group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] lg:hidden">
           <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
             <svg
               aria-hidden="true"

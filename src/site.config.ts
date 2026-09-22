@@ -41,8 +41,7 @@ export const categoryNames: Record<Category, string> = {
 };
 
 /**
- * APWA uniform utility-marking colours, the code already painted on the ground
- * at every jobsite. Blue is water, orange is communications, red is electric.
+ * Category tag colours come from the Kamotec palette tokens in `src/index.css`.
  */
 export const categoryOrder: Category[] = [
   "water",

@@ -160,7 +160,7 @@ export default function App() {
               >
                 <a
                   href="#catalog"
-                  className="border border-ink bg-mark px-3 py-2 text-[13px] font-medium"
+                  className="border border-ink bg-mark px-3 py-2 text-[13px] font-medium text-on-mark"
                 >
                   Browse services
                 </a>
@@ -208,7 +208,7 @@ export default function App() {
                         onClick={() => setCategory(c)}
                         className={`min-h-11 shrink-0 border px-2.5 py-1 text-[12px] ${
                           active
-                            ? "border-ink bg-mark font-medium"
+                            ? "border-ink bg-mark font-medium text-on-mark"
                             : "border-rule bg-field text-ink-2"
                         }`}
                       >
@@ -305,7 +305,7 @@ export default function App() {
           <div className="mt-4 flex flex-wrap gap-3">
             <a
               href={`mailto:${site.email}`}
-              className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark"
+              className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark hover:text-on-mark"
             >
               {site.email}
             </a>

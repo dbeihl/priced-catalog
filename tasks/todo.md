@@ -8,18 +8,9 @@ Status: **built and pushed.** All four gates green, screenshots taken at 390px a
 
 ## 1. Design tokens
 
-### Colour — 6 values
+### Colour
 
-| Token     | Hex       | Role                                                   | Why it belongs to this brief                                                                                                                                                                                                                                                |
-| --------- | --------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--ink`   | `#15181B` | Body text, figures, rules at full weight               | Graphite, not black. The colour of a carpenter's pencil on stock, and it keeps 45 dense cards from vibrating the way pure black does.                                                                                                                                       |
-| `--ink-2` | `#5A6169` | Secondary text: pace lines, source attributions, units | 5.4:1 on paper, so the "Angi, Aug 2026" line is legible rather than decorative. Every card has three tiers of information; two ink weights is what separates them without adding colour.                                                                                    |
-| `--paper` | `#F2F3F1` | Page ground                                            | Cool off-white with a green-grey cast. Explicitly not cream — this is plan stock and jobsite paper, which is grey, not warm.                                                                                                                                                |
-| `--field` | `#FFFFFF` | Card and panel surface                                 | Lifts off `--paper` by value alone, so no shadows are needed. Shadows on a spec sheet read as marketing.                                                                                                                                                                    |
-| `--rule`  | `#D3D7D2` | Hairlines, table borders, the band track               | The sheet's ruling. Density is handled by rules, not by whitespace, because whitespace at this information density means scrolling.                                                                                                                                         |
-| `--mark`  | `#E8B004` | The price notch, active filter, focus ring             | Level-vial yellow, tape-blade yellow, lumber-crayon yellow. It is the colour of a tool that measures, and it appears in exactly one job: marking where his number falls. Never as text on paper (fails AA); `--ink` on `--mark` is 9.1:1 and is the only permitted pairing. |
-
-Secondary ramp, small surface area only — category tags borrow the APWA uniform utility-marking code, the colour system already painted on the ground at every jobsite: water `#0B63C5`, communications `#E2650B`, electric `#C8102E`, and neutral `--ink-2` for trim, flooring, doors, general. Category colour appears as a 3px left rule on the card and nowhere else. It is trade vernacular that is actually load-bearing, not a palette invented to look industrial.
+Superseded: the site now uses the Kamotec palette from https://kamotec.io/. The tokens live in `src/index.css`.
 
 ### Type — two faces
 

@@ -7,23 +7,19 @@
 @tailwind utilities;
 
 :root {
-  /* Graphite, not black. A carpenter's pencil on stock. */
-  --ink: #15181b;
-  /* 5.6:1 on paper — the source line is legible, not decorative. */
-  --ink-2: #5a6169;
-  /* Cool grey-green plan stock. Deliberately not cream. */
-  --paper: #f2f3f1;
-  --field: #ffffff;
-  /* The sheet's ruling. Density is handled by rules, not whitespace. */
-  --rule: #d3d7d2;
-  /* Level-vial yellow. Fill only, never text on paper. --ink on it is 9.3:1. */
-  --mark: #e8b004;
-
-  /* APWA uniform utility-marking code — the colours already on the ground. */
-  --tag-water: #0b63c5;
-  --tag-comms: #e2650b;
-  --tag-electric: #c8102e;
-  --tag-neutral: #5a6169;
+  /* Kamotec CSS :root tokens, inspected at https://kamotec.io/ (index:14). */
+  --ink: #e8edf2;
+  --ink-2: #b0bec5;
+  --paper: #0a0e14;
+  --field: #151b24;
+  --rule: #5a6a7e;
+  --mark: #00e5a0;
+  --on-mark: #0a0e14;
+  --shadow: rgba(10, 14, 20, 0.6);
+  --tag-water: #3a9bff;
+  --tag-comms: #ff6d3a;
+  --tag-electric: #00e5a0;
+  --tag-neutral: #5a6a7e;
 }
 
 * {
@@ -51,10 +47,6 @@ body {
   letter-spacing: -0.01em;
 }
 
-/*
- * Focus ring is ink, not mark: yellow on paper is 1.8:1 and would fail as an
- * indicator. The mark still shows up, as a backing plate behind the ring.
- */
 :where(a, button, input, select, [tabindex]):focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;

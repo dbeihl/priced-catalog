@@ -86,7 +86,7 @@ export function DetailPanel({
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 border border-ink px-2 py-1 text-[12px] hover:bg-mark"
+              className="shrink-0 border border-ink px-2 py-1 text-[12px] hover:bg-mark hover:text-on-mark"
             >
               Close
             </button>
@@ -206,7 +206,7 @@ export function DetailPanel({
             {walkthroughHref && (
               <a
                 href={walkthroughHref}
-                className="block w-full border border-ink px-3 py-2 text-center text-[13px] font-semibold hover:bg-mark"
+                className="block w-full border border-ink px-3 py-2 text-center text-[13px] font-semibold hover:bg-mark hover:text-on-mark"
               >
                 Request a walkthrough
               </a>
@@ -215,7 +215,7 @@ export function DetailPanel({
               <a
                 href="#contact"
                 onClick={onClose}
-                className="block w-full border border-ink bg-mark px-3 py-2 text-center text-[13px] font-semibold hover:bg-transparent"
+                className="block w-full border border-ink bg-mark px-3 py-2 text-center text-[13px] font-semibold text-on-mark hover:bg-transparent"
               >
                 Ask for a quote
               </a>
@@ -223,7 +223,7 @@ export function DetailPanel({
               <button
                 type="button"
                 onClick={() => onAdd(service.id)}
-                className="w-full border border-ink bg-mark px-3 py-2 text-[13px] font-semibold hover:bg-transparent"
+                className="w-full border border-ink bg-mark px-3 py-2 text-[13px] font-semibold text-on-mark hover:bg-transparent"
               >
                 Add to estimate
               </button>
