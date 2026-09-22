@@ -36,10 +36,12 @@ export function DetailPanel({
   service,
   onClose,
   onAdd,
+  walkthroughHref,
 }: {
   service: Service | null;
   onClose: () => void;
   onAdd: (id: string) => void;
+  walkthroughHref?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -188,7 +190,15 @@ export function DetailPanel({
             </Section>
           </div>
 
-          <footer className="border-t border-rule px-5 py-3">
+          <footer className="space-y-2 border-t border-rule px-5 py-3">
+            {walkthroughHref && (
+              <a
+                href={walkthroughHref}
+                className="block w-full border border-ink px-3 py-2 text-center text-[13px] font-semibold hover:bg-mark"
+              >
+                Request a walkthrough
+              </a>
+            )}
             <button
               type="button"
               onClick={() => onAdd(service.id)}

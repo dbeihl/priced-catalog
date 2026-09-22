@@ -15,6 +15,7 @@ interface Props {
   onToggleAddOn: (key: number, addOnId: string) => void;
   onAddOnQuantity: (key: number, addOnId: string, quantity: number) => void;
   onRemove: (key: number) => void;
+  walkthroughHref?: string;
 }
 
 const needsQuantity = (s: Service) =>
@@ -40,6 +41,7 @@ function Body({
   onToggleAddOn,
   onAddOnQuantity,
   onRemove,
+  walkthroughHref,
 }: Props) {
   const byId = new Map(services.map((s) => [s.id, s]));
 
@@ -216,6 +218,14 @@ function Body({
           </p>
         )}
         <p>{disclaimer}</p>
+        {walkthroughHref && (
+          <a
+            href={walkthroughHref}
+            className="block border border-ink px-3 py-2 text-center text-[13px] font-semibold text-ink hover:bg-mark"
+          >
+            Request a walkthrough
+          </a>
+        )}
       </div>
     </div>
   );

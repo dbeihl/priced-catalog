@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { Category, Service } from "./types";
 import { services } from "./data/services";
 import { calculateEstimate } from "./lib/estimate";
+import { buildWalkthroughMailto, isContactConfigured } from "./lib/contact";
 import {
   categoryNames,
   categoryOrder,
@@ -89,6 +90,24 @@ export default function App() {
     ? (services.find((s) => s.id === openId) ?? null)
     : null;
   const inEstimate = new Set(selections.map((s) => s.serviceId));
+  const contactConfigured = isContactConfigured(site);
+  const walkthroughHref = contactConfigured
+    ? buildWalkthroughMailto(
+        site.email,
+        selections.flatMap((selection) => {
+          const service = services.find((item) => item.id === selection.serviceId);
+          return service
+            ? [{ name: service.name, quantity: selection.quantity ?? 1 }]
+            : [];
+        }),
+      )
+    : undefined;
+  const detailWalkthroughHref =
+    contactConfigured && openService
+      ? buildWalkthroughMailto(site.email, [
+          { name: openService.name, quantity: 1 },
+        ])
+      : undefined;
 
   const add = (serviceId: string) =>
     setSelections((prev) => [
@@ -235,6 +254,7 @@ export default function App() {
             onRemove={(key) =>
               setSelections((prev) => prev.filter((s) => s.key !== key))
             }
+            walkthroughHref={walkthroughHref}
           />
         </div>
 
@@ -244,20 +264,22 @@ export default function App() {
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-2">
             {disclaimer}
           </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <a
-              href={`mailto:${site.email}`}
-              className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark"
-            >
-              {site.email}
-            </a>
-            <a
-              href={`tel:${site.phoneHref}`}
-              className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark"
-            >
-              {site.phone}
-            </a>
-          </div>
+          {contactConfigured && (
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href={`mailto:${site.email}`}
+                className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark"
+              >
+                {site.email}
+              </a>
+              <a
+                href={`tel:${site.phoneHref}`}
+                className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark"
+              >
+                {site.phone}
+              </a>
+            </div>
+          )}
           <p className="fig mt-6 text-[11px] uppercase tracking-wider text-ink-2">
             {site.serviceArea} · No forms, no tracking, nothing collected on
             this site.
@@ -272,6 +294,7 @@ export default function App() {
           add(id);
           setOpenId(null);
         }}
+        walkthroughHref={detailWalkthroughHref}
       />
     </div>
   );
