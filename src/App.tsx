@@ -20,45 +20,47 @@ let nextKey = 1;
 
 function HowToRead() {
   return (
-    <aside className="mt-8 border border-rule bg-field p-4 lg:mt-0">
-      <h2 className="text-[11px] uppercase tracking-wider text-ink-2">
-        How to read a row
-      </h2>
-      <dl className="mt-3 space-y-3 text-[12px] leading-snug">
-        <div className="flex gap-3">
-          <dt className="fig w-[7rem] shrink-0 font-medium">
-            $4.50/linear ft
-          </dt>
-          <dd className="text-ink-2">what he charges</dd>
-        </div>
-        <div className="flex gap-3">
-          <dt className="fig w-[7rem] shrink-0">25 ft an hour</dt>
-          <dd className="text-ink-2">
-            the pace behind it, so you can do the division yourself
-          </dd>
-        </div>
-        <div className="flex gap-3">
-          <dt className="w-[7rem] shrink-0 pt-1">
-            <span aria-hidden="true" className="relative block h-2 w-full">
-              <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-rule" />
-              <span className="absolute left-0 top-0 bottom-0 w-px bg-rule" />
-              <span className="absolute right-0 top-0 bottom-0 w-px bg-rule" />
-              <span
-                className="absolute top-0 bottom-0 w-[3px] -translate-x-1/2 bg-mark ring-1 ring-ink/80"
-                style={{ left: "30%" }}
-              />
-            </span>
-          </dt>
-          <dd className="text-ink-2">
-            what the going rate is for the same job, with his price marked
-            inside it
-          </dd>
-        </div>
-      </dl>
+    <div className="mt-5 border border-rule bg-field p-4 lg:mt-0">
+      <details>
+        <summary className="cursor-pointer text-[11px] uppercase tracking-wider text-ink-2 marker:text-ink">
+          How to read a row
+        </summary>
+        <dl className="mt-3 space-y-3 border-t border-rule pt-3 text-[12px] leading-snug">
+          <div className="flex gap-3">
+            <dt className="fig w-[7rem] shrink-0 font-medium">
+              $4.50/linear ft
+            </dt>
+            <dd className="text-ink-2">what he charges</dd>
+          </div>
+          <div className="flex gap-3">
+            <dt className="fig w-[7rem] shrink-0">25 ft an hour</dt>
+            <dd className="text-ink-2">
+              the pace behind it, so you can do the division yourself
+            </dd>
+          </div>
+          <div className="flex gap-3">
+            <dt className="w-[7rem] shrink-0 pt-1">
+              <span aria-hidden="true" className="relative block h-2 w-full">
+                <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-rule" />
+                <span className="absolute left-0 top-0 bottom-0 w-px bg-rule" />
+                <span className="absolute right-0 top-0 bottom-0 w-px bg-rule" />
+                <span
+                  className="absolute top-0 bottom-0 w-[3px] -translate-x-1/2 bg-mark ring-1 ring-ink/80"
+                  style={{ left: "30%" }}
+                />
+              </span>
+            </dt>
+            <dd className="text-ink-2">
+              what the going rate is for the same job, with his price marked
+              inside it
+            </dd>
+          </div>
+        </dl>
+      </details>
       <p className="mt-3 border-t border-rule pt-3 text-[12px] leading-snug text-ink-2">
         Nothing here is a quote until a walkthrough confirms it.
       </p>
-    </aside>
+    </div>
   );
 }
 
@@ -109,16 +111,16 @@ export default function App() {
 
       <div className="mx-auto max-w-[86rem] px-4 pb-28 lg:px-8 lg:pb-8">
         {/* ── Hero ── */}
-        <header className="border-b border-rule py-10 lg:py-14">
+        <header className="border-b border-rule py-6 lg:py-8">
           <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-end lg:gap-10">
             <div>
               <p className="fig text-[12px] uppercase tracking-[0.18em] text-ink-2">
                 {site.serviceArea}
               </p>
-              <h1 className="mt-2 max-w-3xl text-[30px] font-semibold leading-[1.15] lg:text-[42px]">
+              <h1 className="mt-1 max-w-3xl text-[28px] font-semibold leading-[1.15] lg:text-[36px]">
                 {site.name}
               </h1>
-              <ol className="mt-6 max-w-2xl space-y-2 text-[15px] leading-relaxed lg:text-[17px]">
+              <ol className="mt-4 max-w-2xl space-y-1 text-[14px] leading-relaxed lg:text-[15px]">
                 <li className="border-l-2 border-ink pl-3">
                   Prices are per project, not per hour.
                 </li>
@@ -130,19 +132,36 @@ export default function App() {
                   market charges for the same job.
                 </li>
               </ol>
-              <p className="mt-6 max-w-2xl text-[14px] leading-relaxed text-ink-2">
+              <p className="mt-4 max-w-2xl text-[14px] leading-relaxed text-ink-2">
                 Publishing the market band means you can see when a price sits
                 at the bottom of it and when it sits at the top. That is the
                 point. You should be able to check the number, not just trust
                 it.
               </p>
+              <nav
+                aria-label="Catalog navigation"
+                className="mt-5 flex flex-wrap gap-3"
+              >
+                <a
+                  href="#catalog"
+                  className="border border-ink bg-mark px-3 py-2 text-[13px] font-medium"
+                >
+                  Browse services
+                </a>
+                <a
+                  href="#contact"
+                  className="border border-ink bg-field px-3 py-2 text-[13px] font-medium"
+                >
+                  Get a walkthrough
+                </a>
+              </nav>
             </div>
             <HowToRead />
           </div>
         </header>
 
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-8">
-          <main>
+          <main id="catalog" className="scroll-mt-4">
             {/* ── Filters ── */}
             <div className="sticky top-0 z-[5] -mx-4 border-b border-rule bg-paper px-4 py-3 lg:mx-0 lg:px-0">
               <label className="block">
@@ -239,7 +258,7 @@ export default function App() {
         </div>
 
         {/* ── Contact ── */}
-        <footer className="mt-10 border-t border-rule py-8">
+        <footer id="contact" className="mt-10 border-t border-rule py-8 scroll-mt-4">
           <h2 className="text-[20px] font-semibold">Get a walkthrough</h2>
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-2">
             {disclaimer}
