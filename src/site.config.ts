@@ -2,7 +2,8 @@ import type { Category } from "./types";
 
 /**
  * Everything that identifies the business lives here and nowhere else.
- * A grep for TODO_ should only ever hit this file.
+ * A grep for TODO_ placeholder values should only ever hit this file
+ * (src/lib/contact.ts checks the prefix to hide contact actions until set).
  */
 export const site = {
   name: "TODO_NAME",
