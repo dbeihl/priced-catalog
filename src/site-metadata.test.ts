@@ -27,8 +27,9 @@ describe("page metadata", () => {
 
   it("omits placeholder values instead of publishing TODO metadata", () => {
     expect(buildMetadata(site)).toEqual({
+      title: site.name,
       description: site.description,
-      openGraph: { description: site.description },
+      openGraph: { title: site.name, description: site.description },
     });
   });
 });

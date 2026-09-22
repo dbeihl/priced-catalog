@@ -15,8 +15,8 @@ describe("source citations", () => {
 
   it("resolves every service's source key to a registry row", () => {
     const missing = services
-      .filter(({ marketBand }) => marketBand.sourceKey !== null)
-      .filter(({ marketBand }) => !sourceFor(marketBand.sourceKey!))
+      .filter(({ marketBand }) => marketBand?.sourceKey)
+      .filter(({ marketBand }) => !sourceFor(marketBand!.sourceKey!))
       .map(({ id }) => id);
 
     expect(missing).toEqual([]);

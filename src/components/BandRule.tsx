@@ -8,8 +8,11 @@ import {
 } from "../lib/format";
 import { sourceFor } from "../data/sources";
 
-function SourceCitation({ service }: { service: Service }) {
-  const { source: label, sourceKey } = service.marketBand;
+function SourceCitation({
+  band: { source: label, sourceKey },
+}: {
+  band: NonNullable<Service["marketBand"]>;
+}) {
   const citation = sourceKey ? sourceFor(sourceKey) : undefined;
 
   if (!citation?.url) return <>{label}</>;
@@ -52,7 +55,7 @@ export function BandRule({
   if (position === null || value === null) {
     return (
       <p className="fig text-[11px] leading-tight text-ink-2">
-        Market {marketBandLabel(service)} · <SourceCitation service={service} />
+        Market {marketBandLabel(service)} · <SourceCitation band={service.marketBand} />
       </p>
     );
   }
@@ -91,7 +94,7 @@ export function BandRule({
 
       {expanded && (
         <p className="mt-1.5 text-[12px] leading-snug text-ink-2">
-          Source: <SourceCitation service={service} />
+          Source: <SourceCitation band={service.marketBand} />
           {note ? `. ${note}` : ""}
         </p>
       )}
