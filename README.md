@@ -4,7 +4,7 @@ A website that publishes your prices next to the hours behind them and what the 
 
 Everything you would want to change lives in two files:
 
-- `src/site.config.ts` — your name, service area, email, and the visit minimum. The "Request a walkthrough" buttons and email link stay hidden until the email no longer starts with `TODO_`. The browser-tab title in `index.html` repeats the name, so change it there too.
+- `src/site.config.ts` — your name, service area, email, and the visit minimum. The "Request a walkthrough" buttons stay hidden until the email no longer starts with `TODO_`. The browser-tab title in `index.html` repeats the name, so change it there too.
 - `src/data/services.ts` — every service and every price.
 
 You do not need to understand the rest of the code to change either one.
