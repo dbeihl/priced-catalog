@@ -4,7 +4,7 @@ A website that publishes your prices next to the hours behind them and what the 
 
 Everything you would want to change lives in two files:
 
-- `src/site.config.ts` — your name, service area, email, phone, the visit minimum, and the draft-pricing banner. The "Request a walkthrough" buttons and the email and phone links stay hidden until the email and both phone values no longer start with `TODO_`.
+- `src/site.config.ts` — your name, service area, email, phone, the visit minimum, and the draft-pricing banner. The "Request a walkthrough" buttons and the email and phone links stay hidden until the email and both phone values no longer start with `TODO_`. The browser-tab title in `index.html` repeats the name, so change it there too.
 - `src/data/services.ts` — every service and every price.
 
 You do not need to understand the rest of the code to change either one.
@@ -201,7 +201,7 @@ The site is currently built to live at `/priced-catalog/` on GitHub Pages. To pu
 VITE_BASE_PATH=/ npm run build
 ```
 
-Nothing else needs to change. All of the identity and contact details are in `src/site.config.ts`, so a new owner changes one file.
+Nothing else needs to change. All of the identity and contact details are in `src/site.config.ts`, apart from the page title in `index.html`, so a new owner changes those two files.
 
 ---
 
