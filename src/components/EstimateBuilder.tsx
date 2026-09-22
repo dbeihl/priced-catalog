@@ -43,7 +43,8 @@ function Body({
   onAddOnQuantity,
   onRemove,
   walkthroughHref,
-}: Props) {
+  fieldNamespace,
+}: Props & { fieldNamespace: "desktop" | "mobile" }) {
   const byId = new Map(services.map((s) => [s.id, s]));
 
   if (estimate.isEmpty) {
@@ -82,6 +83,8 @@ function Body({
                   <span>{unitLabel[service.pricing.unit]}</span>
                   <input
                     type="number"
+                    id={`estimate-${fieldNamespace}-quantity-${selection.key}`}
+                    name={`estimate[${fieldNamespace}][${selection.key}][quantity]`}
                     min={0}
                     step={1}
                     value={selection.quantity ?? 1}
@@ -131,6 +134,8 @@ function Body({
                         {on && addOn.unit !== undefined && (
                           <input
                             type="number"
+                            id={`estimate-${fieldNamespace}-addon-quantity-${selection.key}-${addOn.id}`}
+                            name={`estimate[${fieldNamespace}][${selection.key}][${addOn.id}][quantity]`}
                             min={0}
                             step={1}
                             aria-label={`${addOn.name}, ${unitLabel[addOn.unit]}`}
@@ -233,6 +238,8 @@ function Body({
 }
 
 export function EstimateBuilder(props: Props) {
+  if (props.estimate.isEmpty) return null;
+
   const count = props.selections.length;
   return (
     <>
@@ -245,7 +252,7 @@ export function EstimateBuilder(props: Props) {
             </h2>
             <Total estimate={props.estimate} />
           </header>
-          <Body {...props} />
+          <Body {...props} fieldNamespace="desktop" />
         </div>
       </aside>
 
@@ -281,7 +288,7 @@ export function EstimateBuilder(props: Props) {
             </span>
           </span>
         </summary>
-        <Body {...props} />
+        <Body {...props} fieldNamespace="mobile" />
       </details>
     </>
   );
