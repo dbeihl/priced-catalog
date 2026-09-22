@@ -298,7 +298,8 @@ export default function App() {
             </a>
           </div>
           <p className="fig mt-6 text-[11px] uppercase tracking-wider text-ink-2">
-            {site.serviceArea}
+            {site.serviceArea} · No forms, no tracking, nothing collected on
+            this site.
           </p>
         </footer>
       </div>
