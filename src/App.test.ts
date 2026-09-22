@@ -43,11 +43,12 @@ describe("launch contact details", () => {
 });
 
 describe("catalog form fields", () => {
-  it("omits the estimate bar before any service is selected", () => {
+  it("omits the mobile estimate bar but keeps the desktop rail before any service is selected", () => {
     const page = renderToStaticMarkup(createElement(App));
 
-    expect(page).not.toContain("Running estimate");
     expect(page).not.toContain("0 items");
+    expect(page).toContain("Running estimate");
+    expect(page).toContain("Nothing on the list yet.");
   });
 
   it("gives the catalog search a stable id and name", () => {

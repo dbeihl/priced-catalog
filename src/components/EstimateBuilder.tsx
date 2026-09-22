@@ -238,8 +238,6 @@ function Body({
 }
 
 export function EstimateBuilder(props: Props) {
-  if (props.estimate.isEmpty) return null;
-
   const count = props.selections.length;
   return (
     <>
@@ -262,34 +260,36 @@ export function EstimateBuilder(props: Props) {
        * The caret and the Show/Hide word are there because a bar that only
        * shows a total does not read as tappable.
        */}
-      <details className="group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_rgba(21,24,27,0.35)] lg:hidden">
-        <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 12 12"
-            className="h-3 w-3 shrink-0 transition-transform group-open:rotate-90"
-          >
-            <path
-              d="M4 2l5 4-5 4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="square"
-            />
-          </svg>
-          <span className="text-[12px] uppercase tracking-wider text-ink-2">
-            {count} {count === 1 ? "item" : "items"}
-          </span>
-          <span className="ml-auto flex items-baseline gap-2">
-            <Total estimate={props.estimate} />
-            <span className="text-[11px] uppercase tracking-wide text-ink-2">
-              <span className="group-open:hidden">Show</span>
-              <span className="hidden group-open:inline">Hide</span>
+      {!props.estimate.isEmpty && (
+        <details className="group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_rgba(21,24,27,0.35)] lg:hidden">
+          <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 12 12"
+              className="h-3 w-3 shrink-0 transition-transform group-open:rotate-90"
+            >
+              <path
+                d="M4 2l5 4-5 4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="square"
+              />
+            </svg>
+            <span className="text-[12px] uppercase tracking-wider text-ink-2">
+              {count} {count === 1 ? "item" : "items"}
             </span>
-          </span>
-        </summary>
-        <Body {...props} fieldNamespace="mobile" />
-      </details>
+            <span className="ml-auto flex items-baseline gap-2">
+              <Total estimate={props.estimate} />
+              <span className="text-[11px] uppercase tracking-wide text-ink-2">
+                <span className="group-open:hidden">Show</span>
+                <span className="hidden group-open:inline">Hide</span>
+              </span>
+            </span>
+          </summary>
+          <Body {...props} fieldNamespace="mobile" />
+        </details>
+      )}
     </>
   );
 }
