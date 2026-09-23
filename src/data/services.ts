@@ -438,12 +438,12 @@ const catalogServices: Service[] = [
       note: "Half the time is walking and measuring. Guessing would be faster and would not work.",
     },
     marketBand: {
-      low: 250,
-      high: 1125,
+      low: 300,
+      high: 500,
       unit: "project",
-      source: "HomeGuide, 2026",
-      sourceKey: null,
-      note: "Whole-home Wi-Fi work averages $690 nationally.",
+      source: "Fixr, Sep 2026",
+      sourceKey: "Fixr, Sep 2026 (whole-home Wi-Fi)",
+      note: "Whole-home Wi-Fi's national average is $350.",
     },
     materials: "client-supplied",
     includes: [

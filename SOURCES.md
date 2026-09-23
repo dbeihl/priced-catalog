@@ -2,7 +2,7 @@
 
 Every `marketBand` in `src/data/services.ts` comes from one of these. A service's `marketBand.sourceKey` names its row here by short name, and `source` is the label the customer sees; this file carries the link, so a customer who wants to check the band can.
 
-All figures were pulled in August 2026. Bands drift, so re-check anything older than a year before quoting from it.
+Most figures were pulled in August 2026. The source name records a later check where one has occurred. Bands drift, so re-check anything older than a year before quoting from it.
 
 | Short name in the catalog                     | What it gave us                                                                                                         | Link                                                                                       |
 | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
@@ -14,7 +14,7 @@ All figures were pulled in August 2026. Bands drift, so re-check anything older 
 | Angi / HomeGuide, 2026 (smart-home device)    | Per-device smart-home installation $100–$400                                                                            | https://homeguide.com/costs/smart-home-cost                                                |
 | One and Done Prep / Data Wire Solutions, 2026 | Ethernet drops $125–$350 each in a finished home; bundling saves $30–$50 a drop                                         | https://datawiresolutions.com/blog/network-cabling-cost                                    |
 | Homewyse, Jan 2026 (networking)               | Home networking $265–$644 per access point, Wi-Fi install $155–$329 per router                                          | https://homewyse.com/services/cost_to_install_home_networking.html                         |
-| HomeGuide, 2026 (whole-home Wi-Fi)            | Whole-home Wi-Fi $250–$1,125, national average $690                                                                     | https://www.fixr.com/costs/install-wireless-computer-network                               |
+| Fixr, Sep 2026 (whole-home Wi-Fi)             | Whole-home Wi-Fi $300–$500, national average $350                                                                       | https://www.fixr.com/costs/install-wireless-computer-network                               |
 | Running Cables / Data Wire Solutions, 2026    | Residential network labor $30–$150/hr; rack cleanup 1–4 hours                                                           | https://runningcables.com/residential-pricing/                                             |
 | HomeGuide / Fixr, 2026 (switches)             | Smart switch install $85–$150 nationally, dimmer $80–$200 with the device                                               | https://homeguide.com/costs/cost-to-install-or-replace-a-light-switch                      |
 | Angi, 2026 (doorbell)                         | Doorbell install labor $100–$250                                                                                        | https://www.angi.com/articles/doorbell-installation-cost.htm                               |

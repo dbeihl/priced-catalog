@@ -13,8 +13,6 @@ function tableCells(row: string): string[] {
     .map((cell) => cell.trim());
 }
 
-const unconfirmedLinks = new Set(["HomeGuide, 2026 (whole-home Wi-Fi)"]);
-
 function sourceRows(markdown: string): Source[] {
   const tableStart = markdown.indexOf("| Short name in the catalog");
   if (tableStart === -1) return [];
@@ -28,9 +26,7 @@ function sourceRows(markdown: string): Source[] {
     .map(([shortName, finding, link]) => ({
       shortName: shortName!,
       finding: finding!,
-      ...(link?.startsWith("https://") && !unconfirmedLinks.has(shortName!)
-        ? { url: link }
-        : {}),
+      ...(link?.startsWith("https://") ? { url: link } : {}),
     }));
 }
 
