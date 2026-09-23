@@ -18,6 +18,13 @@ describe("first-screen navigation", () => {
     expect(page).toContain(">Get a walkthrough<");
     expect(page).toContain('id="contact"');
   });
+
+  it("keeps the market-band registry off the catalog and links to its own page", () => {
+    const page = renderToStaticMarkup(createElement(App));
+
+    expect(page).not.toContain("Market band sources");
+    expect(page).toContain('href="sources.html"');
+  });
 });
 
 describe("launch contact details", () => {

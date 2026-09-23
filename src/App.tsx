@@ -16,7 +16,6 @@ import {
 } from "./site.config";
 import { ServiceRow } from "./components/ServiceRow";
 import { DetailPanel } from "./components/DetailPanel";
-import { SourceRegistry } from "./components/SourceRegistry";
 import {
   EstimateBuilder,
   type KeyedSelection,
@@ -284,8 +283,6 @@ export default function App() {
           />
         </div>
 
-        <SourceRegistry />
-
         {/* ── Contact ── */}
         <footer id="contact" className="mt-10 border-t border-rule py-8 scroll-mt-4">
           <figure className="max-w-2xl border-l-2 border-mark pl-4">
@@ -314,6 +311,12 @@ export default function App() {
             {site.serviceArea} · No forms, no tracking, nothing collected on
             this site.
           </p>
+          <a
+            href="sources.html"
+            className="mt-3 inline-block text-[12px] text-ink-2 underline decoration-rule underline-offset-2 hover:decoration-ink"
+          >
+            How we price
+          </a>
         </footer>
       </div>
 
