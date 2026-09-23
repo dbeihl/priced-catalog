@@ -3,11 +3,10 @@ import { sourceNotes, sources } from "../data/sources";
 export function SourceRegistry() {
   return (
     <section id="sources" className="mt-10 border-t border-rule py-8">
-      <h2 className="text-[20px] font-semibold">Market band sources</h2>
-      <div className="mt-2 max-w-3xl space-y-2 text-[14px] leading-relaxed text-ink-2">
+      <div className="max-w-3xl space-y-2 text-[14px] leading-relaxed text-ink-2">
         <p>
-          Every market range on this page comes from one of these published
-          cost guides. Where a guide is online, the link is here so you can
+          Every market range in the service catalog comes from one of these
+          published cost guides. Where a guide is online, the link is here so you can
           check the range yourself.
         </p>
         <p>
