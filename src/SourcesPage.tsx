@@ -1,7 +1,27 @@
+import { useEffect } from "react";
 import { SourceRegistry } from "./components/SourceRegistry";
 import { site } from "./site.config";
 
+// Rows render on the client after the browser's own fragment scroll has run,
+// so citation deep links (sources.html#<key>) scroll to their row here.
+export function scrollToHashTarget(
+  hash: string,
+  getElementById: (id: string) => { scrollIntoView(): void } | null,
+) {
+  let id: string;
+  try {
+    id = decodeURIComponent(hash.slice(1));
+  } catch {
+    return;
+  }
+  if (id) getElementById(id)?.scrollIntoView();
+}
+
 export default function SourcesPage() {
+  useEffect(() => {
+    scrollToHashTarget(location.hash, (id) => document.getElementById(id));
+  }, []);
+
   return (
     <div className="min-h-dvh">
       <div className="mx-auto max-w-[86rem] px-4 pb-28 lg:px-8 lg:pb-8">
