@@ -10,8 +10,9 @@ export function SourceRegistry() {
           check the range yourself.
         </p>
         <p>
-          All figures were pulled in August 2026. Bands drift, so re-check
-          anything older than a year before quoting from it.
+          Most figures were pulled in August 2026. The source name records a
+          later check where one has occurred. Bands drift, so re-check anything
+          older than a year before quoting from it.
         </p>
       </div>
 

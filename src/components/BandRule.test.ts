@@ -31,13 +31,18 @@ describe("BandRule source citation", () => {
     );
   });
 
-  it("keeps the unconfirmed wifi-survey citation unlinked", () => {
+  it("links the Fixr wifi-survey citation and renders its published figures", () => {
     const service = services.find((item) => item.id === "wifi-survey")!;
     const markup = renderToStaticMarkup(
       createElement(BandRule, { service, expanded: true }),
     );
 
-    expect(markup).toContain("HomeGuide, 2026");
-    expect(markup).not.toContain("<a");
+    expect(markup).toContain("Fixr, Sep 2026");
+    expect(markup).toContain("$300");
+    expect(markup).toContain("$500");
+    expect(markup).toContain("national average is $350");
+    expect(markup).toContain(
+      'href="sources.html#Fixr%2C%20Sep%202026%20(whole-home%20Wi-Fi)"',
+    );
   });
 });

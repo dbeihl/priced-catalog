@@ -13,9 +13,12 @@ describe("SourceRegistry", () => {
     );
   });
 
-  it("renders the unconfirmed whole-home Wi-Fi row without its link", () => {
-    expect(markup).toContain("HomeGuide, 2026 (whole-home Wi-Fi)");
-    expect(markup).not.toContain("fixr.com/costs/install-wireless-computer-network");
+  it("renders the confirmed Fixr whole-home Wi-Fi row with its figures and link", () => {
+    expect(markup).toContain("Fixr, Sep 2026 (whole-home Wi-Fi)");
+    expect(markup).toContain("Whole-home Wi-Fi $300–$500, national average $350");
+    expect(markup).toContain(
+      'href="https://www.fixr.com/costs/install-wireless-computer-network"',
+    );
   });
 
   it("renders every registry row with its source key as a deep-link anchor", () => {
