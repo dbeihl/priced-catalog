@@ -6,22 +6,17 @@ import {
   marketBandLabel,
   perUnit,
 } from "../lib/format";
-import { sourceFor } from "../data/sources";
 
 function SourceCitation({
   band: { source: label, sourceKey },
 }: {
   band: NonNullable<Service["marketBand"]>;
 }) {
-  const citation = sourceKey ? sourceFor(sourceKey) : undefined;
-
-  if (!citation?.url) return <>{label}</>;
+  if (!sourceKey) return <>{label}</>;
 
   return (
     <a
-      href={citation.url}
-      target="_blank"
-      rel="noreferrer"
+      href={`sources.html#${encodeURIComponent(sourceKey)}`}
       className="underline decoration-rule underline-offset-2 hover:decoration-ink"
     >
       {label}

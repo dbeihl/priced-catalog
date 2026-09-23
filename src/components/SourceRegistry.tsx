@@ -27,7 +27,11 @@ export function SourceRegistry() {
           </thead>
           <tbody>
             {sources.map((source) => (
-              <tr key={source.shortName} className="border-b border-rule last:border-0">
+              <tr
+                key={source.shortName}
+                id={source.shortName}
+                className="border-b border-rule last:border-0"
+              >
                 <td className="px-3 py-2 align-top font-medium">
                   {source.shortName}
                 </td>
