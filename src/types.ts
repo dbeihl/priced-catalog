@@ -1,4 +1,4 @@
-export type PricingModel = "flat" | "range" | "per-unit" | "hourly" | "quote-only";
+export type PricingModel = "flat" | "range" | "per-unit" | "quote-only";
 export type Unit =
   | "project"
   | "linear-ft"

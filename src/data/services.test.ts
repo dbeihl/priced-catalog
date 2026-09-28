@@ -67,7 +67,7 @@ describe("hourly services", () => {
 
       expect(service, id).toMatchObject({
         pricing: {
-          model: "hourly",
+          model: "per-unit",
           rate: 85,
           unit: "hour",
           minimumUnits: 1,
@@ -81,7 +81,8 @@ describe("hourly services", () => {
   it("renders the hourly terms as one clear customer-facing price", () => {
     const row = renderCatalogRow("hourly-work");
 
-    expect(row).toContain("$85/hr, one-hour minimum, plus materials");
+    expect(row).toContain("$85/hr plus materials");
+    expect(row).toContain("$125 minimum visit");
   });
 
   it("keeps existing listed prices unchanged", () => {

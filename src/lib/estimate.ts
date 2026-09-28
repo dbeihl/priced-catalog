@@ -3,9 +3,7 @@ import type { AddOn, Service } from "../types";
 /** Pure. No React, no DOM, no imports from site.config beyond plain numbers passed in. */
 
 export const needsQuantity = (s: Service) =>
-  s.pricing.model === "per-unit" ||
-  s.pricing.model === "hourly" ||
-  s.pricing.firstPrice !== undefined;
+  s.pricing.model === "per-unit" || s.pricing.firstPrice !== undefined;
 
 export interface AddOnSelection {
   id: string;
@@ -164,7 +162,7 @@ function priceService(
     };
   }
 
-  if (p.model === "per-unit" || p.model === "hourly") {
+  if (p.model === "per-unit") {
     // Rule 2 — small-room override. Strictly BELOW the threshold the rate is ignored
     // entirely. At the threshold the rate applies. This is a rule, not a rounding.
     if (

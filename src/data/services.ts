@@ -1168,7 +1168,7 @@ const catalogServices: Service[] = [
     description:
       "Some jobs are too particular for a flat number. Send photos or describe the problem, and I will confirm the scope before I start. Time is billed by the hour, with the first hour reserved for the visit and materials kept separate.",
     pricing: {
-      model: "hourly",
+      model: "per-unit",
       rate: 85,
       unit: "hour",
       minimumUnits: 1,
@@ -1183,7 +1183,7 @@ const catalogServices: Service[] = [
       unit: "hour",
       source: "TM International, Apr 2026",
       sourceKey: "TM International, Apr 2026",
-      note: "Indianapolis handyman labor runs $65–$125 an hour, typically with a one- or two-hour minimum.",
+      note: "Indianapolis handyman labor runs $65–$125 an hour.",
     },
     materials: "pass-through",
     includes: ["One-hour minimum on site", "Straightforward work that fits the visit"],
@@ -1199,7 +1199,7 @@ const catalogServices: Service[] = [
     description:
       "For a light controlled from the top and bottom of a stairway or from both ends of a hallway when the existing switch wiring is backwards or wrong. I trace the existing conductors, rewire the two switches correctly, and test that either switch turns the same light on and off.",
     pricing: {
-      model: "hourly",
+      model: "per-unit",
       rate: 85,
       unit: "hour",
       minimumUnits: 1,
@@ -1239,7 +1239,7 @@ const catalogServices: Service[] = [
     description:
       "The old button, transformer, and chime come out, and a matching traditional doorbell system goes in. I check the low-voltage wiring, set the replacement transformer and chime, mount the button, and make sure the whole system rings before I leave.",
     pricing: {
-      model: "hourly",
+      model: "per-unit",
       rate: 85,
       unit: "hour",
       minimumUnits: 1,
@@ -1279,7 +1279,7 @@ const catalogServices: Service[] = [
     description:
       "For an outdoor or pole light that should come on at dusk but does not. I check the accessible fixture and photo eye, replace the failed photocell when that is the fault, and cover the sensor to prove the light responds before I leave.",
     pricing: {
-      model: "hourly",
+      model: "per-unit",
       rate: 85,
       unit: "hour",
       minimumUnits: 1,

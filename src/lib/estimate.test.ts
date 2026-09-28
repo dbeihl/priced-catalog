@@ -372,3 +372,13 @@ describe("catalog integrity", () => {
     expect(blob).not.toContain("$85 an hour");
   });
 });
+
+describe("hourly work", () => {
+  it("totals a one-hour selection at the visit minimum", () => {
+    const e = run([{ serviceId: "hourly-work", quantity: 1 }]);
+    expect(e.laborLow).toBe(85);
+    expect(e.visitMinimumApplied).toBe(40);
+    expect(e.totalLow).toBe(125);
+    expect(e.totalHigh).toBe(125);
+  });
+});
