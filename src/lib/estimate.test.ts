@@ -241,6 +241,18 @@ describe("rule 5 — materials never enter the labor subtotal", () => {
     expect(e.materialsLow).toBe(30);
     expect(e.materialsHigh).toBe(75);
   });
+
+  it("marks pass-through materials with no estimate as billed at cost", () => {
+    const e = run([{ serviceId: "hourly-work", quantity: 1 }]);
+    expect(e.materialsHigh).toBe(0);
+    expect(e.materialsAtCost).toBe(true);
+  });
+
+  it("leaves client-supplied materials as client-supplied", () => {
+    const e = run([{ serviceId: "wifi-ap" }]);
+    expect(e.materialsHigh).toBe(0);
+    expect(e.materialsAtCost).toBe(false);
+  });
 });
 
 describe("add-ons", () => {
