@@ -137,7 +137,7 @@ export default function App() {
               </h1>
               <ol className="mt-4 max-w-2xl space-y-1 text-[14px] leading-relaxed lg:text-[15px]">
                 <li className="border-l-2 border-ink pl-3">
-                  Prices are per project, not per hour.
+                  Prices are per project or by the hour.
                 </li>
                 <li className="border-l-2 border-ink pl-3">
                   Materials are at cost, with receipts.

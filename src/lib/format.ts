@@ -23,6 +23,7 @@ export const unitLabel: Record<Unit, string> = {
   room: "room",
   visit: "visit",
   day: "day",
+  hour: "hr",
 };
 
 /** Short unit for a rate suffix: "/linear ft". */

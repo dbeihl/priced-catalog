@@ -52,3 +52,45 @@ describe("signed-off lead services in the catalog", () => {
     );
   });
 });
+
+describe("hourly services", () => {
+  const hourlyServiceIds = [
+    "hourly-work",
+    "three-way-switch-rewire",
+    "doorbell-system-replacement",
+    "dusk-to-dawn-light-repair",
+  ];
+
+  it("carries the $85 hourly rate, one-hour minimum, and pass-through materials", () => {
+    for (const id of hourlyServiceIds) {
+      const service = services.find((candidate) => candidate.id === id);
+
+      expect(service, id).toMatchObject({
+        pricing: {
+          model: "per-unit",
+          rate: 85,
+          unit: "hour",
+          minimumUnits: 1,
+        },
+        basis: { hours: 1 },
+        materials: "pass-through",
+      });
+    }
+  });
+
+  it("renders the hourly terms as one clear customer-facing price", () => {
+    const row = renderCatalogRow("hourly-work");
+
+    expect(row).toContain("$85/hr plus materials");
+    expect(row).toContain("$125 minimum visit");
+  });
+
+  it("keeps existing listed prices unchanged", () => {
+    expect(services.find((service) => service.id === "smart-switch")?.pricing)
+      .toMatchObject({ firstPrice: 85, additionalPrice: 65 });
+    expect(services.find((service) => service.id === "video-doorbell")?.pricing)
+      .toMatchObject({ model: "flat", price: 175, unit: "project" });
+    expect(services.find((service) => service.id === "fixture-swap")?.pricing)
+      .toMatchObject({ model: "flat", price: 150, unit: "project" });
+  });
+});

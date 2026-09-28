@@ -63,6 +63,8 @@ export interface Estimate {
   /** Always its own line. Never folded into labor. */
   materialsLow: number;
   materialsHigh: number;
+  /** A pass-through service has no materials estimate, so materials are billed at cost. */
+  materialsAtCost: boolean;
   quoteRequired: boolean;
   isRange: boolean;
   isEmpty: boolean;
@@ -294,11 +296,14 @@ export function calculateEstimate(
   // Rule 5 — materials never enter the labor subtotal.
   let materialsLow = 0;
   let materialsHigh = 0;
+  let materialsAtCost = false;
   for (const line of lines) {
     const service = byId.get(line.serviceId);
     if (!service) continue;
     materialsLow += service.materialsLow ?? 0;
     materialsHigh += service.materialsHigh ?? 0;
+    if (service.materials === "pass-through" && !service.materialsHigh)
+      materialsAtCost = true;
   }
 
   return {
@@ -310,6 +315,7 @@ export function calculateEstimate(
     totalHigh,
     materialsLow: round(materialsLow),
     materialsHigh: round(materialsHigh),
+    materialsAtCost,
     quoteRequired: lines.some((l) => l.quoteRequired),
     isRange: totalLow !== totalHigh,
     isEmpty: lines.length === 0,

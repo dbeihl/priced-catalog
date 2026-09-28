@@ -241,6 +241,18 @@ describe("rule 5 — materials never enter the labor subtotal", () => {
     expect(e.materialsLow).toBe(30);
     expect(e.materialsHigh).toBe(75);
   });
+
+  it("marks pass-through materials with no estimate as billed at cost", () => {
+    const e = run([{ serviceId: "hourly-work", quantity: 1 }]);
+    expect(e.materialsHigh).toBe(0);
+    expect(e.materialsAtCost).toBe(true);
+  });
+
+  it("leaves client-supplied materials as client-supplied", () => {
+    const e = run([{ serviceId: "wifi-ap" }]);
+    expect(e.materialsHigh).toBe(0);
+    expect(e.materialsAtCost).toBe(false);
+  });
 });
 
 describe("add-ons", () => {
@@ -370,5 +382,15 @@ describe("catalog integrity", () => {
     const blob = JSON.stringify(services);
     expect(blob).not.toContain("$85/hr");
     expect(blob).not.toContain("$85 an hour");
+  });
+});
+
+describe("hourly work", () => {
+  it("totals a one-hour selection at the visit minimum", () => {
+    const e = run([{ serviceId: "hourly-work", quantity: 1 }]);
+    expect(e.laborLow).toBe(85);
+    expect(e.visitMinimumApplied).toBe(40);
+    expect(e.totalLow).toBe(125);
+    expect(e.totalHigh).toBe(125);
   });
 });

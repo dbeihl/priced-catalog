@@ -25,6 +25,13 @@ describe("first-screen navigation", () => {
     expect(page).not.toContain("Market band sources");
     expect(page).toContain('href="sources.html"');
   });
+
+  it("does not describe every listed price as per-project", () => {
+    const page = renderToStaticMarkup(createElement(App));
+
+    expect(page).toContain("Prices are per project or by the hour.");
+    expect(page).not.toContain("Prices are per project, not per hour.");
+  });
 });
 
 describe("launch contact details", () => {

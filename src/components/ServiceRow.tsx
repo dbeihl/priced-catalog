@@ -1,6 +1,7 @@
 import type { Category, Service } from "../types";
 import { BandRule } from "./BandRule";
-import { awaitingPrice, headlinePrice, hoursLabel, unitLabel } from "../lib/format";
+import { awaitingPrice, headlinePrice, hoursLabel, money, unitLabel } from "../lib/format";
+import { pricing } from "../site.config";
 
 const tagColor: Record<Category, string> = {
   water: "var(--tag-water)",
@@ -53,12 +54,19 @@ export function ServiceRow({
         <div className="lg:text-right">
           <span className="fig text-[15px] font-medium">
             {headlinePrice(service)}
+            {service.pricing.unit === "hour" && " plus materials"}
           </span>
-          {service.pricing.minimumUnits !== undefined && (
+          {service.pricing.unit === "hour" ? (
             <span className="fig ml-1 block text-[11px] text-ink-2 lg:mt-0.5">
-              {service.pricing.minimumUnits} {unitLabel[service.pricing.unit]}{" "}
-              minimum
+              {money(pricing.visitMinimum)} minimum visit
             </span>
+          ) : (
+            service.pricing.minimumUnits !== undefined && (
+              <span className="fig ml-1 block text-[11px] text-ink-2 lg:mt-0.5">
+                {service.pricing.minimumUnits} {unitLabel[service.pricing.unit]}{" "}
+                minimum
+              </span>
+            )
           )}
         </div>
 

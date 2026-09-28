@@ -7,7 +7,8 @@ export type Unit =
   | "drop"
   | "room"
   | "visit"
-  | "day";
+  | "day"
+  | "hour";
 
 export type Category =
   "water" | "smart-home" | "flooring" | "carpentry" | "doors" | "general";

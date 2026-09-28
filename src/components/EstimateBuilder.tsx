@@ -205,7 +205,9 @@ function Body({
           <dd className="fig text-ink-2">
             {estimate.materialsHigh > 0
               ? moneyRange(estimate.materialsLow, estimate.materialsHigh)
-              : "client-supplied"}
+              : estimate.materialsAtCost
+                ? "billed at cost"
+                : "client-supplied"}
           </dd>
         </div>
       </dl>
