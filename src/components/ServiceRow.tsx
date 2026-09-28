@@ -52,14 +52,17 @@ export function ServiceRow({
         {/* price */}
         <div className="lg:text-right">
           <span className="fig text-[15px] font-medium">
-            {headlinePrice(service)}
+            {service.pricing.model === "hourly"
+              ? `${headlinePrice(service)}, one-hour minimum, plus materials`
+              : headlinePrice(service)}
           </span>
-          {service.pricing.minimumUnits !== undefined && (
+          {service.pricing.model !== "hourly" &&
+            service.pricing.minimumUnits !== undefined && (
             <span className="fig ml-1 block text-[11px] text-ink-2 lg:mt-0.5">
               {service.pricing.minimumUnits} {unitLabel[service.pricing.unit]}{" "}
               minimum
             </span>
-          )}
+            )}
         </div>
 
         <div className="lg:text-right">

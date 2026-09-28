@@ -1,4 +1,4 @@
-export type PricingModel = "flat" | "range" | "per-unit" | "quote-only";
+export type PricingModel = "flat" | "range" | "per-unit" | "hourly" | "quote-only";
 export type Unit =
   | "project"
   | "linear-ft"
@@ -7,7 +7,8 @@ export type Unit =
   | "drop"
   | "room"
   | "visit"
-  | "day";
+  | "day"
+  | "hour";
 
 export type Category =
   "water" | "smart-home" | "flooring" | "carpentry" | "doors" | "general";

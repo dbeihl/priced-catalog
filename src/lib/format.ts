@@ -23,6 +23,7 @@ export const unitLabel: Record<Unit, string> = {
   room: "room",
   visit: "visit",
   day: "day",
+  hour: "hr",
 };
 
 /** Short unit for a rate suffix: "/linear ft". */
@@ -46,6 +47,8 @@ export function headlinePrice(service: Service): string {
   }
   if (p.model === "per-unit" && p.rate !== undefined)
     return `${money(p.rate)}${perUnit(p.unit)}`;
+  if (p.model === "hourly" && p.rate !== undefined)
+    return `${money(p.rate)}/hr`;
   if (p.model === "range" && p.low !== undefined && p.high !== undefined)
     return moneyRange(p.low, p.high);
   if (p.price === 0) return "Free";
