@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { services } from "../data/services";
+import { site } from "../site.config";
 import {
   buildWalkthroughMailto,
   isContactConfigured,
@@ -41,6 +42,10 @@ describe("walkthrough selection", () => {
 });
 
 describe("contact configuration", () => {
+  it("keeps a configured email available when optional metadata is unfinished", () => {
+    expect(isContactConfigured(site)).toBe(true);
+  });
+
   it("withholds actions until the email is configured", () => {
     expect(isContactConfigured({ email: "TODO_EMAIL" })).toBe(false);
     expect(isContactConfigured({ email: "aaron@example.com" })).toBe(true);
