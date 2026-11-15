@@ -71,6 +71,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [selections, setSelections] = useState<KeyedSelection[]>([]);
+  const [askedAboutId, setAskedAboutId] = useState<string | null>(null);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -93,6 +94,10 @@ export default function App() {
     ? (services.find((s) => s.id === openId) ?? null)
     : null;
   const inEstimate = new Set(selections.map((s) => s.serviceId));
+  const askedAbout =
+    askedAboutId && !inEstimate.has(askedAboutId)
+      ? services.find((s) => s.id === askedAboutId)?.name
+      : undefined;
   const contactConfigured = isContactConfigured(site);
   const walkthroughHref = contactConfigured ? "#contact" : undefined;
   const detailWalkthroughHref =
@@ -135,6 +140,7 @@ export default function App() {
           </div>
           <ContactForm
             email={site.email}
+            askedAbout={askedAbout}
             selections={selections.flatMap((selection) => {
               const service = services.find(
                 (item) => item.id === selection.serviceId,
@@ -297,6 +303,10 @@ export default function App() {
         onClose={() => setOpenId(null)}
         onAdd={(id) => {
           add(id);
+          setOpenId(null);
+        }}
+        onContact={(id) => {
+          setAskedAboutId(id);
           setOpenId(null);
         }}
         walkthroughHref={detailWalkthroughHref}

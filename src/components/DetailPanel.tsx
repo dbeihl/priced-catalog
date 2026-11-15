@@ -42,11 +42,13 @@ export function DetailPanel({
   service,
   onClose,
   onAdd,
+  onContact,
   walkthroughHref,
 }: {
   service: Service | null;
   onClose: () => void;
   onAdd: (id: string) => void;
+  onContact: (id: string) => void;
   walkthroughHref?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -206,7 +208,7 @@ export function DetailPanel({
             {walkthroughHref && (
               <a
                 href={walkthroughHref}
-                onClick={onClose}
+                onClick={() => onContact(service.id)}
                 className="block w-full border border-ink px-3 py-2 text-center text-[13px] font-semibold hover:bg-mark hover:text-on-mark"
               >
                 Request a walkthrough
@@ -215,7 +217,7 @@ export function DetailPanel({
             {awaitingPrice(service) ? (
               <a
                 href="#contact"
-                onClick={onClose}
+                onClick={() => onContact(service.id)}
                 className="block w-full border border-ink bg-mark px-3 py-2 text-center text-[13px] font-semibold text-on-mark hover:bg-transparent"
               >
                 Ask for a quote

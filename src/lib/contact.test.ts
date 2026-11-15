@@ -32,6 +32,23 @@ describe("walkthrough email", () => {
     expect(draft.searchParams.get("subject")).toBe("Walkthrough request");
   });
 
+  it("names the service the visitor was viewing apart from their job details", () => {
+    expect(
+      buildWalkthroughBody(
+        [],
+        {
+          name: "",
+          email: "sam@example.com",
+          town: "",
+          message: "Bathroom is leaking.",
+        },
+        "Toilet replacement",
+      ),
+    ).toBe(
+      "Hi,\n\nI'd like to request a walkthrough for:\nBathroom is leaking.\n\nReply email: sam@example.com\nAsked about: Toilet replacement\n\nThank you.",
+    );
+  });
+
   it("builds an email with the selected service quantities in their units and no pricing", () => {
     expect(
       buildWalkthroughMailto("aaron@example.com", [

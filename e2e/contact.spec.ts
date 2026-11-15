@@ -195,3 +195,45 @@ test("details return to contact and sources remain navigable", async ({
   ).toBeVisible();
   expect(page.url()).toContain("/priced-catalog/sources.html");
 });
+
+test("a viewed service joins the request without changing job text or the estimate", async ({
+  page,
+}) => {
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "Request a walkthrough" });
+  const message = contact.getByLabel("What needs doing?", { exact: true });
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await message.fill("Bathroom is leaking.");
+  await page
+    .getByRole("button", { name: "Toilet replacement", exact: true })
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByRole("link", { name: "Request a walkthrough" })
+    .click();
+  await expect(message).toHaveValue("Bathroom is leaking.");
+  await expect(page.getByRole("button", { name: "Remove" })).toHaveCount(0);
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  const text = contact.getByLabel("Your request text");
+  await expect(text).toContainText("Bathroom is leaking.");
+  await expect(text).toContainText("Asked about: Toilet replacement");
+  await expect(text).not.toContainText("Selected services");
+
+  const row = page.getByRole("listitem").filter({
+    has: page.getByRole("button", {
+      name: "Toilet replacement",
+      exact: true,
+    }),
+  });
+  await row.getByRole("button", { name: "Add", exact: true }).click();
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(text).not.toContainText("Asked about");
+  await expect(text).toContainText("- Toilet replacement");
+  expect(
+    (await text.textContent())!.split("Toilet replacement").length - 1,
+  ).toBe(1);
+});

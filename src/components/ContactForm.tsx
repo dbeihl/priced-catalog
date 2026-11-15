@@ -10,9 +10,11 @@ import {
 export function ContactForm({
   email,
   selections,
+  askedAbout,
 }: {
   email: string;
   selections: WalkthroughSelection[];
+  askedAbout?: string;
 }) {
   const form = useRef<HTMLFormElement>(null);
   const revision = useRef(0);
@@ -25,7 +27,7 @@ export function ContactForm({
   const [status, setStatus] = useState("");
   const [copying, setCopying] = useState(false);
   const [showRequest, setShowRequest] = useState(false);
-  const body = buildWalkthroughBody(selections, request);
+  const body = buildWalkthroughBody(selections, request, askedAbout);
 
   function update(field: keyof WalkthroughRequest, value: string) {
     revision.current += 1;
@@ -52,7 +54,7 @@ export function ContactForm({
   function prepareDraft() {
     if (!valid()) return;
     setShowRequest(true);
-    const href = buildWalkthroughMailto(email, selections, request);
+    const href = buildWalkthroughMailto(email, selections, request, askedAbout);
     if (href.length > 1800) {
       setStatus(
         "This request is too long for a reliable email link. Copy the request below and email it to the address shown.",
@@ -158,6 +160,12 @@ export function ContactForm({
                 onChange={(event) => update("message", event.target.value)}
               />
             </div>
+            {askedAbout && (
+              <p className="text-[13px] text-ink-2">
+                Your request will name the service you were viewing:{" "}
+                {askedAbout}.
+              </p>
+            )}
             {selections.length > 0 && (
               <p className="text-[13px] text-ink-2">
                 Your current estimate selections will be included, with

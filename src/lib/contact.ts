@@ -32,6 +32,7 @@ export interface WalkthroughRequest {
 export function buildWalkthroughBody(
   selections: WalkthroughSelection[],
   request?: WalkthroughRequest,
+  askedAbout?: string,
 ) {
   return [
     "Hi,",
@@ -46,6 +47,7 @@ export function buildWalkthroughBody(
           ...(request.town.trim()
             ? [`Town or ZIP: ${request.town.trim()}`]
             : []),
+          ...(askedAbout ? [`Asked about: ${askedAbout}`] : []),
           ...(selections.length ? ["", "Selected services:"] : []),
         ]
       : []),
@@ -63,9 +65,10 @@ export function buildWalkthroughMailto(
   email: string,
   selections: WalkthroughSelection[],
   request?: WalkthroughRequest,
+  askedAbout?: string,
 ) {
   const subject = "Walkthrough request";
-  const body = buildWalkthroughBody(selections, request);
+  const body = buildWalkthroughBody(selections, request, askedAbout);
   const encode = (value: string) =>
     encodeURIComponent(value).replace(/'/g, "%27");
   return `mailto:${email}?subject=${encode(subject)}&body=${encode(body)}`;
