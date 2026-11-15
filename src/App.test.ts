@@ -8,14 +8,14 @@ import { calculateEstimate } from "./lib/estimate";
 import { pricing } from "./site.config";
 
 describe("first-screen navigation", () => {
-  it("links the hero actions to the catalog and walkthrough sections", () => {
+  it("links the header actions to the catalog and walkthrough sections", () => {
     const page = renderToStaticMarkup(createElement(App));
 
     expect(page).toContain('href="#catalog"');
-    expect(page).toContain(">Browse services<");
+    expect(page).toContain(">Services &amp; prices<");
     expect(page).toContain('id="catalog"');
     expect(page).toContain('href="#contact"');
-    expect(page).toContain(">Get a walkthrough<");
+    expect(page).toContain(">Contact<");
     expect(page).toContain('id="contact"');
   });
 

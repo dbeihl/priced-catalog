@@ -49,8 +49,9 @@ export function BandRule({
 
   if (position === null || value === null) {
     return (
-      <p className="fig text-[11px] leading-tight text-ink-2">
-        Market {marketBandLabel(service)} · <SourceCitation band={service.marketBand} />
+      <p className="fig text-[13px] leading-tight text-ink-2">
+        Market {marketBandLabel(service)} ·{" "}
+        <SourceCitation band={service.marketBand} />
       </p>
     );
   }
@@ -73,7 +74,7 @@ export function BandRule({
         />
       </div>
 
-      <p className="fig flex flex-wrap items-baseline gap-x-1.5 text-[11px] leading-tight text-ink-2">
+      <p className="fig flex flex-wrap items-baseline gap-x-1.5 text-[13px] leading-tight text-ink-2">
         <span>{money(low)}</span>
         <span aria-hidden="true">–</span>
         <span>

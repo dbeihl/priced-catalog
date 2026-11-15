@@ -1,6 +1,12 @@
 import type { Category, Service } from "../types";
 import { BandRule } from "./BandRule";
-import { awaitingPrice, headlinePrice, hoursLabel, money, unitLabel } from "../lib/format";
+import {
+  awaitingPrice,
+  headlinePrice,
+  hoursLabel,
+  money,
+  unitLabel,
+} from "../lib/format";
 import { pricing } from "../site.config";
 
 const tagColor: Record<Category, string> = {
@@ -24,14 +30,13 @@ export function ServiceRow({
   inEstimate: boolean;
 }) {
   return (
-    <li className="relative border-b border-rule bg-field">
+    <li className="service-row">
       <div
         aria-hidden="true"
         className="absolute inset-y-0 left-0 w-[3px]"
         style={{ background: tagColor[service.category] }}
       />
-      <div className="grid grid-cols-1 gap-x-6 gap-y-3 py-4 pl-5 pr-4 lg:grid-cols-[minmax(0,1fr)_10rem_5rem_14rem_5.5rem] lg:items-start">
-        {/* name + blurb */}
+      <div className="service-content">
         <div className="min-w-0">
           <button
             type="button"
@@ -40,7 +45,7 @@ export function ServiceRow({
           >
             {service.name}
           </button>
-          <p className="mt-0.5 text-[13px] leading-snug text-ink-2">
+          <p className="mt-0.5 text-[14px] leading-relaxed text-ink-2">
             {service.blurb}
           </p>
           {service.confirmBy && (
@@ -50,8 +55,7 @@ export function ServiceRow({
           )}
         </div>
 
-        {/* price */}
-        <div className="lg:text-right">
+        <div className="service-price">
           <span className="fig text-[15px] font-medium">
             {headlinePrice(service)}
             {service.pricing.unit === "hour" && " plus materials"}
@@ -70,10 +74,11 @@ export function ServiceRow({
           )}
         </div>
 
-        <div className="lg:text-right">
+        <div className="service-hours">
           {service.basis && (
             <>
-              <span className="fig text-[13px]">
+              <span className="fig text-[14px]">
+                <span className="text-ink-2">Hours: </span>
                 {hoursLabel(service.basis.hours)}
               </span>
               {service.basis.pace && (
@@ -85,11 +90,11 @@ export function ServiceRow({
           )}
         </div>
 
-        <div className="min-w-0">
+        <div className="service-market min-w-0">
           {service.marketBand && <BandRule service={service} />}
         </div>
 
-        <div className="lg:text-right">
+        <div className="service-action">
           {awaitingPrice(service) ? (
             <a
               href="#contact"

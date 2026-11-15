@@ -1,12 +1,9 @@
 import { useMemo, useState } from "react";
+import { ContactForm } from "./components/ContactForm";
 import type { Category, Service } from "./types";
 import { services } from "./data/services";
 import { calculateEstimate } from "./lib/estimate";
-import {
-  buildWalkthroughMailto,
-  isContactConfigured,
-  walkthroughSelection,
-} from "./lib/contact";
+import { isContactConfigured, walkthroughSelection } from "./lib/contact";
 import {
   categoryNames,
   categoryOrder,
@@ -97,21 +94,9 @@ export default function App() {
     : null;
   const inEstimate = new Set(selections.map((s) => s.serviceId));
   const contactConfigured = isContactConfigured(site);
-  const walkthroughHref = contactConfigured
-    ? buildWalkthroughMailto(
-        site.email,
-        selections.flatMap((selection) => {
-          const service = services.find((item) => item.id === selection.serviceId);
-          return service
-            ? [walkthroughSelection(service, selection.quantity)]
-            : [];
-        }),
-      )
-    : undefined;
+  const walkthroughHref = contactConfigured ? "#contact" : undefined;
   const detailWalkthroughHref =
-    contactConfigured && openService
-      ? buildWalkthroughMailto(site.email, [{ name: openService.name }])
-      : undefined;
+    contactConfigured && openService ? "#contact" : undefined;
 
   const add = (serviceId: string) =>
     setSelections((prev) => [
@@ -124,63 +109,71 @@ export default function App() {
 
   return (
     <div className="min-h-dvh">
-      <div className="mx-auto max-w-[86rem] px-4 pb-28 lg:px-8 lg:pb-8">
-        {/* ── Hero ── */}
-        <header className="border-b border-rule py-6 lg:py-8">
-          <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-end lg:gap-10">
-            <div>
-              <p className="fig text-[12px] uppercase tracking-[0.18em] text-ink-2">
-                {site.serviceArea}
-              </p>
-              <h1 className="mt-1 max-w-3xl text-[28px] font-semibold leading-[1.15] lg:text-[36px]">
-                {site.name}
-              </h1>
-              <ol className="mt-4 max-w-2xl space-y-1 text-[14px] leading-relaxed lg:text-[15px]">
-                <li className="border-l-2 border-ink pl-3">
-                  Prices are per project or by the hour.
-                </li>
-                <li className="border-l-2 border-ink pl-3">
-                  Materials are at cost, with receipts.
-                </li>
-                <li className="border-l-2 border-mark pl-3">
-                  Every number shows its math: the hours behind it, and what the
-                  market charges for the same job.
-                </li>
-              </ol>
-              <p className="mt-4 max-w-2xl text-[14px] leading-relaxed text-ink-2">
-                Publishing the market band means you can see when a price sits
-                at the bottom of it and when it sits at the top. That is the
-                point. You should be able to check the number, not just trust
-                it.
-              </p>
-              <nav
-                aria-label="Catalog navigation"
-                className="mt-5 flex flex-wrap gap-3"
-              >
-                <a
-                  href="#catalog"
-                  className="border border-ink bg-mark px-3 py-2 text-[13px] font-medium text-on-mark"
-                >
-                  Browse services
-                </a>
-                <a
-                  href="#contact"
-                  className="border border-ink bg-field px-3 py-2 text-[13px] font-medium"
-                >
-                  Get a walkthrough
-                </a>
-              </nav>
-            </div>
-            <HowToRead />
-          </div>
+      <div className="mx-auto max-w-[80rem] px-4 pb-28 lg:px-8 lg:pb-8">
+        <header className="site-header">
+          <a href="#" className="text-[18px] font-semibold">
+            {site.name}
+          </a>
+          <nav
+            aria-label="Catalog navigation"
+            className="flex gap-5 text-[14px]"
+          >
+            <a href="#catalog">Services &amp; prices</a>
+            <a href="#contact">Contact</a>
+          </nav>
         </header>
-
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-8">
-          <main id="catalog" className="scroll-mt-4">
+        <div className="contact-intro">
+          <div>
+            <p className="text-[13px] text-ink-2">{site.serviceArea}</p>
+            <h1 className="mt-2 text-[30px] font-semibold leading-tight lg:text-[42px]">
+              Home repairs, with the price explained.
+            </h1>
+            <p className="mt-3 max-w-lg text-[16px] leading-relaxed text-ink-2">
+              Published service prices, with the hours and market rates behind
+              them.
+            </p>
+          </div>
+          <ContactForm
+            email={site.email}
+            selections={selections.flatMap((selection) => {
+              const service = services.find(
+                (item) => item.id === selection.serviceId,
+              );
+              return service
+                ? [walkthroughSelection(service, selection.quantity)]
+                : [];
+            })}
+          />
+          <div className="pricing-intro">
+            <div>
+              <p>Prices are per project or by the hour.</p>
+              <p>Materials are at cost, with receipts.</p>
+              <p className="mt-2 text-[14px] text-ink-2">{disclaimer}</p>
+            </div>
+            <figure className="border-l-2 border-mark pl-4">
+              <blockquote className="text-[14px] leading-relaxed">
+                Aaron put shiplap in our bedroom and downstairs bathroom and
+                painted it out. It looks awesome, and he did it right the first
+                time.
+              </blockquote>
+              <figcaption className="mt-2 text-[13px] text-ink-2">
+                David B.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+        <div className="catalog-layout">
+          <main id="catalog" className="scroll-mt-4 min-w-0">
+            <div className="catalog-heading">
+              <h2 className="text-[24px] font-semibold">
+                Services &amp; prices
+              </h2>
+              <HowToRead />
+            </div>
             {/* ── Filters ── */}
             <div className="-mx-4 border-b border-rule bg-paper px-4 py-3 lg:sticky lg:top-0 lg:z-[5] lg:mx-0 lg:px-0">
               <label className="block">
-                <span className="sr-only">Search services</span>
+                <span className="mb-2 block text-[14px]">Search services</span>
                 <input
                   type="search"
                   id="catalog-search"
@@ -283,40 +276,19 @@ export default function App() {
           />
         </div>
 
-        {/* ── Contact ── */}
-        <footer id="contact" className="mt-10 border-t border-rule py-8 scroll-mt-4">
-          <figure className="max-w-2xl border-l-2 border-mark pl-4">
-            <blockquote className="text-[15px] leading-relaxed text-ink">
-              Aaron put shiplap in our bedroom and downstairs bathroom and
-              painted it out. It looks awesome, and he did it right the first
-              time.
-            </blockquote>
-            <figcaption className="mt-2 text-[13px] text-ink-2">
-              David B.
-            </figcaption>
-          </figure>
-          <h2 className="mt-8 text-[20px] font-semibold">Get a walkthrough</h2>
-          <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-2">
-            {disclaimer}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <a
-              href={`mailto:${site.email}`}
-              className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark hover:text-on-mark"
-            >
+        <footer className="mt-10 border-t border-rule py-8 text-[14px] text-ink-2">
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            <a href="#contact">Back to contact</a>
+            <a className="contact-email" href={`mailto:${site.email}`}>
               {site.email}
             </a>
+            <a href="sources.html">How we price</a>
           </div>
-          <p className="fig mt-6 text-[11px] uppercase tracking-wider text-ink-2">
-            {site.serviceArea} · No forms, no tracking, nothing collected on
-            this site.
+          <p className="mt-4">
+            {site.serviceArea}. Contact fields stay in this page until you
+            choose to open an email draft or copy them. You send the email
+            yourself.
           </p>
-          <a
-            href="sources.html"
-            className="mt-3 inline-block text-[12px] text-ink-2 underline decoration-rule underline-offset-2 hover:decoration-ink"
-          >
-            How we price
-          </a>
         </footer>
       </div>
 

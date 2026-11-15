@@ -1,10 +1,10 @@
 # Priced catalog
 
-A website that publishes your prices next to the hours behind them and what the going rate is for the same job. No database, no logins, nothing collected about anyone who visits.
+A website that publishes your prices next to the hours behind them and what the going rate is for the same job. No database or logins. The contact form prepares an email draft or copies a request. The visitor sends it from their own email application. Contact fields stay in page memory and are not submitted to a server or stored by this application. GitHub Pages logs visitor IP addresses for security purposes.
 
 Everything you would want to change lives in two files:
 
-- `src/site.config.ts` — your name, service area, email, the visit minimum, and the page description, web address, and link-preview image. The "Request a walkthrough" buttons stay hidden until the email no longer starts with `TODO_`. Any other value still starting with `TODO_` is left off the page. The browser-tab titles in `index.html` and `sources.html` repeat the name, so change them there too.
+- `src/site.config.ts` — your name, service area, email, the visit minimum, and the page description, web address, and link-preview image. Contact actions are available when the email is configured, independently of optional page metadata. The top form requires an email and job description. Open email draft opens the visitor's email app; Copy request also offers selectable text if clipboard access fails. Long requests use the copy path. No hosted form processor is configured. Any other value still starting with `TODO_` is left off the page. The browser-tab titles in `index.html` and `sources.html` repeat the name, so change them there too.
 - `src/data/services.ts` — every service and every price.
 
 You do not need to understand the rest of the code to change either one.
@@ -207,3 +207,7 @@ That last part is the one that protects you. An unsigned change order is unenfor
 
 **4. Westfield and Hamilton County registration thresholds are confirmed.**
 Indiana has no statewide contractor licensing, but cities and counties set their own registration rules and dollar thresholds. Indianapolis, for example, requires Home Improvement Contractor registration for work over $500. Several items on this list sit right on that line. Call the Westfield building department and confirm what applies before the catalog is public.
+
+## Contact layout
+
+The [contact-first layout plan](docs/contact-layout-plan.md) records the research, public behavior, and delivery boundary. Contact is above the catalog. Estimate and detail actions return to that form. All prices, hours, market bands, and source files retain their existing values. The walkthrough is a request, not a booked appointment.

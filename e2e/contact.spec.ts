@@ -1,0 +1,197 @@
+import { test, expect } from "@playwright/test";
+
+test("visitor can prepare and copy a walkthrough before browsing services", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async (text: string) => {
+          (window as unknown as { copied: string }).copied = text;
+        },
+      },
+    });
+  });
+  const submissions: string[] = [];
+  page.on("request", (request) => {
+    if (request.method() !== "GET") submissions.push(request.url());
+  });
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "Request a walkthrough" });
+  await expect(contact.getByLabel("Email", { exact: true })).toBeVisible();
+  await expect(
+    contact.getByLabel("What needs doing?", { exact: true }),
+  ).toBeVisible();
+  const contactBox = await contact.boundingBox();
+  const catalogBox = await page
+    .getByRole("heading", { name: "Services & prices" })
+    .boundingBox();
+  expect(contactBox!.y).toBeLessThan(catalogBox!.y);
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(contact.getByLabel("Email", { exact: true })).toBeFocused();
+  await contact.getByLabel("Name (optional)").fill("Sam");
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact.getByLabel("Town or ZIP (optional)").fill("Westfield");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("Fix the entry door & trim.");
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(contact.getByRole("status")).toContainText("Request copied");
+  const copied = await page.evaluate(
+    () => (window as unknown as { copied: string }).copied,
+  );
+  expect(copied).toContain("Reply email: sam@example.com");
+  expect(copied).toContain("Fix the entry door & trim.");
+  await expect(
+    contact.getByLabel("What needs doing?", { exact: true }),
+  ).toHaveValue("Fix the entry door & trim.");
+  expect(submissions).toEqual([]);
+  expect(
+    await page.evaluate(() => [localStorage.length, sessionStorage.length]),
+  ).toEqual([0, 0]);
+});
+
+test("clipboard failure retains the current estimate and editable request", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async () => {
+          throw new Error("Clipboard denied");
+        },
+      },
+    }),
+  );
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "Request a walkthrough" });
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("Replace the trim.");
+  await page
+    .getByRole("searchbox", { name: "Search services" })
+    .fill("baseboard");
+  const row = page.getByRole("listitem").filter({
+    has: page.getByRole("button", {
+      name: "Baseboard — new install",
+      exact: true,
+    }),
+  });
+  await row.getByRole("button", { name: "Add", exact: true }).click();
+  const mobile = (page.viewportSize()?.width ?? 1440) < 1200;
+  const estimate = mobile
+    ? page.locator("details.estimate-mobile")
+    : page.getByRole("complementary");
+  if (mobile) await estimate.locator("summary").click();
+  await estimate.getByRole("spinbutton").fill("120");
+  await estimate.getByRole("link", { name: "Request a walkthrough" }).click();
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(contact.getByRole("status")).toContainText(
+    "Copy was unavailable",
+  );
+  await expect(contact.getByLabel("Your request text")).toContainText(
+    "Baseboard — new install: 120 linear ft",
+  );
+  await expect(contact.getByLabel("Your request text")).not.toContainText("$");
+  await expect(
+    contact.getByLabel("What needs doing?", { exact: true }),
+  ).toHaveValue("Replace the trim.");
+  if (mobile) await estimate.locator("summary").click();
+  await estimate.getByRole("spinbutton").fill("240");
+  await estimate.getByRole("link", { name: "Request a walkthrough" }).click();
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(contact.getByLabel("Your request text")).toContainText(
+    "240 linear ft",
+  );
+  if (mobile) await estimate.locator("summary").click();
+  await estimate.getByRole("button", { name: "Remove" }).click();
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(contact.getByLabel("Your request text")).not.toContainText(
+    "Baseboard",
+  );
+});
+
+test("long drafts use selectable text and whitespace-only jobs remain invalid", async ({
+  page,
+}) => {
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "Request a walkthrough" });
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  const message = contact.getByLabel("What needs doing?", { exact: true });
+  await message.fill("   ");
+  await contact
+    .getByRole("button", { name: "Open email draft", exact: true })
+    .click();
+  await expect(message).toBeFocused();
+  await expect(contact.getByRole("status")).toBeEmpty();
+  await message.fill("A repair detail. ".repeat(200));
+  await contact
+    .getByRole("button", { name: "Open email draft", exact: true })
+    .click();
+  await expect(contact.getByRole("status")).toContainText(
+    "too long for a reliable email link",
+  );
+  await expect(contact.getByLabel("Your request text")).toContainText(
+    "A repair detail.",
+  );
+  expect(page.url()).not.toContain("mailto:");
+});
+
+test("mobile contact stays above the catalog without document overflow", async ({
+  page,
+}) => {
+  for (const width of [320, 390, 1280, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("./");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    const heading = await page
+      .getByRole("heading", { name: "Request a walkthrough" })
+      .boundingBox();
+    const email = await page.getByLabel("Email", { exact: true }).boundingBox();
+    expect(heading!.y).toBeLessThan(844);
+    expect(email!.y + email!.height).toBeLessThan(844);
+    if (width === 390) {
+      const action = await page
+        .getByRole("button", { name: "Open email draft", exact: true })
+        .boundingBox();
+      expect(action!.y + action!.height).toBeLessThan(844);
+    }
+  }
+});
+
+test("details return to contact and sources remain navigable", async ({
+  page,
+}) => {
+  await page.goto("./");
+  await page
+    .getByRole("button", { name: "Toilet replacement", exact: true })
+    .click();
+  const detail = page.getByRole("dialog");
+  await expect(
+    detail.getByRole("heading", { name: "Toilet replacement" }),
+  ).toBeVisible();
+  await expect(detail.locator("header")).toContainText("$185");
+  await detail.getByRole("link", { name: "Request a walkthrough" }).click();
+  await expect(detail).not.toBeVisible();
+  await expect(page.getByLabel("Email", { exact: true })).toBeInViewport();
+  await page.getByRole("link", { name: "How we price", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Market band sources" }),
+  ).toBeVisible();
+  expect(page.url()).toContain("/priced-catalog/sources.html");
+});

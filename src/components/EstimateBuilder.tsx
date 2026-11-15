@@ -231,6 +231,9 @@ function Body({
         {walkthroughHref && (
           <a
             href={walkthroughHref}
+            onClick={(event) =>
+              event.currentTarget.closest("details")?.removeAttribute("open")
+            }
             className="block border border-ink px-3 py-2 text-center text-[13px] font-semibold text-ink hover:bg-mark hover:text-on-mark"
           >
             Request a walkthrough
@@ -246,7 +249,7 @@ export function EstimateBuilder(props: Props) {
   return (
     <>
       {/* desktop: a running tally in the right rail */}
-      <aside className="hidden lg:block">
+      <aside className="hidden min-[1200px]:block">
         <div className="sticky top-4 border border-rule bg-field">
           <header className="flex items-baseline justify-between gap-3 border-b border-rule px-4 py-3">
             <h2 className="text-[12px] uppercase tracking-wider text-ink-2">
@@ -265,7 +268,7 @@ export function EstimateBuilder(props: Props) {
        * shows a total does not read as tappable.
        */}
       {!props.estimate.isEmpty && (
-        <details className="group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] lg:hidden">
+        <details className="estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden">
           <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
             <svg
               aria-hidden="true"

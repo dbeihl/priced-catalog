@@ -3,6 +3,7 @@ import { services } from "../data/services";
 import { site } from "../site.config";
 import {
   buildWalkthroughMailto,
+  buildWalkthroughBody,
   isContactConfigured,
   walkthroughSelection,
 } from "./contact";
@@ -11,6 +12,26 @@ import { unitLabel } from "./format";
 const service = (id: string) => services.find((s) => s.id === id)!;
 
 describe("walkthrough email", () => {
+  it("formats a visitor request for email and copying without prices", () => {
+    const request = {
+      name: " Sam ",
+      email: "sam@example.com",
+      town: " Westfield ",
+      message: "Fix the door & trim.\nThe entry is narrow.",
+    };
+    const selections = [
+      { name: "Baseboard", quantity: 120, unit: "linear ft" },
+    ];
+    const expected =
+      "Hi,\n\nI'd like to request a walkthrough for:\nFix the door & trim.\nThe entry is narrow.\n\nName: Sam\nReply email: sam@example.com\nTown or ZIP: Westfield\n\nSelected services:\n- Baseboard: 120 linear ft\n\nThank you.";
+    expect(buildWalkthroughBody(selections, request)).toBe(expected);
+    const draft = new URL(
+      buildWalkthroughMailto("info@example.com", selections, request),
+    );
+    expect(draft.searchParams.get("body")).toBe(expected);
+    expect(draft.searchParams.get("subject")).toBe("Walkthrough request");
+  });
+
   it("builds an email with the selected service quantities in their units and no pricing", () => {
     expect(
       buildWalkthroughMailto("aaron@example.com", [

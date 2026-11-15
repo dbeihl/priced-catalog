@@ -3,8 +3,7 @@ import { needsQuantity } from "./estimate";
 import { unitLabel } from "./format";
 
 export type WalkthroughSelection =
-  | { name: string }
-  | { name: string; quantity: number; unit: string };
+  { name: string } | { name: string; quantity: number; unit: string };
 
 export function walkthroughSelection(
   service: Service,
@@ -20,18 +19,36 @@ export interface ContactConfig {
 }
 
 export function isContactConfigured(contact: ContactConfig) {
-  return Object.values(contact).every((value) => !value.startsWith("TODO_"));
+  return contact.email.trim().length > 0 && !contact.email.startsWith("TODO_");
 }
 
-export function buildWalkthroughMailto(
-  email: string,
+export interface WalkthroughRequest {
+  name: string;
+  email: string;
+  town: string;
+  message: string;
+}
+
+export function buildWalkthroughBody(
   selections: WalkthroughSelection[],
+  request?: WalkthroughRequest,
 ) {
-  const subject = "Walkthrough request";
-  const body = [
+  return [
     "Hi,",
     "",
     "I'd like to request a walkthrough for:",
+    ...(request
+      ? [
+          request.message.trim(),
+          "",
+          ...(request.name.trim() ? [`Name: ${request.name.trim()}`] : []),
+          `Reply email: ${request.email.trim()}`,
+          ...(request.town.trim()
+            ? [`Town or ZIP: ${request.town.trim()}`]
+            : []),
+          ...(selections.length ? ["", "Selected services:"] : []),
+        ]
+      : []),
     ...selections.map((selection) =>
       "quantity" in selection
         ? `- ${selection.name}: ${selection.quantity} ${selection.unit}`
@@ -40,7 +57,16 @@ export function buildWalkthroughMailto(
     "",
     "Thank you.",
   ].join("\n");
+}
 
-  const encode = (value: string) => encodeURIComponent(value).replace(/'/g, "%27");
+export function buildWalkthroughMailto(
+  email: string,
+  selections: WalkthroughSelection[],
+  request?: WalkthroughRequest,
+) {
+  const subject = "Walkthrough request";
+  const body = buildWalkthroughBody(selections, request);
+  const encode = (value: string) =>
+    encodeURIComponent(value).replace(/'/g, "%27");
   return `mailto:${email}?subject=${encode(subject)}&body=${encode(body)}`;
 }

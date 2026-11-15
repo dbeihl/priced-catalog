@@ -7,7 +7,7 @@ test("smoke: catalog loads with no console errors", async ({ page }) => {
   });
   page.on("pageerror", (err) => errors.push(err.message));
 
-  await page.goto("/");
+  await page.goto("./");
   await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
   expect(errors).toEqual([]);
 });

@@ -206,6 +206,7 @@ export function DetailPanel({
             {walkthroughHref && (
               <a
                 href={walkthroughHref}
+                onClick={onClose}
                 className="block w-full border border-ink px-3 py-2 text-center text-[13px] font-semibold hover:bg-mark hover:text-on-mark"
               >
                 Request a walkthrough
