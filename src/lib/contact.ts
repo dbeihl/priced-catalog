@@ -1,19 +1,46 @@
 import type { Service } from "../types";
-import { needsQuantity } from "./estimate";
+import { needsQuantity, type AddOnSelection } from "./estimate";
 import { unitLabel } from "./format";
 
-export type WalkthroughSelection =
+type RequestLine =
   { name: string } | { name: string; quantity: number; unit: string };
+
+export type WalkthroughSelection = RequestLine & { addOns?: RequestLine[] };
+
+const wholeCount = (quantity = 1) => Math.max(1, Math.trunc(quantity) || 1);
 
 export function walkthroughSelection(
   service: Service,
   quantity = 1,
+  chosen: AddOnSelection[] = [],
 ): WalkthroughSelection {
-  const count = Math.max(1, Math.trunc(quantity) || 1);
-  return needsQuantity(service)
-    ? { name: service.name, quantity: count, unit: unitLabel[service.pricing.unit] }
+  const line: WalkthroughSelection = needsQuantity(service)
+    ? {
+        name: service.name,
+        quantity: wholeCount(quantity),
+        unit: unitLabel[service.pricing.unit],
+      }
     : { name: service.name };
+  const addOns = chosen.flatMap(({ id, quantity }) => {
+    const addOn = service.addOns?.find((a) => a.id === id);
+    if (!addOn) return [];
+    return addOn.unit === undefined
+      ? [{ name: addOn.name }]
+      : [
+          {
+            name: addOn.name,
+            quantity: wholeCount(quantity),
+            unit: unitLabel[addOn.unit],
+          },
+        ];
+  });
+  return addOns.length ? { ...line, addOns } : line;
 }
+
+const describe = (line: RequestLine) =>
+  "quantity" in line
+    ? `${line.name}: ${line.quantity} ${line.unit}`
+    : line.name;
 
 export interface ContactConfig {
   email: string;
@@ -52,11 +79,10 @@ export function buildWalkthroughBody(
           ...(selections.length ? ["", "Selected services:"] : []),
         ]
       : []),
-    ...selections.map((selection) =>
-      "quantity" in selection
-        ? `- ${selection.name}: ${selection.quantity} ${selection.unit}`
-        : `- ${selection.name}`,
-    ),
+    ...selections.flatMap((selection) => [
+      `- ${describe(selection)}`,
+      ...(selection.addOns ?? []).map((addOn) => `  + ${describe(addOn)}`),
+    ]),
     "",
     "Thank you.",
   ].join("\n");

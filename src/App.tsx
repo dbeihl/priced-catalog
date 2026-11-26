@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ContactForm } from "./components/ContactForm";
 import type { Category, Service } from "./types";
 import { services } from "./data/services";
@@ -57,13 +57,24 @@ function HouseMark() {
 }
 
 let nextKey = 1;
+// ponytail: fixed band a little taller than the closed estimate bar; measure the bar if its height ever varies.
+const barBand = 80;
 
 function recallSelections(): KeyedSelection[] {
   const known = new Set(services.map((s) => s.id));
   const saved = recall<KeyedSelection[]>("estimate", []);
-  const valid = Array.isArray(saved)
-    ? saved.filter((s) => known.has(s?.serviceId) && Number.isInteger(s.key))
-    : [];
+  const count = (n: unknown) =>
+    Math.max(1, Math.trunc(typeof n === "number" ? n : 1) || 1);
+  const valid = (Array.isArray(saved) ? saved : [])
+    .filter((s) => known.has(s?.serviceId) && Number.isInteger(s.key))
+    .map((s) => ({
+      ...s,
+      quantity: count(s.quantity),
+      addOns: (Array.isArray(s.addOns) ? s.addOns : []).map((a) => ({
+        ...a,
+        quantity: count(a?.quantity),
+      })),
+    }));
   nextKey = Math.max(nextKey, ...valid.map((s) => s.key + 1));
   return valid;
 }
@@ -120,19 +131,41 @@ export default function App() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [selections, setSelections] =
     useState<KeyedSelection[]>(recallSelections);
-  const [askedAboutId, setAskedAboutId] = useState<string | null>(null);
-  const [contactInView, setContactInView] = useState(false);
+  const [askedAboutId, setAskedAboutId] = useState<string | null>(() => {
+    const saved = recall<string | null>("asked-about", null);
+    return services.some((s) => s.id === saved) ? saved : null;
+  });
+  const [barCoversContact, setBarCoversContact] = useState(false);
+  const pills = useRef<HTMLDivElement>(null);
+  const [pillsOverflow, setPillsOverflow] = useState(false);
+
+  useEffect(() => {
+    const el = pills.current;
+    if (!el) return;
+    const watch = new ResizeObserver(() =>
+      setPillsOverflow(el.scrollWidth > el.clientWidth),
+    );
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, []);
 
   useEffect(() => keep("estimate", selections), [selections]);
+  useEffect(() => keep("asked-about", askedAboutId), [askedAboutId]);
 
   useEffect(() => {
     const contact = document.getElementById("contact");
     if (!contact) return;
-    const watch = new IntersectionObserver(([entry]) =>
-      setContactInView(!!entry?.isIntersecting),
-    );
-    watch.observe(contact);
-    return () => watch.disconnect();
+    const check = () => {
+      const { top, bottom } = contact.getBoundingClientRect();
+      setBarCoversContact(top < innerHeight && bottom > innerHeight - barBand);
+    };
+    check();
+    addEventListener("scroll", check, { passive: true });
+    addEventListener("resize", check);
+    return () => {
+      removeEventListener("scroll", check);
+      removeEventListener("resize", check);
+    };
   }, []);
 
   const visible = useMemo(() => {
@@ -229,7 +262,13 @@ export default function App() {
                 (item) => item.id === selection.serviceId,
               );
               return service
-                ? [walkthroughSelection(service, selection.quantity)]
+                ? [
+                    walkthroughSelection(
+                      service,
+                      selection.quantity,
+                      selection.addOns,
+                    ),
+                  ]
                 : [];
             })}
           />
@@ -275,7 +314,7 @@ export default function App() {
               <HowToRead />
             </div>
             {/* ── Filters ── */}
-            <div className="filter-bar border-b border-line bg-paper py-3 lg:sticky lg:top-0 lg:z-[5]">
+            <div className="filter-bar relative bg-paper py-3 lg:sticky lg:top-0 lg:z-[5]">
               <label className="block">
                 <span className="mb-2 block text-[13px] font-semibold">Search services</span>
                 <input
@@ -290,9 +329,10 @@ export default function App() {
               </label>
               <div className="mt-2">
                 <div
+                  ref={pills}
                   role="group"
                   aria-label="Filter by category"
-                  className="flex gap-1 overflow-x-auto pb-1 min-[900px]:flex-wrap"
+                  className="-m-1 flex gap-1 overflow-x-auto p-1 min-[900px]:flex-wrap"
                 >
                   {(["all", ...categoryOrder] as const).map((c) => {
                     const active = category === c;
@@ -313,12 +353,14 @@ export default function App() {
                     );
                   })}
                 </div>
-                <span
-                  aria-hidden="true"
-                  className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2 min-[900px]:hidden"
-                >
-                  Swipe for more categories →
-                </span>
+                {pillsOverflow && (
+                  <span
+                    aria-hidden="true"
+                    className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2"
+                  >
+                    Swipe for more categories →
+                  </span>
+                )}
               </div>
             </div>
 
@@ -377,7 +419,7 @@ export default function App() {
               setSelections((prev) => prev.filter((s) => s.key !== key))
             }
             walkthroughHref={walkthroughHref}
-            hideBar={contactInView}
+            hideBar={barCoversContact}
           />
         </div>
 

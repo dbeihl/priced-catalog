@@ -61,7 +61,7 @@ function Body({
   }
 
   return (
-    <div className="max-h-[48dvh] overflow-y-auto min-[1200px]:max-h-none">
+    <div className="max-h-[48dvh] overflow-y-auto overscroll-contain min-[1200px]:max-h-none">
       <ul>
         {selections.map((selection, index) => {
           const service = byId.get(selection.serviceId);
@@ -281,8 +281,8 @@ export function EstimateBuilder(props: Props) {
        * The caret and the Show/Hide word are there because a bar that only
        * shows a total does not read as tappable.
        */}
-      {!props.estimate.isEmpty && !props.hideBar && (
-        <details className="estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden">
+      {!props.estimate.isEmpty && (
+        <details className={`estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden${props.hideBar ? " covering" : ""}`}>
           <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
             <svg
               aria-hidden="true"

@@ -321,6 +321,12 @@ button {
   margin-inline: -18px;
   padding-inline: 18px;
 }
+.filter-bar::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  border-bottom: 1px solid var(--line);
+}
 .catalog-heading .intro {
   max-width: 24rem;
   font-size: 14px;
@@ -432,13 +438,6 @@ button {
     margin-inline: -32px;
     padding-inline: 32px;
   }
-  .catalog-heading {
-    grid-template-columns: minmax(0, 1fr) minmax(12rem, 22rem);
-    column-gap: 2rem;
-  }
-  .catalog-title {
-    grid-column: 1 / -1;
-  }
   .service-content {
     grid-template-columns: minmax(0, 1fr) 14rem auto;
   }
@@ -476,6 +475,13 @@ button {
   }
 }
 @media (min-width: 900px) {
+  .catalog-heading {
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 22rem);
+    column-gap: 2rem;
+  }
+  .catalog-title {
+    grid-column: 1 / -1;
+  }
   .hero {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 2.2rem;
@@ -561,6 +567,9 @@ button {
     margin-inline: -8px;
     padding-inline: 8px;
   }
+  .filter-bar::after {
+    inset-inline: 8px;
+  }
 }
 @media (min-width: 1100px) {
   .hero-copy h1 {
@@ -580,4 +589,7 @@ button {
 }
 .estimate-mobile {
   padding-bottom: env(safe-area-inset-bottom);
+}
+.estimate-mobile.covering:not([open]) {
+  display: none;
 }
