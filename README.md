@@ -1,6 +1,6 @@
 # Priced catalog
 
-A website that publishes your prices next to the hours behind them and what the going rate is for the same job. No database or logins. The contact form prepares an email draft or copies a request. The visitor sends it from their own email application. Contact fields stay in page memory and are not submitted to a server or stored by this application. GitHub Pages logs visitor IP addresses for security purposes.
+A website that publishes your prices next to the hours behind them and what the going rate is for the same job. No database or logins. The contact form prepares an email draft or copies a request. The visitor sends it from their own email application. The typed request and the running estimate are kept in the browser tab's session storage, so they survive a visit to the pricing sources and disappear when the tab closes. Nothing is submitted to a server. GitHub Pages logs visitor IP addresses for security purposes.
 
 Everything you would want to change lives in two files:
 

@@ -43,7 +43,6 @@ body {
 :where(a, button, input, textarea, select, [tabindex]):focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
-  background-color: color-mix(in srgb, var(--mark) 22%, transparent);
 }
 
 input,
@@ -315,8 +314,12 @@ button {
 .catalog-heading {
   display: grid;
   gap: 1rem;
-  align-items: end;
+  align-items: start;
   padding-bottom: 1rem;
+}
+.filter-bar {
+  margin-inline: -18px;
+  padding-inline: 18px;
 }
 .catalog-heading .intro {
   max-width: 24rem;
@@ -425,11 +428,19 @@ button {
   }
 }
 @media (min-width: 600px) {
+  .filter-bar {
+    margin-inline: -32px;
+    padding-inline: 32px;
+  }
   .catalog-heading {
     grid-template-columns: minmax(0, 1fr) minmax(12rem, 22rem);
+    column-gap: 2rem;
+  }
+  .catalog-title {
+    grid-column: 1 / -1;
   }
   .service-content {
-    grid-template-columns: minmax(0, 1fr) 10rem auto;
+    grid-template-columns: minmax(0, 1fr) 14rem auto;
   }
   .service-content > .min-w-0:first-of-type {
     grid-column: 1;
@@ -545,6 +556,12 @@ button {
     gap: 1.25rem;
   }
 }
+@media (min-width: 1024px) {
+  .filter-bar {
+    margin-inline: -8px;
+    padding-inline: 8px;
+  }
+}
 @media (min-width: 1100px) {
   .hero-copy h1 {
     font-size: 73px;
@@ -559,11 +576,6 @@ button {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 20rem;
     gap: 2rem;
-  }
-}
-@media (max-width: 1199px) {
-  body:has(.contact-form :is(input, textarea):focus) .estimate-mobile {
-    display: none;
   }
 }
 .estimate-mobile {

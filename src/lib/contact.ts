@@ -9,8 +9,9 @@ export function walkthroughSelection(
   service: Service,
   quantity = 1,
 ): WalkthroughSelection {
+  const count = Math.max(1, Math.trunc(quantity) || 1);
   return needsQuantity(service)
-    ? { name: service.name, quantity, unit: unitLabel[service.pricing.unit] }
+    ? { name: service.name, quantity: count, unit: unitLabel[service.pricing.unit] }
     : { name: service.name };
 }
 

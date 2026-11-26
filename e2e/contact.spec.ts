@@ -101,7 +101,12 @@ test("clipboard failure retains the current estimate and editable request", asyn
   await expect(
     contact.getByLabel("What needs doing?", { exact: true }),
   ).toHaveValue("Replace the trim.");
-  if (mobile) await estimate.locator("summary").click();
+  if (mobile) {
+    await page
+      .getByRole("searchbox", { name: "Search services" })
+      .scrollIntoViewIfNeeded();
+    await estimate.locator("summary").click();
+  }
   await estimate.getByRole("spinbutton").fill("240");
   await estimate.getByRole("link", { name: "Request a walkthrough" }).click();
   await contact
@@ -110,7 +115,12 @@ test("clipboard failure retains the current estimate and editable request", asyn
   await expect(contact.getByLabel("Your request text")).toContainText(
     "240 linear ft",
   );
-  if (mobile) await estimate.locator("summary").click();
+  if (mobile) {
+    await page
+      .getByRole("searchbox", { name: "Search services" })
+      .scrollIntoViewIfNeeded();
+    await estimate.locator("summary").click();
+  }
   await estimate.getByRole("button", { name: "Remove" }).click();
   await contact
     .getByRole("button", { name: "Copy request", exact: true })

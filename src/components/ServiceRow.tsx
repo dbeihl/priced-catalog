@@ -42,17 +42,17 @@ export function ServiceRow({
         </div>
 
         <div className="service-price">
-          <span className="fig text-[17px] font-semibold">
+          <span className="fig whitespace-nowrap text-[17px] font-semibold">
             {headlinePrice(service)}
             {service.pricing.unit === "hour" && " plus materials"}
           </span>
           {service.pricing.unit === "hour" ? (
-            <span className="fig ml-1 block text-[11px] text-ink-2 lg:mt-0.5">
+            <span className="fig block text-[11px] text-ink-2 lg:mt-0.5">
               {money(pricing.visitMinimum)} minimum visit
             </span>
           ) : (
             service.pricing.minimumUnits !== undefined && (
-              <span className="fig ml-1 block text-[11px] text-ink-2 lg:mt-0.5">
+              <span className="fig block text-[11px] text-ink-2 lg:mt-0.5">
                 {service.pricing.minimumUnits} {unitLabel[service.pricing.unit]}{" "}
                 minimum
               </span>
@@ -68,7 +68,7 @@ export function ServiceRow({
                 {hoursLabel(service.basis.hours)}
               </span>
               {service.basis.pace && (
-                <span className="block text-[11px] leading-tight text-ink-2 lg:mt-0.5">
+                <span className="block text-[11px] leading-tight text-ink-2 [text-wrap:balance] lg:mt-0.5">
                   {service.basis.pace}
                 </span>
               )}

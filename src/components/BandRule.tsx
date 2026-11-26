@@ -69,7 +69,7 @@ export function BandRule({
         <div className="absolute right-0 top-0 bottom-0 w-px bg-rule" />
         {/* his price */}
         <div
-          className="absolute top-0 bottom-0 w-[3px] -translate-x-1/2 bg-mark ring-1 ring-ink/80"
+          className="band-marker absolute top-0 bottom-0 w-[3px] -translate-x-1/2 bg-mark ring-1 ring-ink/80"
           style={{ left: `${position * 100}%` }}
         />
       </div>

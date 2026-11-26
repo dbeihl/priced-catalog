@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   buildWalkthroughBody,
   buildWalkthroughMailto,
@@ -6,23 +6,32 @@ import {
   type WalkthroughRequest,
   type WalkthroughSelection,
 } from "../lib/contact";
+import { keep, recall } from "../lib/session";
 
 export function ContactForm({
   email,
   selections,
   askedAbout,
+  onLeaveOut,
 }: {
   email: string;
   selections: WalkthroughSelection[];
   askedAbout?: string;
+  onLeaveOut?: () => void;
 }) {
   const form = useRef<HTMLFormElement>(null);
-  const [request, setRequest] = useState<WalkthroughRequest>({
-    name: "",
-    email: "",
-    town: "",
-    message: "",
+  const [request, setRequest] = useState<WalkthroughRequest>(() => {
+    const saved = recall<Partial<WalkthroughRequest>>("request", {});
+    const text = (key: keyof WalkthroughRequest) =>
+      typeof saved?.[key] === "string" ? saved[key] : "";
+    return {
+      name: text("name"),
+      email: text("email"),
+      town: text("town"),
+      message: text("message"),
+    };
   });
+  useEffect(() => keep("request", request), [request]);
   const [feedback, setFeedback] = useState({ text: "", body: "" });
   const [copying, setCopying] = useState(false);
   const [showRequest, setShowRequest] = useState(false);
@@ -168,7 +177,16 @@ export function ContactForm({
               {askedAbout && (
                 <p className="contact-note">
                   Your request will name the service you were viewing:{" "}
-                  {askedAbout}.
+                  {askedAbout}.{" "}
+                  {onLeaveOut && (
+                    <button
+                      type="button"
+                      onClick={onLeaveOut}
+                      className="font-semibold text-ink underline underline-offset-2"
+                    >
+                      Leave {askedAbout} out
+                    </button>
+                  )}
                 </p>
               )}
               {selections.length > 0 && (

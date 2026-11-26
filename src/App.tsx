@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ContactForm } from "./components/ContactForm";
 import type { Category, Service } from "./types";
 import { services } from "./data/services";
 import { calculateEstimate } from "./lib/estimate";
 import { isContactConfigured, walkthroughSelection } from "./lib/contact";
+import { keep, recall } from "./lib/session";
 import {
   categoryNames,
   categoryOrder,
@@ -57,6 +58,16 @@ function HouseMark() {
 
 let nextKey = 1;
 
+function recallSelections(): KeyedSelection[] {
+  const known = new Set(services.map((s) => s.id));
+  const saved = recall<KeyedSelection[]>("estimate", []);
+  const valid = Array.isArray(saved)
+    ? saved.filter((s) => known.has(s?.serviceId) && Number.isInteger(s.key))
+    : [];
+  nextKey = Math.max(nextKey, ...valid.map((s) => s.key + 1));
+  return valid;
+}
+
 function HowToRead() {
   return (
     <div className="rounded-lg border border-line bg-field p-4">
@@ -107,8 +118,22 @@ export default function App() {
   const [category, setCategory] = useState<Category | "all">("all");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [selections, setSelections] = useState<KeyedSelection[]>([]);
+  const [selections, setSelections] =
+    useState<KeyedSelection[]>(recallSelections);
   const [askedAboutId, setAskedAboutId] = useState<string | null>(null);
+  const [contactInView, setContactInView] = useState(false);
+
+  useEffect(() => keep("estimate", selections), [selections]);
+
+  useEffect(() => {
+    const contact = document.getElementById("contact");
+    if (!contact) return;
+    const watch = new IntersectionObserver(([entry]) =>
+      setContactInView(!!entry?.isIntersecting),
+    );
+    watch.observe(contact);
+    return () => watch.disconnect();
+  }, []);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -140,11 +165,13 @@ export default function App() {
   const detailWalkthroughHref =
     contactConfigured && openService ? "#contact" : undefined;
 
-  const add = (serviceId: string) =>
+  const add = (serviceId: string) => {
+    setAskedAboutId((prev) => (prev === serviceId ? null : prev));
     setSelections((prev) => [
       ...prev,
       { key: nextKey++, serviceId, quantity: 1, addOns: [] },
     ]);
+  };
 
   const patch = (key: number, fn: (s: KeyedSelection) => KeyedSelection) =>
     setSelections((prev) => prev.map((s) => (s.key === key ? fn(s) : s)));
@@ -196,6 +223,7 @@ export default function App() {
           <ContactForm
             email={site.email}
             askedAbout={askedAbout}
+            onLeaveOut={() => setAskedAboutId(null)}
             selections={selections.flatMap((selection) => {
               const service = services.find(
                 (item) => item.id === selection.serviceId,
@@ -234,20 +262,20 @@ export default function App() {
         <div className="catalog-layout">
           <main id="catalog" className="scroll-mt-4 min-w-0">
             <div className="catalog-heading">
-              <div>
+              <div className="catalog-title">
                 <p className="eyebrow">Services &amp; prices</p>
                 <h2 className="section-title">
                   Small jobs. A real difference.
                 </h2>
-                <p className="intro mt-3">
-                  Prices are per project or by the hour. Each one keeps the
-                  hours and market range behind it. {disclaimer}
-                </p>
               </div>
+              <p className="intro">
+                Prices are per project or by the hour. Each one keeps the hours
+                and market range behind it. {disclaimer}
+              </p>
               <HowToRead />
             </div>
             {/* ── Filters ── */}
-            <div className="-mx-4 border-b border-line bg-paper px-4 py-3 lg:sticky lg:top-0 lg:z-[5] lg:mx-0 lg:px-0">
+            <div className="filter-bar border-b border-line bg-paper py-3 lg:sticky lg:top-0 lg:z-[5]">
               <label className="block">
                 <span className="mb-2 block text-[13px] font-semibold">Search services</span>
                 <input
@@ -264,7 +292,7 @@ export default function App() {
                 <div
                   role="group"
                   aria-label="Filter by category"
-                  className="flex gap-1.5 overflow-x-auto pb-1 md:flex-wrap"
+                  className="flex gap-1 overflow-x-auto pb-1 min-[900px]:flex-wrap"
                 >
                   {(["all", ...categoryOrder] as const).map((c) => {
                     const active = category === c;
@@ -274,7 +302,7 @@ export default function App() {
                         type="button"
                         aria-pressed={active}
                         onClick={() => setCategory(c)}
-                        className={`min-h-11 shrink-0 rounded-full border px-3.5 py-1 text-[13px] ${
+                        className={`min-h-11 shrink-0 rounded-full border px-2.5 py-1 text-[12.5px] ${
                           active
                             ? "border-ink bg-ink font-semibold text-paper"
                             : "border-line bg-field text-ink"
@@ -287,7 +315,7 @@ export default function App() {
                 </div>
                 <span
                   aria-hidden="true"
-                  className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2 md:hidden"
+                  className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2 min-[900px]:hidden"
                 >
                   Swipe for more categories →
                 </span>
@@ -349,6 +377,7 @@ export default function App() {
               setSelections((prev) => prev.filter((s) => s.key !== key))
             }
             walkthroughHref={walkthroughHref}
+            hideBar={contactInView}
           />
         </div>
 
@@ -375,8 +404,9 @@ export default function App() {
             </a>
           </div>
           <p className="mt-3">
-            Contact fields stay in this page until you choose to open an email
-            draft or copy them. You send the email yourself.
+            What you type stays in this browser tab, so it survives a look at
+            the pricing sources, and is gone when the tab closes. Nothing is
+            sent until you open an email draft and send it yourself.
           </p>
         </footer>
       </div>

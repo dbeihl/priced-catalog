@@ -20,7 +20,11 @@ interface Props {
   onAddOnQuantity: (key: number, addOnId: string, quantity: number) => void;
   onRemove: (key: number) => void;
   walkthroughHref?: string;
+  hideBar?: boolean;
 }
+
+const wholeCount = (input: HTMLInputElement) =>
+  Math.max(0, Math.trunc(input.valueAsNumber) || 0);
 
 function Total({ estimate }: { estimate: Estimate }) {
   if (estimate.isEmpty)
@@ -57,7 +61,7 @@ function Body({
   }
 
   return (
-    <div className="max-h-[48dvh] overflow-y-auto lg:max-h-none">
+    <div className="max-h-[48dvh] overflow-y-auto min-[1200px]:max-h-none">
       <ul>
         {selections.map((selection, index) => {
           const service = byId.get(selection.serviceId);
@@ -85,11 +89,14 @@ function Body({
                     type="number"
                     id={`estimate-${fieldNamespace}-quantity-${selection.key}`}
                     name={`estimate[${fieldNamespace}][${selection.key}][quantity]`}
-                    min={0}
+                    min={1}
                     step={1}
                     value={selection.quantity ?? 1}
                     onChange={(e) =>
-                      onQuantity(selection.key, Number(e.target.value))
+                      onQuantity(selection.key, wholeCount(e.target))
+                    }
+                    onBlur={(e) =>
+                      onQuantity(selection.key, wholeCount(e.target) || 1)
                     }
                     className="fig w-20 border border-rule bg-paper px-1.5 py-0.5 text-[12px] text-ink"
                   />
@@ -138,7 +145,7 @@ function Body({
                             type="number"
                             id={`estimate-${fieldNamespace}-addon-quantity-${selection.key}-${addOn.id}`}
                             name={`estimate[${fieldNamespace}][${selection.key}][${addOn.id}][quantity]`}
-                            min={0}
+                            min={1}
                             step={1}
                             aria-label={`${addOn.name}, ${unitLabel[addOn.unit]}`}
                             value={ownQuantity}
@@ -146,7 +153,14 @@ function Body({
                               onAddOnQuantity(
                                 selection.key,
                                 addOn.id,
-                                Number(e.target.value),
+                                wholeCount(e.target),
+                              )
+                            }
+                            onBlur={(e) =>
+                              onAddOnQuantity(
+                                selection.key,
+                                addOn.id,
+                                wholeCount(e.target) || 1,
                               )
                             }
                             className="fig w-16 border border-rule bg-paper px-1.5 py-0.5 text-[12px]"
@@ -267,7 +281,7 @@ export function EstimateBuilder(props: Props) {
        * The caret and the Show/Hide word are there because a bar that only
        * shows a total does not read as tappable.
        */}
-      {!props.estimate.isEmpty && (
+      {!props.estimate.isEmpty && !props.hideBar && (
         <details className="estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden">
           <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
             <svg
