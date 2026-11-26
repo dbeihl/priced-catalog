@@ -77,6 +77,15 @@ describe("walkthrough selection", () => {
       unit: unitLabel[perUnit.pricing.unit],
     });
   });
+
+  it("never names a negative, zero or fractional count", () => {
+    const perUnit = services.find((s) => s.pricing.model === "per-unit")!;
+    const count = (quantity: number) => {
+      const selection = walkthroughSelection(perUnit, quantity);
+      return "quantity" in selection ? selection.quantity : undefined;
+    };
+    expect([-4, 0, 2.5, Number.NaN, 3].map(count)).toEqual([1, 1, 2, 1, 3]);
+  });
 });
 
 describe("contact configuration", () => {

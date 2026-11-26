@@ -1,0 +1,312 @@
+import { test, expect, type Page } from "@playwright/test";
+
+const contactOf = (page: Page) =>
+  page.getByRole("region", { name: "What needs a hand?" });
+
+function rowFor(page: Page, name: string) {
+  return page.getByRole("listitem").filter({
+    has: page.getByRole("button", { name, exact: true }),
+  });
+}
+
+async function recordDelivery(page: Page) {
+  await page.addInitScript(() => {
+    const w = window as unknown as { copied: string[]; drafts: string[] };
+    w.copied = [];
+    w.drafts = [];
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async (text: string) => {
+          w.copied.push(text);
+        },
+      },
+    });
+    const nav = (
+      window as unknown as {
+        navigation?: EventTarget;
+      }
+    ).navigation;
+    nav?.addEventListener("navigate", (event) => {
+      const e = event as Event & { destination: { url: string } };
+      if (e.destination.url.startsWith("mailto:")) {
+        w.drafts.push(e.destination.url);
+        e.preventDefault();
+      }
+    });
+  });
+}
+
+const delivered = (page: Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { copied: string[]; drafts: string[] };
+    return { copied: w.copied.length, drafts: w.drafts.length };
+  });
+
+function luminance([r, g, b]: number[]) {
+  const [R, G, B] = [r!, g!, b!].map((v) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * R! + 0.7152 * G! + 0.0722 * B!;
+}
+
+for (const size of [
+  { width: 390, height: 844 },
+  { width: 1100, height: 800 },
+]) {
+  test(`contact buttons work at the bottom of a ${size.width}px screen with an estimate`, async ({
+    page,
+  }) => {
+    await recordDelivery(page);
+    await page.setViewportSize(size);
+    await page.goto("./");
+    await rowFor(page, "TV mount")
+      .getByRole("button", { name: "Add", exact: true })
+      .click();
+    const contact = contactOf(page);
+    await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+
+    for (const [button, kind] of [
+      ["Copy request", "copied"],
+      ["Open email draft", "drafts"],
+    ] as const) {
+      const job = contact.getByLabel("What needs doing?", { exact: true });
+      await job.fill(`Mount the TV (${kind}).`);
+      const target = contact.getByRole("button", { name: button, exact: true });
+      const box = (await target.boundingBox())!;
+      await page.evaluate(
+        (bottom) => window.scrollBy(0, bottom - innerHeight + 6),
+        box.y + box.height,
+      );
+      await job.focus();
+      const at = (await target.boundingBox())!;
+      const before = await delivered(page);
+      await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
+      await expect
+        .poll(async () => (await delivered(page))[kind])
+        .toBe(before[kind] + 1);
+    }
+  });
+}
+
+test("the open estimate sheet stays on screen at 1024 by 768 with six items", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("./");
+  for (const name of [
+    "Shiplap accent wall",
+    "Floor install — LVP or tile",
+    "Ethernet drop",
+    "TV mount",
+    "Baseboard — new install",
+    "Crown molding",
+  ])
+    await rowFor(page, name)
+      .getByRole("button", { name: "Add", exact: true })
+      .click();
+  const sheet = page.locator("details.estimate-mobile");
+  await sheet.locator("summary").click();
+  const box = (await sheet.boundingBox())!;
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  await expect(sheet.locator("summary")).toBeInViewport();
+});
+
+test("a keyboard-focused active filter keeps readable text", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  await page.getByRole("searchbox", { name: "Search services" }).focus();
+  await page.keyboard.press("Tab");
+  const active = page.getByRole("button", { name: "Everything" });
+  await expect(active).toBeFocused();
+  const [text, background] = await active.evaluate((el) => {
+    const style = getComputedStyle(el);
+    const parse = (value: string) =>
+      value.match(/[\d.]+/g)!.map(Number) as number[];
+    return [parse(style.color), parse(style.backgroundColor)];
+  });
+  const alpha = background[3] ?? 1;
+  const composite = background
+    .slice(0, 3)
+    .map((channel) => channel * alpha + 255 * (1 - alpha));
+  const [light, dark] = [luminance(text), luminance(composite)].sort(
+    (a, b) => b - a,
+  );
+  expect((light! + 0.05) / (dark! + 0.05)).toBeGreaterThanOrEqual(4.5);
+});
+
+test("a request never carries a negative, zero or fractional count", async ({
+  page,
+}) => {
+  await recordDelivery(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  await rowFor(page, "Ethernet drop")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const estimate = page.getByRole("complementary");
+  const quantity = estimate.getByRole("spinbutton");
+  const contact = contactOf(page);
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("Two drops.");
+  for (const typed of ["-4", "0", "2.5"]) {
+    await quantity.fill(typed);
+    await estimate.getByRole("link", { name: "Request a walkthrough" }).click();
+    await contact
+      .getByRole("button", { name: "Copy request", exact: true })
+      .click();
+    const text = await contact.getByLabel("Your request text").textContent();
+    const count = Number(text!.match(/Ethernet drop: (\S+) drop/)![1]);
+    expect(Number.isInteger(count) && count >= 1).toBe(true);
+    await expect(quantity).toHaveValue(String(count));
+  }
+});
+
+test("the typed request and estimate survive a visit to the sources page", async ({
+  page,
+}) => {
+  const sent: string[] = [];
+  page.on("request", (request) => {
+    if (request.method() !== "GET") sent.push(request.url());
+  });
+  await page.goto("./");
+  const contact = contactOf(page);
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("Hang the TV.");
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  await page.getByRole("link", { name: "How we price", exact: true }).click();
+  await page.getByRole("link", { name: /^Back to / }).click();
+  await expect(contact.getByLabel("Email", { exact: true })).toHaveValue(
+    "sam@example.com",
+  );
+  await expect(
+    contact.getByLabel("What needs doing?", { exact: true }),
+  ).toHaveValue("Hang the TV.");
+  await expect(contact).toContainText(
+    "Your current estimate selections will be included",
+  );
+  expect(await page.evaluate(() => localStorage.length)).toBe(0);
+  expect(sent).toEqual([]);
+});
+
+test("an hourly price stays on one line on desktop", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  const price = rowFor(page, "Hourly work: something not listed").getByText(
+    "$85/hr plus materials",
+  );
+  const box = (await price.boundingBox())!;
+  const lineHeight = await price.evaluate((el) =>
+    parseFloat(getComputedStyle(el).lineHeight),
+  );
+  expect(box.height).toBeLessThan(lineHeight * 1.5);
+});
+
+for (const width of [1440, 1280, 1000]) {
+  test(`catalog heading and filters sit on single lines at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("./");
+    const tops = await page
+      .getByRole("group", { name: "Filter by category" })
+      .getByRole("button")
+      .evaluateAll((buttons) =>
+        buttons.map((b) => Math.round(b.getBoundingClientRect().top)),
+      );
+    expect(new Set(tops).size).toBe(1);
+    const heading = page.getByRole("heading", {
+      name: "Small jobs. A real difference.",
+    });
+    const lineHeight = await heading.evaluate((el) =>
+      parseFloat(getComputedStyle(el).lineHeight),
+    );
+    expect((await heading.boundingBox())!.height).toBeLessThan(
+      lineHeight * 1.5,
+    );
+    const intro = (await page
+      .locator(".catalog-heading .intro")
+      .boundingBox())!;
+    const guide = (await page
+      .locator(".catalog-heading details")
+      .boundingBox())!;
+    expect(Math.abs(guide.y - intro.y)).toBeLessThan(24);
+  });
+}
+
+test("rows scrolling under the sticky filters are fully covered", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  const marker = rowFor(page, "Smart switch or dimmer swap").locator(
+    ".band-marker",
+  );
+  const start = (await marker.boundingBox())!;
+  await page.evaluate((dy) => window.scrollBy(0, dy), start.y - 40);
+  const box = (await marker.boundingBox())!;
+  const covered = await page.evaluate(
+    ([x, y]) => !!document.elementFromPoint(x!, y!)?.closest(".filter-bar"),
+    [box.x + 0.5, box.y + box.height / 2],
+  );
+  expect(covered).toBe(true);
+});
+
+for (const width of [390, 768]) {
+  test(`the filter bar runs edge to edge at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("./");
+    const box = (await page.locator(".filter-bar").boundingBox())!;
+    expect(box.x).toBe(0);
+    expect(box.width).toBe(width);
+  });
+}
+
+test("price sublines line up with the price on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  const row = rowFor(page, "Shiplap accent wall");
+  const price = (await row
+    .getByText("$4.75/sq ft", { exact: true })
+    .boundingBox())!;
+  const minimum = (await row.getByText("80 sq ft minimum").boundingBox())!;
+  expect(minimum.x).toBe(price.x);
+});
+
+test("a viewed service can be left out and does not return after removal", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  const contact = contactOf(page);
+  const note = contact.getByText("Your request will name the service");
+  const view = async () => {
+    await page.getByRole("button", { name: "TV mount", exact: true }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("link", { name: "Request a walkthrough" })
+      .click();
+  };
+  await view();
+  await expect(note).toBeVisible();
+  await contact.getByRole("button", { name: "Leave TV mount out" }).click();
+  await expect(note).toHaveCount(0);
+
+  await view();
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  await page
+    .getByRole("complementary")
+    .getByRole("button", { name: "Remove" })
+    .click();
+  await expect(note).toHaveCount(0);
+});

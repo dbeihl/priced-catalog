@@ -50,9 +50,7 @@ test("visitor can prepare and copy a walkthrough before browsing services", asyn
     contact.getByLabel("What needs doing?", { exact: true }),
   ).toHaveValue("Fix the entry door & trim.");
   expect(submissions).toEqual([]);
-  expect(
-    await page.evaluate(() => [localStorage.length, sessionStorage.length]),
-  ).toEqual([0, 0]);
+  expect(await page.evaluate(() => localStorage.length)).toBe(0);
 });
 
 test("clipboard failure retains the current estimate and editable request", async ({
