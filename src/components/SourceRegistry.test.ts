@@ -21,6 +21,16 @@ describe("SourceRegistry", () => {
     );
   });
 
+  it("tells screen-reader users that every new-tab link opens a new tab", () => {
+    const newTabLinks = markup.match(/<a [^>]*target="_blank"[^>]*>.*?<\/a>/g) ?? [];
+    expect(newTabLinks.length).toBeGreaterThan(0);
+    for (const link of newTabLinks) {
+      expect(link).toContain(
+        '<span class="sr-only"> (opens in a new tab)</span>',
+      );
+    }
+  });
+
   it("renders every registry row with its source key as a deep-link anchor", () => {
     for (const source of sources) {
       const escapedName = source.shortName.replaceAll("&", "&amp;");

@@ -1,4 +1,38 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+const webMail = [
+  {
+    name: "Gmail",
+    prefix: "https://mail.google.com/mail/?view=cm&",
+    to: "to",
+    subject: "su",
+  },
+  {
+    name: "Outlook",
+    prefix: "https://outlook.live.com/mail/0/deeplink/compose?",
+    to: "to",
+    subject: "subject",
+  },
+] as const;
+
+async function stubWebMail(page: Page) {
+  await page
+    .context()
+    .route(/^https:\/\/(mail\.google\.com|outlook\.live\.com)\//, (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: "<!doctype html><title>Web mail stand-in</title>",
+      }),
+    );
+}
+
+const webMailButton = (page: Page, name: string) =>
+  page
+    .getByRole("region", { name: "What needs a hand?" })
+    .getByRole("button", {
+      name: `Open in ${name} (opens in a new tab)`,
+      exact: true,
+    });
 
 test("visitor can prepare and copy a walkthrough before browsing services", async ({
   page,
@@ -337,4 +371,128 @@ test("recent work photos load with plain captions and no prices", async ({
   await expect(
     page.getByRole("region", { name: "Recent work" }).getByRole("img"),
   ).toHaveCount(3);
+});
+
+test("Gmail and Outlook open a compose window with the copied request", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async (text: string) => {
+          (window as unknown as { copied: string }).copied = text;
+        },
+      },
+    });
+  });
+  await stubWebMail(page);
+  const submissions: string[] = [];
+  page.on("request", (request) => {
+    if (request.method() !== "GET") submissions.push(request.url());
+  });
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
+  await expect(contact).toContainText(
+    "If nothing opens, copy the request and paste it into an email to info@kamotec.io.",
+  );
+  await contact.getByLabel("Name (optional)").fill("Sam");
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  const job = contact.getByLabel("What needs doing?", { exact: true });
+  await job.fill("Fix the entry door & trim.\nThe frame sticks.");
+  await page
+    .getByRole("listitem")
+    .filter({
+      has: page.getByRole("button", { name: "TV mount", exact: true }),
+    })
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  const copied = await page.evaluate(
+    () => (window as unknown as { copied: string }).copied,
+  );
+  expect(copied).toContain("- TV mount");
+
+  for (const mail of webMail) {
+    const [compose] = await Promise.all([
+      page.context().waitForEvent("page"),
+      webMailButton(page, mail.name).click(),
+    ]);
+    await compose.waitForLoadState();
+    const url = compose.url();
+    expect(url.startsWith(mail.prefix)).toBe(true);
+    expect(url).not.toContain("+");
+    expect(url).toContain("%0A");
+    const params = new URL(url).searchParams;
+    expect(params.get(mail.to)).toBe("info@kamotec.io");
+    expect(params.get(mail.subject)).toBe("Walkthrough request");
+    expect(params.get("body")).toBe(copied);
+    expect(await compose.evaluate(() => window.opener)).toBeNull();
+    expect(await compose.evaluate(() => document.referrer)).toBe("");
+    await compose.close();
+    await expect(contact.getByRole("status")).toContainText(mail.name);
+    await expect(contact.getByRole("status")).not.toContainText("sent");
+  }
+
+  await job.fill("Only the trim now.");
+  const [compose] = await Promise.all([
+    page.context().waitForEvent("page"),
+    webMailButton(page, "Gmail").click(),
+  ]);
+  await compose.waitForLoadState();
+  const body = new URL(compose.url()).searchParams.get("body")!;
+  expect(body).toContain("Only the trim now.");
+  expect(body).not.toContain("entry door");
+  expect(submissions).toEqual([]);
+});
+
+test("web mail opens nothing for an invalid or overlong request and works from the keyboard", async ({
+  page,
+}) => {
+  await stubWebMail(page);
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
+  const message = contact.getByLabel("What needs doing?", { exact: true });
+  const pages = () => page.context().pages().length;
+  for (const mail of webMail) {
+    await message.fill("Fix the gate.");
+    await webMailButton(page, mail.name).click();
+    await expect(contact.getByLabel("Email", { exact: true })).toBeFocused();
+    await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+    await message.fill("   ");
+    await webMailButton(page, mail.name).click();
+    await expect(message).toBeFocused();
+    await expect(contact.getByRole("status")).toBeEmpty();
+    await message.fill("A repair detail. ".repeat(200));
+    await webMailButton(page, mail.name).click();
+    await expect(contact.getByRole("status")).toContainText(
+      "too long for a reliable email link",
+    );
+    await expect(contact.getByLabel("Your request text")).toContainText(
+      "A repair detail.",
+    );
+    await contact.getByLabel("Email", { exact: true }).fill("");
+  }
+  await page.waitForTimeout(300);
+  expect(pages()).toBe(1);
+
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await message.fill("Fix the gate.");
+  await contact
+    .getByRole("button", { name: "Open email draft", exact: true })
+    .focus();
+  for (const mail of webMail) {
+    await page.keyboard.press("Tab");
+    await expect(webMailButton(page, mail.name)).toBeFocused();
+    const [compose] = await Promise.all([
+      page.context().waitForEvent("page"),
+      page.keyboard.press("Enter"),
+    ]);
+    await compose.close();
+  }
+  await page.keyboard.press("Tab");
+  await expect(
+    contact.getByRole("button", { name: "Copy request", exact: true }),
+  ).toBeFocused();
 });

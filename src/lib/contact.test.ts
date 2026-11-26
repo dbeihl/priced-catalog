@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { services } from "../data/services";
 import { site } from "../site.config";
 import {
-  buildWalkthroughMailto,
   buildWalkthroughBody,
+  walkthroughDrafts,
   isContactConfigured,
   walkthroughSelection,
 } from "./contact";
@@ -26,7 +26,7 @@ describe("walkthrough email", () => {
       "Hi,\n\nI'd like to request a walkthrough for:\nFix the door & trim.\nThe entry is narrow.\n\nName: Sam\nReply email: sam@example.com\nTown or ZIP: Westfield\n\nSelected services:\n- Baseboard: 120 linear ft\n\nThank you.";
     expect(buildWalkthroughBody(selections, request)).toBe(expected);
     const draft = new URL(
-      buildWalkthroughMailto("info@example.com", selections, request),
+      walkthroughDrafts("info@example.com", selections, request).mailto,
     );
     expect(draft.searchParams.get("body")).toBe(expected);
     expect(draft.searchParams.get("subject")).toBe("Walkthrough request");
@@ -51,13 +51,32 @@ describe("walkthrough email", () => {
 
   it("builds an email with the selected service quantities in their units and no pricing", () => {
     expect(
-      buildWalkthroughMailto("aaron@example.com", [
+      walkthroughDrafts("aaron@example.com", [
         { name: "Faucet replacement", quantity: 2, unit: "each" },
         { name: "Baseboard", quantity: 120, unit: "linear ft" },
         { name: "TV mount" },
-      ]),
+      ]).mailto,
     ).toBe(
       "mailto:aaron@example.com?subject=Walkthrough%20request&body=Hi%2C%0A%0AI%27d%20like%20to%20request%20a%20walkthrough%20for%3A%0A-%20Faucet%20replacement%3A%202%20each%0A-%20Baseboard%3A%20120%20linear%20ft%0A-%20TV%20mount%0A%0AThank%20you.",
+    );
+  });
+});
+
+describe("web mail compose links", () => {
+  it("carry the same recipient, subject and body as the email draft", () => {
+    const body =
+      "Hi%2C%0A%0AI%27d%20like%20to%20request%20a%20walkthrough%20for%3A%0A-%20TV%20mount%0A%0AThank%20you.";
+    const drafts = walkthroughDrafts("aaron@example.com", [
+      { name: "TV mount" },
+    ]);
+    expect(drafts.body).toBe(
+      "Hi,\n\nI'd like to request a walkthrough for:\n- TV mount\n\nThank you.",
+    );
+    expect(drafts.gmail).toBe(
+      `https://mail.google.com/mail/?view=cm&to=aaron%40example.com&su=Walkthrough%20request&body=${body}`,
+    );
+    expect(drafts.outlook).toBe(
+      `https://outlook.live.com/mail/0/deeplink/compose?to=aaron%40example.com&subject=Walkthrough%20request&body=${body}`,
     );
   });
 });
