@@ -164,10 +164,9 @@ export default function App() {
     ? (services.find((s) => s.id === openId) ?? null)
     : null;
   const inEstimate = new Set(selections.map((s) => s.serviceId));
-  const askedAbout =
-    askedAboutId && !inEstimate.has(askedAboutId)
-      ? services.find((s) => s.id === askedAboutId)?.name
-      : undefined;
+  const askedAbout = askedAboutId
+    ? services.find((s) => s.id === askedAboutId)?.name
+    : undefined;
   const contactConfigured = isContactConfigured(site);
   const walkthroughHref = contactConfigured ? "#contact" : undefined;
   const detailWalkthroughHref =
@@ -438,7 +437,7 @@ export default function App() {
           setOpenId(null);
         }}
         onContact={(id) => {
-          setAskedAboutId(id);
+          setAskedAboutId(inEstimate.has(id) ? null : id);
           setOpenId(null);
         }}
         walkthroughHref={detailWalkthroughHref}

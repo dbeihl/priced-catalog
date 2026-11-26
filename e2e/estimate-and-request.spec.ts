@@ -372,6 +372,52 @@ test("price sublines line up with the price on a phone", async ({ page }) => {
   expect(minimum.x).toBe(price.x);
 });
 
+test("requesting a selected service does not restore it after removal", async ({
+  page,
+}) => {
+  await recordDelivery(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  await page.getByRole("button", { name: "TV mount", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("link", { name: "Request a walkthrough" })
+    .click();
+  await page
+    .getByRole("complementary")
+    .getByRole("button", { name: "Remove" })
+    .click();
+
+  const contact = contactOf(page);
+  await expect(
+    contact.getByText("Your request will name the service"),
+  ).toHaveCount(0);
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("Fix the entry door.");
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await contact.getByRole("button", { name: "Open email draft" }).click();
+  await expect.poll(() => delivered(page)).toEqual({ copied: 1, drafts: 1 });
+  const output = await page.evaluate(() => {
+    const w = window as unknown as { copied: string[]; drafts: string[] };
+    return {
+      copy: w.copied[0],
+      draft: new URL(w.drafts[0]!).searchParams.get("body"),
+    };
+  });
+  for (const body of [output.copy, output.draft]) {
+    expect(body).toContain("Fix the entry door.");
+    expect(body).not.toContain("Asked about:");
+    expect(body).not.toContain("TV mount");
+  }
+});
+
 test("a viewed service can be left out and does not return after removal", async ({
   page,
 }) => {
