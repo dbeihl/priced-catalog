@@ -480,3 +480,78 @@ test("a reload during a quantity edit restores a whole count", async ({
   await page.reload();
   await expect(quantity).toHaveValue("1");
 });
+
+test("the swipe hint follows the pills once a slow web font arrives", async ({
+  page,
+}) => {
+  await page.route("**/*.woff2", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await route.continue();
+  });
+  await page.setViewportSize({ width: 834, height: 1112 });
+  await page.goto("./");
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+  const overflows = await page
+    .getByRole("group", { name: "Filter by category" })
+    .evaluate((el) => el.scrollWidth > el.clientWidth);
+  const hint = page.getByText("Swipe for more categories");
+  if (overflows) await expect(hint).toBeVisible();
+  else await expect(hint).toBeHidden();
+});
+
+test("hiding the sheet by keyboard over the request card keeps the bar and focus", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const sheet = page.locator("details.estimate-mobile");
+  const summary = sheet.locator("summary");
+  await summary.focus();
+  await page.keyboard.press("Enter");
+  await expect(sheet).toHaveAttribute("open", "");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(contactOf(page)).toBeInViewport();
+  await page.keyboard.press("Enter");
+  await expect(sheet).not.toHaveAttribute("open", "");
+  await expect(summary).toBeVisible();
+  await expect(summary).toBeFocused();
+});
+
+test("the estimate bar hides when the request card grows under it without a scroll", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async () => undefined },
+    }),
+  );
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("./");
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const contact = contactOf(page);
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("Mount the TV.");
+  await page.locator("#catalog-search").focus();
+  const card = (await contact.boundingBox())!;
+  await page.evaluate(
+    (bottom) => window.scrollBy(0, bottom - (innerHeight - 100)),
+    card.y + card.height,
+  );
+  const bar = page.locator("details.estimate-mobile");
+  await expect(bar).toBeVisible();
+  const scrolled = await page.evaluate(() => scrollY);
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(contact.getByLabel("Your request text")).toBeVisible();
+  expect(await page.evaluate(() => scrollY)).toBe(scrolled);
+  await expect(bar).toBeHidden();
+});
