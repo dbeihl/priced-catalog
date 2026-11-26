@@ -17,9 +17,12 @@ function SourceCitation({
   return (
     <a
       href={`sources.html#${encodeURIComponent(sourceKey)}`}
+      target="_blank"
+      rel="noopener"
       className="underline decoration-rule underline-offset-2 hover:decoration-ink"
     >
       {label}
+      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   );
 }

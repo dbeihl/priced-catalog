@@ -16,7 +16,7 @@ Move contact before the catalog and simplify the page while preserving every bus
 
 ## Redesign (2026-11-26)
 
-The page follows concept B from the decision board. A white page with blue ink and orange actions, a bold Archivo headline, a workshop photo beside it, and one wide request card across the page on desktop. The card puts name, email and town in one column with the job box beside them. On a phone the same four fields stack directly under the headline. Three checked assurances sit under the card, then three recent-work photos, then the full catalog with its search, filters, running estimate and detail panel restyled in the same palette. The customer note and footer close the page.
+The page follows concept B from the decision board. A white page with blue ink and orange actions, a bold Archivo headline, a workshop photo beside it, and one wide request card across the page on desktop. The card puts name, email and town in one column with the job box beside them. On a phone, Name and Email share a row under the headline, followed by Town or ZIP, then the job description. Three checked assurances sit under the card, then three recent-work photos, then the full catalog with its search, filters, running estimate and detail panel restyled in the same palette. The customer note and footer close the page.
 
 Copy feedback such as "Request copied" now belongs to the exact request text it describes. Any later change to the fields, estimate selections or viewed service hides it, so the page never reports a copy of text the visitor no longer sees.
 

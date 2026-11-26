@@ -4,7 +4,6 @@ import type { Category, Service } from "./types";
 import { services } from "./data/services";
 import { calculateEstimate } from "./lib/estimate";
 import { isContactConfigured, walkthroughSelection } from "./lib/contact";
-import { keep, recall } from "./lib/session";
 import {
   categoryNames,
   categoryOrder,
@@ -60,25 +59,6 @@ let nextKey = 1;
 // ponytail: fixed band a little taller than the closed estimate bar; measure the bar if its height ever varies.
 const barBand = 80;
 
-function recallSelections(): KeyedSelection[] {
-  const known = new Set(services.map((s) => s.id));
-  const saved = recall<KeyedSelection[]>("estimate", []);
-  const count = (n: unknown) =>
-    Math.max(1, Math.trunc(typeof n === "number" ? n : 1) || 1);
-  const valid = (Array.isArray(saved) ? saved : [])
-    .filter((s) => known.has(s?.serviceId) && Number.isInteger(s.key))
-    .map((s) => ({
-      ...s,
-      quantity: count(s.quantity),
-      addOns: (Array.isArray(s.addOns) ? s.addOns : []).map((a) => ({
-        ...a,
-        quantity: count(a?.quantity),
-      })),
-    }));
-  nextKey = Math.max(nextKey, ...valid.map((s) => s.key + 1));
-  return valid;
-}
-
 function HowToRead() {
   return (
     <div className="rounded-lg border border-line bg-field p-4">
@@ -129,12 +109,8 @@ export default function App() {
   const [category, setCategory] = useState<Category | "all">("all");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [selections, setSelections] =
-    useState<KeyedSelection[]>(recallSelections);
-  const [askedAboutId, setAskedAboutId] = useState<string | null>(() => {
-    const saved = recall<string | null>("asked-about", null);
-    return services.some((s) => s.id === saved) ? saved : null;
-  });
+  const [selections, setSelections] = useState<KeyedSelection[]>([]);
+  const [askedAboutId, setAskedAboutId] = useState<string | null>(null);
   const [barCoversContact, setBarCoversContact] = useState(false);
   const pills = useRef<HTMLDivElement>(null);
   const [pillsOverflow, setPillsOverflow] = useState(false);
@@ -148,9 +124,6 @@ export default function App() {
     for (const box of [el, ...el.children]) watch.observe(box);
     return () => watch.disconnect();
   }, []);
-
-  useEffect(() => keep("estimate", selections), [selections]);
-  useEffect(() => keep("asked-about", askedAboutId), [askedAboutId]);
 
   useEffect(() => {
     const contact = document.getElementById("contact");
@@ -318,7 +291,9 @@ export default function App() {
             {/* ── Filters ── */}
             <div className="filter-bar relative bg-paper py-3 lg:sticky lg:top-0 lg:z-[5]">
               <label className="block">
-                <span className="mb-2 block text-[13px] font-semibold">Search services</span>
+                <span className="mb-2 block text-[13px] font-semibold">
+                  Search services
+                </span>
                 <input
                   type="search"
                   id="catalog-search"
@@ -442,15 +417,15 @@ export default function App() {
             <span>
               {site.name} · {site.serviceArea}
             </span>
-            <a href="sources.html">How we price</a>
+            <a href="sources.html" target="_blank" rel="noopener">
+              How we price<span className="sr-only"> (opens in a new tab)</span>
+            </a>
             <a className="contact-email" href={`mailto:${site.email}`}>
               {site.email}
             </a>
           </div>
           <p className="mt-3">
-            What you type stays in this browser tab, so it survives a look at
-            the pricing sources, and is gone when the tab closes. Nothing is
-            sent until you open an email draft and send it yourself.
+            Nothing is sent until you open an email draft and send it yourself.
           </p>
         </footer>
       </div>

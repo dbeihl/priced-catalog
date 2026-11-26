@@ -14,6 +14,6 @@ Keep contact data in page memory. Use the existing contact formatter to prepare 
 
 The owner needs no new account or processor. Visitors need an email application or must copy and paste the request into their email service. The page cannot verify delivery. A later hosted endpoint requires explicit approval of its processor, retention, quota, and any cost.
 
-Amended 2026-11-26: the typed request and estimate selections are also kept in the tab's session storage, so a visit to the sources page and back keeps them. They never leave the device and are cleared when the tab closes. Local storage, cookies and network requests stay unused.
+Pricing source links open in a new tab with an accessible cue. The original page keeps the typed request, estimate selections and viewed-service context in memory. Browser storage and cookies stay unused. Reloading the catalog clears that state.
 
 The [contact-first layout plan](../contact-layout-plan.md) records the research and verification boundaries.

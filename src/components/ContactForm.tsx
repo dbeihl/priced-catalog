@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   buildWalkthroughBody,
   buildWalkthroughMailto,
@@ -6,7 +6,6 @@ import {
   type WalkthroughRequest,
   type WalkthroughSelection,
 } from "../lib/contact";
-import { keep, recall } from "../lib/session";
 
 export function ContactForm({
   email,
@@ -20,18 +19,12 @@ export function ContactForm({
   onLeaveOut?: () => void;
 }) {
   const form = useRef<HTMLFormElement>(null);
-  const [request, setRequest] = useState<WalkthroughRequest>(() => {
-    const saved = recall<Partial<WalkthroughRequest>>("request", {});
-    const text = (key: keyof WalkthroughRequest) =>
-      typeof saved?.[key] === "string" ? saved[key] : "";
-    return {
-      name: text("name"),
-      email: text("email"),
-      town: text("town"),
-      message: text("message"),
-    };
+  const [request, setRequest] = useState<WalkthroughRequest>({
+    name: "",
+    email: "",
+    town: "",
+    message: "",
   });
-  useEffect(() => keep("request", request), [request]);
   const [feedback, setFeedback] = useState({ text: "", body: "" });
   const [copying, setCopying] = useState(false);
   const [showRequest, setShowRequest] = useState(false);
