@@ -593,3 +593,7 @@ button {
 .estimate-mobile.covering:not([open], :focus-within) {
   display: none;
 }
+/* ponytail: separate rule so browsers without :has keep the rule above */
+.estimate-mobile.covering:not([open]):not(:has(:focus-visible)) {
+  display: none;
+}

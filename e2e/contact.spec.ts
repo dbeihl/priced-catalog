@@ -449,7 +449,9 @@ test("Gmail and Outlook open a compose window with the copied request", async ({
 
 test("web mail opens nothing for an invalid or overlong request and works from the keyboard", async ({
   page,
+  browserName,
 }) => {
+  const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
   await stubWebMail(page);
   await page.goto("./");
   const contact = page.getByRole("region", { name: "What needs a hand?" });
@@ -483,7 +485,7 @@ test("web mail opens nothing for an invalid or overlong request and works from t
     .getByRole("button", { name: "Open email draft", exact: true })
     .focus();
   for (const mail of webMail) {
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(tab);
     await expect(webMailButton(page, mail.name)).toBeFocused();
     const [compose] = await Promise.all([
       page.context().waitForEvent("page"),
@@ -491,7 +493,7 @@ test("web mail opens nothing for an invalid or overlong request and works from t
     ]);
     await compose.close();
   }
-  await page.keyboard.press("Tab");
+  await page.keyboard.press(tab);
   await expect(
     contact.getByRole("button", { name: "Copy request", exact: true }),
   ).toBeFocused();

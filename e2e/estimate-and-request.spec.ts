@@ -606,7 +606,9 @@ test("the swipe hint follows the pills once a slow web font arrives", async ({
 
 test("hiding the sheet by keyboard over the request card keeps the bar and focus", async ({
   page,
+  browserName,
 }) => {
+  const option = browserName === "webkit" ? "Alt+" : "";
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("./");
   await rowFor(page, "TV mount")
@@ -624,12 +626,12 @@ test("hiding the sheet by keyboard over the request card keeps the bar and focus
   await expect(sheet).not.toHaveAttribute("open", "");
   await expect(summary).toBeVisible();
   await expect(summary).toBeFocused();
-  await page.keyboard.press("Tab");
+  await page.keyboard.press(`${option}Tab`);
   await expect(
     page.getByRole("link", { name: "How we price (opens in a new tab)" }),
   ).toBeFocused();
   await expect(summary).toBeVisible();
-  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press(`${option}Shift+Tab`);
   await expect(summary).toBeFocused();
 });
 

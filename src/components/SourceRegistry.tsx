@@ -47,6 +47,7 @@ export function SourceRegistry() {
                       className="underline decoration-rule underline-offset-2 hover:decoration-ink"
                     >
                       {source.url}
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                   ) : (
                     "No public link"

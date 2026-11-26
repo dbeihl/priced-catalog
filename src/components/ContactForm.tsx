@@ -1,11 +1,15 @@
 import { useRef, useState } from "react";
 import {
-  buildWalkthroughBody,
-  buildWalkthroughMailto,
   isContactConfigured,
+  walkthroughDrafts,
   type WalkthroughRequest,
   type WalkthroughSelection,
 } from "../lib/contact";
+
+const webMail = [
+  { key: "gmail", name: "Gmail" },
+  { key: "outlook", name: "Outlook" },
+] as const;
 
 export function ContactForm({
   email,
@@ -28,7 +32,8 @@ export function ContactForm({
   const [feedback, setFeedback] = useState({ text: "", body: "" });
   const [copying, setCopying] = useState(false);
   const [showRequest, setShowRequest] = useState(false);
-  const body = buildWalkthroughBody(selections, request, askedAbout);
+  const drafts = walkthroughDrafts(email, selections, request, askedAbout);
+  const body = drafts.body;
   const status = feedback.body === body ? feedback.text : "";
   const setStatus = (text: string, about = body) =>
     setFeedback({ text, body: about });
@@ -53,20 +58,22 @@ export function ContactForm({
     return form.current?.reportValidity();
   }
 
-  function prepareDraft() {
+  function openDraft(
+    kind: "mailto" | (typeof webMail)[number]["key"],
+    sent: string,
+  ) {
     if (!valid()) return;
     setShowRequest(true);
-    const href = buildWalkthroughMailto(email, selections, request, askedAbout);
+    const href = drafts[kind];
     if (href.length > 1800) {
       setStatus(
         "This request is too long for a reliable email link. Copy the request below and email it to the address shown.",
       );
       return;
     }
-    setStatus(
-      "Send the draft from your email app. If it did not open, copy your request below.",
-    );
-    window.location.href = href;
+    setStatus(`${sent} If it did not open, copy your request below.`);
+    if (kind === "mailto") window.location.href = href;
+    else window.open(href, "_blank", "noopener,noreferrer");
   }
 
   async function copyRequest() {
@@ -131,7 +138,7 @@ export function ContactForm({
               aria-describedby="contact-help contact-delivery"
               onSubmit={(event) => {
                 event.preventDefault();
-                prepareDraft();
+                openDraft("mailto", "Send the draft from your email app.");
               }}
               className="contact-form"
             >
@@ -189,13 +196,28 @@ export function ContactForm({
                 </p>
               )}
               <p id="contact-delivery" className="contact-note">
-                Opens a draft in your email app. You review and send it
-                yourself; nothing is sent from this website.
+                Opens a draft in your email app, Gmail or Outlook. You review
+                and send it yourself; nothing is sent from this website. If
+                nothing opens, copy the request and paste it into an email to{" "}
+                {email}.
               </p>
               <div className="contact-actions">
                 <button type="submit" className="primary-action">
                   Open email draft <span aria-hidden="true">↗</span>
                 </button>
+                {webMail.map(({ key, name }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() =>
+                      openDraft(key, `Finish and send the message in ${name}.`)
+                    }
+                  >
+                    Open in {name}
+                    <span className="sr-only"> (opens in a new tab)</span>{" "}
+                    <span aria-hidden="true">↗</span>
+                  </button>
+                ))}
                 <button type="button" onClick={copyRequest} disabled={copying}>
                   {copying ? "Copying request..." : "Copy request"}
                 </button>

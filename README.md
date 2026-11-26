@@ -210,7 +210,7 @@ Indiana has no statewide contractor licensing, but cities and counties set their
 
 ## Contact requests
 
-The form above the catalog requires an email and job description. Name and Town or ZIP are optional. Choose **Open email draft** to open your email application, or **Copy request** to paste the request into an email yourself. Long requests use the copy path. If clipboard access fails, select and copy the displayed request text manually. The walkthrough is a request, not a booked appointment.
+The form above the catalog requires an email and job description. Name and Town or ZIP are optional. Choose **Open email draft** to open your email application, **Open in Gmail** or **Open in Outlook** to start the message in web mail, or **Copy request** to paste the request into an email yourself. Long requests use the copy path. If clipboard access fails, select and copy the displayed request text manually. The walkthrough is a request, not a booked appointment.
 
 Estimate and detail actions return to the form without overwriting your job description. The request includes current estimate selections and add-ons with their quantities and units, without prices. Requesting a walkthrough from a service's details also names that service if it is outside the estimate. Choose **Leave [service] out** to remove that separate context. Adding it to the estimate removes the separate context, so removing the estimate entry later leaves it out of the request.
 
