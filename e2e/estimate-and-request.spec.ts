@@ -310,3 +310,173 @@ test("a viewed service can be left out and does not return after removal", async
     .click();
   await expect(note).toHaveCount(0);
 });
+
+for (const width of [600, 700, 768, 899, 1000, 1440]) {
+  test(`the catalog intro keeps a readable width at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("./");
+    const intro = (await page
+      .locator(".catalog-heading .intro")
+      .boundingBox())!;
+    expect(intro.width).toBeGreaterThanOrEqual(380);
+  });
+}
+
+test("chosen add-ons reach the request with their counts", async ({ page }) => {
+  await recordDelivery(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  for (const name of ["TV mount", "Floor install — LVP or tile"])
+    await rowFor(page, name)
+      .getByRole("button", { name: "Add", exact: true })
+      .click();
+  const estimate = page.getByRole("complementary");
+  await estimate.getByLabel("In-wall cable concealment").check();
+  await estimate.getByLabel("Transitions and quarter round").check();
+  await estimate
+    .getByRole("spinbutton", { name: /Transitions and quarter round/ })
+    .fill("12");
+  const contact = contactOf(page);
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("TV and a floor.");
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  const text = contact.getByLabel("Your request text");
+  await expect(text).toContainText("+ In-wall cable concealment");
+  await expect(text).toContainText(
+    "+ Transitions and quarter round: 12 linear ft",
+  );
+  await expect(text).not.toContainText("$");
+});
+
+test("the viewed service survives a visit to the sources page", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  await page.getByRole("button", { name: "TV mount", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("link", { name: "Request a walkthrough" })
+    .click();
+  const note = contactOf(page).getByText(
+    "Your request will name the service you were viewing: TV mount.",
+  );
+  await expect(note).toBeVisible();
+  await page.getByRole("link", { name: "How we price", exact: true }).click();
+  await page.getByRole("link", { name: /^Back to / }).click();
+  await expect(note).toBeVisible();
+});
+
+test("the estimate bar shows when the request card is only partly on a tall screen", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1024, height: 1366 });
+  await page.goto("./");
+  const card = (await contactOf(page).boundingBox())!;
+  await page.evaluate((y) => window.scrollTo(0, y), card.y + card.height - 30);
+  const add = page.getByRole("button", { name: "Add", exact: true }).first();
+  await expect(add).toBeInViewport();
+  await expect(contactOf(page)).toBeInViewport();
+  await add.click();
+  await expect(page.locator("details.estimate-mobile")).toBeVisible();
+});
+
+test("an open estimate sheet stays open while the request card comes into view", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const sheet = page.locator("details.estimate-mobile");
+  await sheet.locator("summary").click();
+  await expect(sheet).toHaveAttribute("open", "");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(contactOf(page)).toBeInViewport();
+  await page.waitForTimeout(200);
+  await expect(sheet).toBeVisible();
+  await expect(sheet).toHaveAttribute("open", "");
+});
+
+test("the filter pill focus ring is not clipped", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  await page.getByRole("searchbox", { name: "Search services" }).focus();
+  for (const name of ["Everything", "Water & Plumbing"]) {
+    await page.keyboard.press("Tab");
+    const pill = page.getByRole("button", { name, exact: true });
+    await expect(pill).toBeFocused();
+    const [inside, ring] = await pill.evaluate((el) => {
+      const box = el.parentElement!.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      const s = getComputedStyle(el);
+      const ring = parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset);
+      return [
+        r.top - ring >= box.top &&
+          r.left - ring >= box.left &&
+          r.bottom + ring <= box.bottom,
+        ring,
+      ];
+    });
+    expect(ring).toBeGreaterThan(0);
+    expect(inside).toBe(true);
+  }
+});
+
+for (const width of [1024, 1440]) {
+  test(`the filter bar rule lines up with the rows at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("./");
+    const [left, right] = await page.locator(".filter-bar").evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const after = getComputedStyle(el, "::after");
+      if (after.content !== "none" && after.borderBottomWidth !== "0px")
+        return [
+          r.left + parseFloat(after.left),
+          r.right - parseFloat(after.right),
+        ];
+      return [r.left, r.right];
+    });
+    const row = (await page.locator(".service-row").first().boundingBox())!;
+    expect(left).toBe(row.x);
+    expect(right).toBe(row.x + row.width);
+  });
+}
+
+for (const width of [700, 800, 860, 1000, 1440]) {
+  test(`the swipe hint shows only when pills overflow at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("./");
+    const overflows = await page
+      .getByRole("group", { name: "Filter by category" })
+      .evaluate((el) => el.scrollWidth > el.clientWidth);
+    const hint = page.getByText("Swipe for more categories");
+    if (overflows) await expect(hint).toBeVisible();
+    else await expect(hint).toBeHidden();
+  });
+}
+
+test("a reload during a quantity edit restores a whole count", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  await rowFor(page, "Ethernet drop")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const quantity = page.getByRole("complementary").getByRole("spinbutton");
+  await quantity.fill("");
+  await page.reload();
+  await expect(quantity).toHaveValue("1");
+});

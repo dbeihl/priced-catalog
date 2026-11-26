@@ -78,6 +78,32 @@ describe("walkthrough selection", () => {
     });
   });
 
+  it("names chosen add-ons, with whole counts and units where they have one", () => {
+    const floor = service("floor-lvp-tile");
+    const tv = service("tv-mount");
+    expect(
+      walkthroughSelection(floor, 120, [{ id: "transitions", quantity: 12.7 }]),
+    ).toEqual({
+      name: floor.name,
+      quantity: 120,
+      unit: "sq ft",
+      addOns: [
+        { name: "Transitions and quarter round", quantity: 12, unit: "linear ft" },
+      ],
+    });
+    expect(
+      buildWalkthroughBody([
+        walkthroughSelection(tv, 1, [{ id: "in-wall-conceal" }]),
+        walkthroughSelection(floor, 120, [{ id: "transitions", quantity: -3 }]),
+      ]),
+    ).toContain(
+      "- TV mount\n  + In-wall cable concealment\n- Floor install — LVP or tile: 120 sq ft\n  + Transitions and quarter round: 1 linear ft\n",
+    );
+    expect(
+      buildWalkthroughBody([walkthroughSelection(tv, 1, [{ id: "in-wall-conceal" }])]),
+    ).not.toContain("$");
+  });
+
   it("never names a negative, zero or fractional count", () => {
     const perUnit = services.find((s) => s.pricing.model === "per-unit")!;
     const count = (quantity: number) => {
