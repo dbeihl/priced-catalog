@@ -79,6 +79,7 @@ for (const size of [
         box.y + box.height,
       );
       await job.focus();
+      await expect(page.locator("details.estimate-mobile")).toBeHidden();
       const at = (await target.boundingBox())!;
       const before = await delivered(page);
       await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
@@ -510,6 +511,7 @@ test("hiding the sheet by keyboard over the request card keeps the bar and focus
     .click();
   const sheet = page.locator("details.estimate-mobile");
   const summary = sheet.locator("summary");
+  await expect(summary).toBeVisible();
   await summary.focus();
   await page.keyboard.press("Enter");
   await expect(sheet).toHaveAttribute("open", "");

@@ -145,7 +145,7 @@ export default function App() {
     const watch = new ResizeObserver(() =>
       setPillsOverflow(el.scrollWidth > el.clientWidth),
     );
-    watch.observe(el);
+    for (const box of [el, ...el.children]) watch.observe(box);
     return () => watch.disconnect();
   }, []);
 
@@ -159,10 +159,12 @@ export default function App() {
       const { top, bottom } = contact.getBoundingClientRect();
       setBarCoversContact(top < innerHeight && bottom > innerHeight - barBand);
     };
-    check();
+    const grows = new ResizeObserver(check);
+    grows.observe(contact);
     addEventListener("scroll", check, { passive: true });
     addEventListener("resize", check);
     return () => {
+      grows.disconnect();
       removeEventListener("scroll", check);
       removeEventListener("resize", check);
     };

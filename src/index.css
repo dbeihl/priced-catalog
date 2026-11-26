@@ -590,6 +590,6 @@ button {
 .estimate-mobile {
   padding-bottom: env(safe-area-inset-bottom);
 }
-.estimate-mobile.covering:not([open]) {
+.estimate-mobile.covering:not([open], :focus-within) {
   display: none;
 }
