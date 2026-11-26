@@ -25,7 +25,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-t border-rule pt-3">
+    <section className="border-t border-line pt-3">
       <h3 className="mb-1.5 text-[11px] uppercase tracking-wider text-ink-2">
         {title}
       </h3>
@@ -71,7 +71,7 @@ export function DetailPanel({
     >
       {service && (
         <div className="flex h-full flex-col">
-          <header className="flex items-start justify-between gap-4 border-b border-rule px-5 py-4">
+          <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
             <div className="min-w-0">
               <h2 className="text-[17px] font-semibold leading-snug">
                 {service.name}
@@ -88,7 +88,7 @@ export function DetailPanel({
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 border border-ink px-2 py-1 text-[12px] hover:bg-mark hover:text-on-mark"
+              className="shrink-0 rounded-md border border-ink px-2 py-1 text-[12px] hover:bg-mark hover:text-on-mark"
             >
               Close
             </button>
@@ -204,12 +204,12 @@ export function DetailPanel({
             </Section>
           </div>
 
-          <footer className="space-y-2 border-t border-rule px-5 py-3">
+          <footer className="space-y-2 border-t border-line px-5 py-3">
             {walkthroughHref && (
               <a
                 href={walkthroughHref}
                 onClick={() => onContact(service.id)}
-                className="block w-full border border-ink px-3 py-2 text-center text-[13px] font-semibold hover:bg-mark hover:text-on-mark"
+                className="block w-full rounded-md border border-ink px-3 py-2 text-center text-[13px] font-semibold hover:bg-mark hover:text-on-mark"
               >
                 Request a walkthrough
               </a>
@@ -218,7 +218,7 @@ export function DetailPanel({
               <a
                 href="#contact"
                 onClick={() => onContact(service.id)}
-                className="block w-full border border-ink bg-mark px-3 py-2 text-center text-[13px] font-semibold text-on-mark hover:bg-transparent"
+                className="block w-full rounded-md border border-ink bg-mark px-3 py-2 text-center text-[13px] font-semibold text-on-mark hover:bg-transparent"
               >
                 Ask for a quote
               </a>
@@ -226,7 +226,7 @@ export function DetailPanel({
               <button
                 type="button"
                 onClick={() => onAdd(service.id)}
-                className="w-full border border-ink bg-mark px-3 py-2 text-[13px] font-semibold text-on-mark hover:bg-transparent"
+                className="w-full rounded-md border border-ink bg-mark px-3 py-2 text-[13px] font-semibold text-on-mark hover:bg-transparent"
               >
                 Add to estimate
               </button>

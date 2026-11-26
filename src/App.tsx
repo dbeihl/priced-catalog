@@ -17,17 +17,54 @@ import {
   EstimateBuilder,
   type KeyedSelection,
 } from "./components/EstimateBuilder";
+import workshopBuild from "./assets/work/workshop-build.webp";
+import bathroomFan from "./assets/work/bathroom-fan.webp";
+import minisplitOne from "./assets/work/minisplit-install-1.webp";
+import minisplitTwo from "./assets/work/minisplit-install-2.webp";
+
+const recentWork = [
+  {
+    src: bathroomFan,
+    alt: "A square white bathroom exhaust fan in a beadboard ceiling",
+    caption: "Bathroom fan",
+  },
+  {
+    src: minisplitOne,
+    alt: "A mini-split outdoor unit mounted beside a metal-sided building",
+    caption: "Mini-split install, photo 1 of 2",
+  },
+  {
+    src: minisplitTwo,
+    alt: "A mini-split indoor unit on a plywood panel above a workbench",
+    caption: "Mini-split install, photo 2 of 2",
+  },
+];
+
+function HouseMark() {
+  return (
+    <svg
+      viewBox="0 0 36 36"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+    >
+      <path d="M5 16 18 5l13 11v15H5Z" />
+      <path d="M14 31V20h8v11M10 15h5m7 0h5" />
+    </svg>
+  );
+}
 
 let nextKey = 1;
 
 function HowToRead() {
   return (
-    <div className="mt-5 border border-rule bg-field p-4 lg:mt-0">
+    <div className="rounded-lg border border-line bg-field p-4">
       <details>
         <summary className="cursor-pointer text-[11px] uppercase tracking-wider text-ink-2 marker:text-ink">
           How to read a row
         </summary>
-        <dl className="mt-3 space-y-3 border-t border-rule pt-3 text-[12px] leading-snug">
+        <dl className="mt-3 space-y-3 border-t border-line pt-3 text-[12px] leading-snug">
           <div className="flex gap-3">
             <dt className="fig w-[7rem] shrink-0 font-medium">
               $4.50/linear ft
@@ -59,7 +96,7 @@ function HowToRead() {
           </div>
         </dl>
       </details>
-      <p className="mt-3 border-t border-rule pt-3 text-[12px] leading-snug text-ink-2">
+      <p className="mt-3 border-t border-line pt-3 text-[12px] leading-snug text-ink-2">
         Nothing here is a quote until a walkthrough confirms it.
       </p>
     </div>
@@ -112,32 +149,50 @@ export default function App() {
   const patch = (key: number, fn: (s: KeyedSelection) => KeyedSelection) =>
     setSelections((prev) => prev.map((s) => (s.key === key ? fn(s) : s)));
 
+  const [brand, ...brandRest] = site.name.split(" ");
+
   return (
     <div className="min-h-dvh">
-      <div className="mx-auto max-w-[80rem] px-4 pb-28 lg:px-8 lg:pb-8">
+      <div className="shell">
         <header className="site-header">
-          <a href="#" className="text-[18px] font-semibold">
-            {site.name}
+          <a href="#" className="brand">
+            <HouseMark />
+            <span>
+              {brand}
+              <small>{brandRest.join(" ")}</small>
+            </span>
           </a>
-          <nav
-            aria-label="Catalog navigation"
-            className="flex gap-5 text-[14px]"
-          >
+          <nav aria-label="Main navigation" className="site-nav">
             <a href="#catalog">Services &amp; prices</a>
-            <a href="#contact">Contact</a>
+            <a href="#contact" className="talk">
+              Let&apos;s talk
+            </a>
           </nav>
         </header>
-        <div className="contact-intro">
-          <div>
-            <p className="text-[13px] text-ink-2">{site.serviceArea}</p>
-            <h1 className="mt-2 text-[30px] font-semibold leading-tight lg:text-[42px]">
-              Home repairs, with the price explained.
+        <div className="hero">
+          <div className="hero-copy">
+            <p className="eyebrow">
+              {site.name} · {site.serviceArea}
+            </p>
+            <h1>
+              Let&apos;s get that
+              <br />
+              list done.
             </h1>
-            <p className="mt-3 max-w-lg text-[16px] leading-relaxed text-ink-2">
-              Published service prices, with the hours and market rates behind
-              them.
+            <p className="lead">
+              From a new faucet to a room that needs a refresh. Tell us what
+              needs doing, or find your job below.
             </p>
           </div>
+          <figure className="hero-photo">
+            <img
+              src={workshopBuild}
+              alt="A cream metal-sided workshop with a side door and two garage doors"
+              width={1280}
+              height={960}
+            />
+            <figcaption>Recent work: workshop build</figcaption>
+          </figure>
           <ContactForm
             email={site.email}
             askedAbout={askedAbout}
@@ -150,36 +205,51 @@ export default function App() {
                 : [];
             })}
           />
-          <div className="pricing-intro">
-            <div>
-              <p>Prices are per project or by the hour.</p>
-              <p>Materials are at cost, with receipts.</p>
-              <p className="mt-2 text-[14px] text-ink-2">{disclaimer}</p>
-            </div>
-            <figure className="border-l-2 border-mark pl-4">
-              <blockquote className="text-[14px] leading-relaxed">
-                Aaron put shiplap in our bedroom and downstairs bathroom and
-                painted it out. It looks awesome, and he did it right the first
-                time.
-              </blockquote>
-              <figcaption className="mt-2 text-[13px] text-ink-2">
-                David B.
-              </figcaption>
-            </figure>
-          </div>
         </div>
+        <ul className="assurances">
+          <li>Published prices</li>
+          <li>Materials at cost, with receipts</li>
+          <li>Confirmed at a walkthrough</li>
+        </ul>
+        <section className="work" aria-labelledby="work-heading">
+          <p className="eyebrow">Photos from recent jobs</p>
+          <h2 id="work-heading" className="section-title">
+            Recent work
+          </h2>
+          <div className="work-grid">
+            {recentWork.map((photo) => (
+              <figure key={photo.caption} className="m-0">
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  width={900}
+                  height={1200}
+                  loading="lazy"
+                />
+                <figcaption>{photo.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
         <div className="catalog-layout">
           <main id="catalog" className="scroll-mt-4 min-w-0">
             <div className="catalog-heading">
-              <h2 className="text-[24px] font-semibold">
-                Services &amp; prices
-              </h2>
+              <div>
+                <p className="eyebrow">Services &amp; prices</p>
+                <h2 className="section-title">
+                  Small jobs. A real difference.
+                </h2>
+                <p className="intro mt-3">
+                  Prices are per project or by the hour. Each one keeps the
+                  hours and market range behind it. {disclaimer}
+                </p>
+              </div>
               <HowToRead />
             </div>
             {/* ── Filters ── */}
-            <div className="-mx-4 border-b border-rule bg-paper px-4 py-3 lg:sticky lg:top-0 lg:z-[5] lg:mx-0 lg:px-0">
+            <div className="-mx-4 border-b border-line bg-paper px-4 py-3 lg:sticky lg:top-0 lg:z-[5] lg:mx-0 lg:px-0">
               <label className="block">
-                <span className="mb-2 block text-[14px]">Search services</span>
+                <span className="mb-2 block text-[13px] font-semibold">Search services</span>
                 <input
                   type="search"
                   id="catalog-search"
@@ -187,14 +257,14 @@ export default function App() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search the catalog"
-                  className="w-full border border-rule bg-field px-3 py-2 text-[14px]"
+                  className="w-full rounded-md border border-rule bg-paper px-3 py-2 text-[16px]"
                 />
               </label>
               <div className="mt-2">
                 <div
                   role="group"
                   aria-label="Filter by category"
-                  className="flex gap-1.5 overflow-x-auto pb-1"
+                  className="flex gap-1.5 overflow-x-auto pb-1 md:flex-wrap"
                 >
                   {(["all", ...categoryOrder] as const).map((c) => {
                     const active = category === c;
@@ -204,10 +274,10 @@ export default function App() {
                         type="button"
                         aria-pressed={active}
                         onClick={() => setCategory(c)}
-                        className={`min-h-11 shrink-0 border px-2.5 py-1 text-[12px] ${
+                        className={`min-h-11 shrink-0 rounded-full border px-3.5 py-1 text-[13px] ${
                           active
-                            ? "border-ink bg-mark font-medium text-on-mark"
-                            : "border-rule bg-field text-ink-2"
+                            ? "border-ink bg-ink font-semibold text-paper"
+                            : "border-line bg-field text-ink"
                         }`}
                       >
                         {c === "all" ? "Everything" : categoryNames[c]}
@@ -229,7 +299,7 @@ export default function App() {
               <p className="fig py-3 text-[11px] uppercase tracking-wider text-ink-2">
                 {visible.length} of {services.length} services
               </p>
-              <ul className="border-t border-rule">
+              <ul className="border-t border-line">
                 {visible.map((service) => (
                   <ServiceRow
                     key={service.id}
@@ -282,18 +352,31 @@ export default function App() {
           />
         </div>
 
-        <footer className="mt-10 border-t border-rule py-8 text-[14px] text-ink-2">
+        <figure className="review">
+          <p className="eyebrow">A note from a customer</p>
+          <div>
+            <blockquote>
+              Aaron put shiplap in our bedroom and downstairs bathroom and
+              painted it out. It looks awesome, and he did it right the first
+              time.
+            </blockquote>
+            <figcaption>David B.</figcaption>
+          </div>
+        </figure>
+
+        <footer className="site-footer">
           <div className="flex flex-wrap gap-x-6 gap-y-3">
-            <a href="#contact">Back to contact</a>
+            <span>
+              {site.name} · {site.serviceArea}
+            </span>
+            <a href="sources.html">How we price</a>
             <a className="contact-email" href={`mailto:${site.email}`}>
               {site.email}
             </a>
-            <a href="sources.html">How we price</a>
           </div>
-          <p className="mt-4">
-            {site.serviceArea}. Contact fields stay in this page until you
-            choose to open an email draft or copy them. You send the email
-            yourself.
+          <p className="mt-3">
+            Contact fields stay in this page until you choose to open an email
+            draft or copy them. You send the email yourself.
           </p>
         </footer>
       </div>

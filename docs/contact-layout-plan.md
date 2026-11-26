@@ -9,7 +9,16 @@ Move contact before the catalog and simplify the page while preserving every bus
 | Keep GitHub Pages and use email drafts with a copy fallback. | The authorized contact channel already exists. No new processor is approved. | Visitors must send the email themselves. |
 | Keep fields and interaction state in ContactForm; keep serialization in lib/contact. | App retains estimate selections and passes their current formatted values into the form. | One cohesive component and a small extension to the existing formatter. |
 | Keep all hours and market bands visible beneath each service. | Published evidence is the catalog's distinguishing behavior. | The catalog stays longer than a bare price menu. |
-| Preserve the palette, fonts, data files, and estimate engine. | The requested change concerns hierarchy and contact. | A quieter version of the current brand. |
+| Preserve the data files and estimate engine. | Every published number and source must stay exactly as reviewed. | Visual changes stay in markup and CSS. |
+| Replace the dark monospace look with the "Bright & practical" direction chosen on the 2026-11-15 decision board. | The owner found the earlier look too engineer-like. | One new palette, Archivo only, and the IBM Plex Mono dependency removed. |
+| Show four owner-supplied job photos as recent work, with plain captions and no prices. | Real work is more trustworthy than an illustration. | About 550 KB of images; the hero photo loads with the page. |
+| Commit photos only as metadata-free WebP, enforced by `src/photo-metadata.test.ts`. | The repository is public, and phone photos carry location data. | Every new photo needs a conversion step before it is committed. |
+
+## Redesign (2026-11-26)
+
+The page follows concept B from the decision board. A white page with blue ink and orange actions, a bold Archivo headline, a workshop photo beside it, and one wide request card across the page on desktop. The card puts name, email and town in one column with the job box beside them. On a phone the same four fields stack directly under the headline. Three checked assurances sit under the card, then three recent-work photos, then the full catalog with its search, filters, running estimate and detail panel restyled in the same palette. The customer note and footer close the page.
+
+Copy feedback such as "Request copied" now belongs to the exact request text it describes. Any later change to the fields, estimate selections or viewed service hides it, so the page never reports a copy of text the visitor no longer sees.
 
 ## Ground
 

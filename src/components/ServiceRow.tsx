@@ -1,4 +1,4 @@
-import type { Category, Service } from "../types";
+import type { Service } from "../types";
 import { BandRule } from "./BandRule";
 import {
   awaitingPrice,
@@ -8,15 +8,6 @@ import {
   unitLabel,
 } from "../lib/format";
 import { pricing } from "../site.config";
-
-const tagColor: Record<Category, string> = {
-  water: "var(--tag-water)",
-  "smart-home": "var(--tag-comms)",
-  general: "var(--tag-electric)",
-  flooring: "var(--tag-neutral)",
-  carpentry: "var(--tag-neutral)",
-  doors: "var(--tag-neutral)",
-};
 
 export function ServiceRow({
   service,
@@ -31,17 +22,12 @@ export function ServiceRow({
 }) {
   return (
     <li className="service-row">
-      <div
-        aria-hidden="true"
-        className="absolute inset-y-0 left-0 w-[3px]"
-        style={{ background: tagColor[service.category] }}
-      />
       <div className="service-content">
         <div className="min-w-0">
           <button
             type="button"
             onClick={onOpen}
-            className="min-h-11 text-left text-[15px] font-semibold leading-snug hover:underline"
+            className="min-h-11 text-left text-[17px] font-semibold leading-snug hover:underline"
           >
             {service.name}
           </button>
@@ -49,14 +35,14 @@ export function ServiceRow({
             {service.blurb}
           </p>
           {service.confirmBy && (
-            <span className="mt-1.5 inline-block border border-rule px-1.5 py-px text-[10px] uppercase tracking-wide text-ink-2">
+            <span className="mt-1.5 inline-block rounded-full bg-field px-2 py-0.5 text-[11px] text-ink-2">
               Confirmed by {service.confirmBy}
             </span>
           )}
         </div>
 
         <div className="service-price">
-          <span className="fig text-[15px] font-medium">
+          <span className="fig text-[17px] font-semibold">
             {headlinePrice(service)}
             {service.pricing.unit === "hour" && " plus materials"}
           </span>
@@ -98,7 +84,7 @@ export function ServiceRow({
           {awaitingPrice(service) ? (
             <a
               href="#contact"
-              className="inline-flex min-h-11 items-center border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark hover:text-on-mark"
+              className="inline-flex min-h-11 items-center rounded-md border border-rule px-3.5 py-1 text-[13px] font-semibold hover:border-mark hover:bg-mark hover:text-on-mark"
             >
               Ask for a quote
             </a>
@@ -106,7 +92,7 @@ export function ServiceRow({
             <button
               type="button"
               onClick={onAdd}
-              className="min-h-11 border border-ink px-2.5 py-1 text-[12px] font-medium hover:bg-mark hover:text-on-mark"
+              className="min-h-11 rounded-md border border-rule px-3.5 py-1 text-[13px] font-semibold hover:border-mark hover:bg-mark hover:text-on-mark"
             >
               {inEstimate ? "Add again" : "Add"}
             </button>

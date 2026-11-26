@@ -17,22 +17,22 @@ export function ContactForm({
   askedAbout?: string;
 }) {
   const form = useRef<HTMLFormElement>(null);
-  const revision = useRef(0);
   const [request, setRequest] = useState<WalkthroughRequest>({
     name: "",
     email: "",
     town: "",
     message: "",
   });
-  const [status, setStatus] = useState("");
+  const [feedback, setFeedback] = useState({ text: "", body: "" });
   const [copying, setCopying] = useState(false);
   const [showRequest, setShowRequest] = useState(false);
   const body = buildWalkthroughBody(selections, request, askedAbout);
+  const status = feedback.body === body ? feedback.text : "";
+  const setStatus = (text: string, about = body) =>
+    setFeedback({ text, body: about });
 
   function update(field: keyof WalkthroughRequest, value: string) {
-    revision.current += 1;
     setRequest((previous) => ({ ...previous, [field]: value }));
-    setStatus("");
     if (field === "message") {
       const message = form.current?.elements.namedItem(
         "message",
@@ -71,22 +71,42 @@ export function ContactForm({
     if (!valid()) return;
     setShowRequest(true);
     setCopying(true);
-    const version = revision.current;
+    const copied = body;
     try {
-      await navigator.clipboard.writeText(body);
-      if (version === revision.current)
-        setStatus(
-          "Request copied. Paste it into an email and send it to the address shown.",
-        );
+      await navigator.clipboard.writeText(copied);
+      setStatus(
+        "Request copied. Paste it into an email and send it to the address shown.",
+        copied,
+      );
     } catch {
-      if (version === revision.current)
-        setStatus(
-          "Copy was unavailable. Select the request text below and copy it manually into your email.",
-        );
+      setStatus(
+        "Copy was unavailable. Select the request text below and copy it manually into your email.",
+        copied,
+      );
     } finally {
       setCopying(false);
     }
   }
+
+  const field = (
+    name: keyof WalkthroughRequest,
+    label: string,
+    props: React.InputHTMLAttributes<HTMLInputElement>,
+  ) => (
+    <div className="contact-field">
+      <label htmlFor={`contact-${name}`}>
+        {label}
+        {!props.required && <span className="optional"> (optional)</span>}
+      </label>
+      <input
+        id={`contact-${name}`}
+        name={name}
+        value={request[name]}
+        onChange={(event) => update(name, event.target.value)}
+        {...props}
+      />
+    </div>
+  );
 
   return (
     <section
@@ -94,118 +114,100 @@ export function ContactForm({
       aria-labelledby="contact-heading"
       className="contact-card scroll-mt-6"
     >
-      <h2 id="contact-heading" className="text-[22px] font-semibold">
-        Request a walkthrough
-      </h2>
-      <p id="contact-help" className="mt-1 text-[14px] text-ink-2">
-        Tell us what needs doing and where the job is.
-      </p>
+      <header>
+        <p className="eyebrow">Start with a conversation</p>
+        <h2 id="contact-heading">What needs a hand?</h2>
+        <p id="contact-help" className="contact-lead">
+          Start with a few details about the job.
+        </p>
+      </header>
       {isContactConfigured({ email }) ? (
         <>
-          <form
-            ref={form}
-            aria-describedby="contact-help contact-delivery"
-            onSubmit={(event) => {
-              event.preventDefault();
-              prepareDraft();
-            }}
-            className="contact-form"
-          >
-            <div className="contact-pair">
-              <div className="contact-field">
-                <label htmlFor="contact-name">Name (optional)</label>
-                <input
-                  id="contact-name"
-                  name="name"
-                  autoComplete="name"
-                  maxLength={100}
-                  value={request.name}
-                  onChange={(event) => update("name", event.target.value)}
-                />
-              </div>
-              <div className="contact-field">
-                <label htmlFor="contact-email">Email</label>
-                <input
-                  id="contact-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  maxLength={254}
-                  value={request.email}
-                  onChange={(event) => update("email", event.target.value)}
-                />
-              </div>
-            </div>
-            <div className="contact-field">
-              <label htmlFor="contact-town">Town or ZIP (optional)</label>
-              <input
-                id="contact-town"
-                name="town"
-                autoComplete="address-level2"
-                maxLength={100}
-                value={request.town}
-                onChange={(event) => update("town", event.target.value)}
-              />
-            </div>
-            <div className="contact-field">
-              <label htmlFor="contact-message">What needs doing?</label>
-              <textarea
-                id="contact-message"
-                name="message"
-                required
-                rows={3}
-                maxLength={10000}
-                value={request.message}
-                onChange={(event) => update("message", event.target.value)}
-              />
-            </div>
-            {askedAbout && (
-              <p className="text-[13px] text-ink-2">
-                Your request will name the service you were viewing:{" "}
-                {askedAbout}.
-              </p>
-            )}
-            {selections.length > 0 && (
-              <p className="text-[13px] text-ink-2">
-                Your current estimate selections will be included, with
-                quantities and units. Prices are not included.
-              </p>
-            )}
-            <p
-              id="contact-delivery"
-              className="text-[13px] leading-snug text-ink-2"
+          <div className="contact-body">
+            <form
+              ref={form}
+              aria-describedby="contact-help contact-delivery"
+              onSubmit={(event) => {
+                event.preventDefault();
+                prepareDraft();
+              }}
+              className="contact-form"
             >
-              This prepares an email. You send it from your email app. Nothing
-              is submitted from this website. Email and job details are
-              required.
+              <div className="contact-details">
+                {field("name", "Name", {
+                  autoComplete: "name",
+                  maxLength: 100,
+                  placeholder: "Your name",
+                })}
+                {field("email", "Email", {
+                  type: "email",
+                  autoComplete: "email",
+                  required: true,
+                  maxLength: 254,
+                  placeholder: "you@example.com",
+                })}
+                {field("town", "Town or ZIP", {
+                  autoComplete: "address-level2",
+                  maxLength: 100,
+                  placeholder: "Where is the job?",
+                })}
+              </div>
+              <div className="contact-field contact-job">
+                <label htmlFor="contact-message">What needs doing?</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  required
+                  rows={3}
+                  maxLength={10000}
+                  placeholder="A repair, an installation, or a few things on your list"
+                  value={request.message}
+                  onChange={(event) => update("message", event.target.value)}
+                />
+              </div>
+              {askedAbout && (
+                <p className="contact-note">
+                  Your request will name the service you were viewing:{" "}
+                  {askedAbout}.
+                </p>
+              )}
+              {selections.length > 0 && (
+                <p className="contact-note">
+                  Your current estimate selections will be included, with
+                  quantities and units. Prices are not included.
+                </p>
+              )}
+              <p id="contact-delivery" className="contact-note">
+                Opens a draft in your email app. You review and send it
+                yourself; nothing is sent from this website.
+              </p>
+              <div className="contact-actions">
+                <button type="submit" className="primary-action">
+                  Open email draft <span aria-hidden="true">↗</span>
+                </button>
+                <button type="button" onClick={copyRequest} disabled={copying}>
+                  {copying ? "Copying request..." : "Copy request"}
+                </button>
+              </div>
+            </form>
+            <p role="status" aria-live="polite">
+              {status}
             </p>
-            <div className="contact-actions">
-              <button type="submit" className="primary-action">
-                Open email draft
-              </button>
-              <button type="button" onClick={copyRequest} disabled={copying}>
-                {copying ? "Copying request..." : "Copy request"}
-              </button>
-            </div>
-          </form>
-          <p role="status" className="mt-3 text-[14px]" aria-live="polite">
-            {status}
-          </p>
-          {showRequest && (
-            <div className="mt-3">
-              <h3 className="text-[14px] font-medium">Your request text</h3>
-              <pre
-                tabIndex={0}
-                aria-label="Your request text"
-                className="request-text"
-              >
-                {body}
-              </pre>
-            </div>
-          )}
-          <p className="mt-3 text-[14px] text-ink-2">
-            Or email{" "}
+            {showRequest && (
+              <div className="mt-3">
+                <h3 className="text-[14px] font-semibold">Your request text</h3>
+                <pre
+                  tabIndex={0}
+                  aria-label="Your request text"
+                  className="request-text"
+                >
+                  {body}
+                </pre>
+              </div>
+            )}
+          </div>
+          <p className="contact-fallback">
+            Or write to{" "}
             <a className="contact-email" href={`mailto:${email}`}>
               {email}
             </a>

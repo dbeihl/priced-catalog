@@ -2,7 +2,7 @@ import { sourceNotes, sources } from "../data/sources";
 
 export function SourceRegistry() {
   return (
-    <section id="sources" className="mt-10 border-t border-rule py-8">
+    <section id="sources" className="mt-4 border-t border-line py-8">
       <div className="max-w-3xl space-y-2 text-[14px] leading-relaxed text-ink-2">
         <p>
           Every market range in the service catalog comes from one of these
@@ -16,9 +16,9 @@ export function SourceRegistry() {
         </p>
       </div>
 
-      <div className="mt-5 overflow-x-auto border border-rule bg-field">
+      <div className="mt-5 overflow-x-auto rounded-lg border border-line bg-field">
         <table className="w-full min-w-[46rem] border-collapse text-left text-[12px] leading-snug">
-          <thead className="border-b border-rule bg-paper text-[11px] uppercase tracking-wider text-ink-2">
+          <thead className="border-b border-line bg-paper text-[11px] uppercase tracking-wider text-ink-2">
             <tr>
               <th className="px-3 py-2 font-medium">Source</th>
               <th className="px-3 py-2 font-medium">What it says</th>
@@ -30,7 +30,7 @@ export function SourceRegistry() {
               <tr
                 key={source.shortName}
                 id={source.shortName}
-                className="border-b border-rule last:border-0"
+                className="border-b border-line last:border-0"
               >
                 <td className="px-3 py-2 align-top font-medium">
                   {source.shortName}

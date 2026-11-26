@@ -66,7 +66,7 @@ function Body({
           const chosen = new Set((selection.addOns ?? []).map((a) => a.id));
 
           return (
-            <li key={selection.key} className="border-b border-rule px-4 py-3">
+            <li key={selection.key} className="border-b border-line px-4 py-3">
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-[13px] font-medium leading-snug">
                   {service.name}
@@ -179,7 +179,7 @@ function Body({
         })}
       </ul>
 
-      <dl className="space-y-1.5 border-b border-rule px-4 py-3 text-[13px]">
+      <dl className="space-y-1.5 border-b border-line px-4 py-3 text-[13px]">
         <div className="flex justify-between gap-3">
           <dt className="text-ink-2">Labor subtotal</dt>
           <dd className="fig">
@@ -192,7 +192,7 @@ function Body({
             <dd className="fig">+{money(estimate.visitMinimumApplied)}</dd>
           </div>
         )}
-        <div className="flex justify-between gap-3 border-t border-rule pt-1.5 font-medium">
+        <div className="flex justify-between gap-3 border-t border-line pt-1.5 font-medium">
           <dt>Labor total</dt>
           <dd className="fig">
             {estimate.isRange
@@ -222,7 +222,7 @@ function Body({
         )}
         <p>{materialsNote}</p>
         {estimate.quoteRequired && (
-          <p className="border border-ink bg-mark px-2 py-1.5 text-on-mark">
+          <p className="rounded-md border border-ink bg-mark px-2 py-1.5 text-on-mark">
             One or more lines are quote-only and contribute $0 here. This
             estimate is not complete until those are quoted in writing.
           </p>
@@ -234,7 +234,7 @@ function Body({
             onClick={(event) =>
               event.currentTarget.closest("details")?.removeAttribute("open")
             }
-            className="block border border-ink px-3 py-2 text-center text-[13px] font-semibold text-ink hover:bg-mark hover:text-on-mark"
+            className="block rounded-md border border-mark bg-mark px-3 py-2.5 text-center text-[14px] font-semibold text-on-mark hover:bg-paper hover:text-ink"
           >
             Request a walkthrough
           </a>
@@ -250,8 +250,8 @@ export function EstimateBuilder(props: Props) {
     <>
       {/* desktop: a running tally in the right rail */}
       <aside className="hidden min-[1200px]:block">
-        <div className="sticky top-4 border border-rule bg-field">
-          <header className="flex items-baseline justify-between gap-3 border-b border-rule px-4 py-3">
+        <div className="sticky top-4 overflow-hidden rounded-xl border border-line bg-field">
+          <header className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-3">
             <h2 className="text-[12px] uppercase tracking-wider text-ink-2">
               Running estimate
             </h2>

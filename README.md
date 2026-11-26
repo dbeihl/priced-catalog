@@ -211,3 +211,14 @@ Indiana has no statewide contractor licensing, but cities and counties set their
 ## Contact layout
 
 The [contact-first layout plan](docs/contact-layout-plan.md) records the research, public behavior, and delivery boundary. Contact is above the catalog. Estimate and detail actions return to that form. All prices, hours, market bands, and source files retain their existing values. The walkthrough is a request, not a booked appointment.
+
+## Recent work photos
+
+Photos live in `src/assets/work/` and are listed in `src/App.tsx` with a short caption and a description for screen readers. Phone photos carry the location they were taken, so commit each one only as a WebP with every bit of metadata removed. For example, on a Mac:
+
+```sh
+sips -s format jpeg -Z 1200 photo.heic --out photo.jpg
+cwebp -q 74 -metadata none photo.jpg -o src/assets/work/photo.webp
+```
+
+`sips` keeps the camera's rotation as a tag, which `cwebp` drops, so rotate the JPEG first (`sips -r 90 photo.jpg`) if the photo comes out sideways. `npm test` fails if any committed image is not WebP or still carries EXIF, XMP or colour-profile data.
