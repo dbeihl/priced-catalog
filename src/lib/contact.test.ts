@@ -81,6 +81,28 @@ describe("web mail compose links", () => {
   });
 });
 
+describe("text that cannot be encoded", () => {
+  it("never breaks the request, and the links carry exactly what is copied", () => {
+    const lone = "\uD83D";
+    const trailing = "\uDE00";
+    const request = {
+      name: `Sam${lone}`,
+      email: `sam${trailing}@example.com`,
+      town: `West${lone}field`,
+      message: `Fix the door ${trailing}${lone} 🔧`,
+    };
+    const drafts = walkthroughDrafts("info@example.com", [], request, `Faucet${lone}`);
+    expect(drafts.body).toContain("Name: Sam\uFFFD");
+    expect(drafts.body).toContain("Reply email: sam\uFFFD@example.com");
+    expect(drafts.body).toContain("Town or ZIP: West\uFFFDfield");
+    expect(drafts.body).toContain("Fix the door \uFFFD\uFFFD 🔧");
+    expect(drafts.body).toContain("Asked about: Faucet\uFFFD");
+    for (const link of [drafts.mailto, drafts.gmail, drafts.outlook]) {
+      expect(new URL(link).searchParams.get("body")).toBe(drafts.body);
+    }
+  });
+});
+
 describe("walkthrough selection", () => {
   it("omits quantity for services without a quantity input", () => {
     expect(walkthroughSelection(service("punch-list-half"), 1)).toEqual({

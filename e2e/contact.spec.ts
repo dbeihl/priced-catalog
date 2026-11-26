@@ -498,3 +498,27 @@ test("web mail opens nothing for an invalid or overlong request and works from t
     contact.getByRole("button", { name: "Copy request", exact: true }),
   ).toBeFocused();
 });
+
+for (const width of [320, 390]) {
+  test(`the pricing sources page stays at screen width on a ${width}px phone`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("./sources.html");
+    await expect(
+      page.getByRole("heading", { name: "Market band sources" }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(() => [
+        document.documentElement.scrollWidth,
+        document.documentElement.clientWidth,
+      ]),
+    ).toEqual([width, width]);
+    await expect(
+      page.getByRole("link", {
+        name: "https://homeguide.com/costs/faucet-installation-cost (opens in a new tab)",
+        exact: true,
+      }),
+    ).toBeVisible();
+  });
+}

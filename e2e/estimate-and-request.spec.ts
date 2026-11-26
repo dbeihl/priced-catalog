@@ -635,11 +635,13 @@ test("hiding the sheet by keyboard over the request card keeps the bar and focus
   await expect(summary).toBeFocused();
 });
 
-for (const size of [
+for (const [size, opened] of [
   { width: 390, height: 844 },
   { width: 1100, height: 800 },
-]) {
-  test(`after a pointer Hide over the request card every contact button acts at ${size.width}px`, async ({
+].flatMap((size) =>
+  (["pointer", "keyboard"] as const).map((opened) => [size, opened] as const),
+)) {
+  test(`after a ${opened} open and a pointer Hide over the request card every contact button acts at ${size.width}px`, async ({
     page,
   }) => {
     await recordDelivery(page);
@@ -669,7 +671,11 @@ for (const size of [
     ] as const) {
       await page.locator("#catalog-search").scrollIntoViewIfNeeded();
       await expect(summary).toBeVisible();
-      await summary.click();
+      if (opened === "pointer") await summary.click();
+      else {
+        await summary.focus();
+        await page.keyboard.press("Enter");
+      }
       await expect(sheet).toHaveAttribute("open", "");
       await page.evaluate(() => window.scrollTo(0, 0));
       await summary.click();
