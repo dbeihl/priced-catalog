@@ -167,36 +167,126 @@ test("a request never carries a negative, zero or fractional count", async ({
   }
 });
 
-test("the typed request and estimate survive a visit to the sources page", async ({
-  page,
-}) => {
-  const sent: string[] = [];
-  page.on("request", (request) => {
-    if (request.method() !== "GET") sent.push(request.url());
+for (const sourceLink of [
+  "footer",
+  "catalog citation",
+  "detail citation",
+] as const) {
+  test(`reading a ${sourceLink} preserves the request without browser storage`, async ({
+    page,
+    context,
+  }) => {
+    await recordDelivery(page);
+    const sent: string[] = [];
+    context.on("request", (request) => {
+      if (request.method() !== "GET") sent.push(request.url());
+    });
+    await page.goto("./");
+    const originalUrl = page.url();
+    const contact = contactOf(page);
+    await contact.getByLabel("Name (optional)").fill("Sam");
+    await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+    await contact.getByLabel("Town or ZIP (optional)").fill("Westfield");
+    await contact
+      .getByLabel("What needs doing?", { exact: true })
+      .fill("Hang the TV.");
+    await rowFor(page, "TV mount")
+      .getByRole("button", { name: "Add", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Toilet replacement", exact: true })
+      .click();
+    await page
+      .getByRole("dialog")
+      .getByRole("link", { name: "Request a walkthrough" })
+      .click();
+
+    if (sourceLink === "detail citation") {
+      await page
+        .getByRole("button", { name: "Faucet replacement", exact: true })
+        .click();
+    }
+    const link =
+      sourceLink === "footer"
+        ? page.getByRole("link", {
+            name: "How we price (opens in a new tab)",
+            exact: true,
+          })
+        : sourceLink === "catalog citation"
+          ? rowFor(page, "Subfloor repair").getByRole("link")
+          : page.getByRole("dialog").getByRole("link", { name: /HomeGuide/ });
+    const sourceLinks = page.locator('a[href^="sources.html"]');
+    for (const source of await sourceLinks.all()) {
+      await expect(source).toHaveAttribute("target", "_blank");
+      await expect(source).toHaveAttribute("rel", "noopener");
+      await expect(source).toHaveAccessibleName(/opens in a new tab/);
+    }
+    const popupPromise = page.waitForEvent("popup");
+    await link.click();
+    const sources = await popupPromise;
+    await expect(
+      sources.getByRole("heading", { name: "Market band sources" }),
+    ).toBeVisible();
+    const hash =
+      sourceLink === "footer"
+        ? ""
+        : sourceLink === "catalog citation"
+          ? "#HomeGuide, 2026 (subfloor)"
+          : "#HomeGuide, 2026 (faucet)";
+    expect(decodeURIComponent(new URL(sources.url()).hash)).toBe(hash);
+    expect(await sources.evaluate(() => window.opener === null)).toBe(true);
+    expect(
+      await sources.evaluate(() => ({
+        local: localStorage.length,
+        session: sessionStorage.length,
+        cookies: document.cookie,
+      })),
+    ).toEqual({ local: 0, session: 0, cookies: "" });
+    await sources.close();
+    await page.bringToFront();
+    if (sourceLink === "detail citation") {
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Close", exact: true })
+        .click();
+    }
+    expect(page.url()).toBe(originalUrl + "#contact");
+    await expect(contact.getByLabel("Name (optional)")).toHaveValue("Sam");
+    await expect(contact.getByLabel("Email", { exact: true })).toHaveValue(
+      "sam@example.com",
+    );
+    await expect(contact.getByLabel("Town or ZIP (optional)")).toHaveValue(
+      "Westfield",
+    );
+    await expect(
+      contact.getByLabel("What needs doing?", { exact: true }),
+    ).toHaveValue("Hang the TV.");
+    await expect(contact).toContainText(
+      "Your request will name the service you were viewing: Toilet replacement.",
+    );
+    await expect(
+      rowFor(page, "TV mount").getByRole("button", {
+        name: "Add again",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await contact
+      .getByRole("button", { name: "Copy request", exact: true })
+      .click();
+    const text = contact.getByLabel("Your request text");
+    await expect(text).toContainText("TV mount");
+    await expect(text).toContainText("Toilet replacement");
+    expect(
+      await page.evaluate(() => ({
+        local: localStorage.length,
+        session: sessionStorage.length,
+        cookies: document.cookie,
+      })),
+    ).toEqual({ local: 0, session: 0, cookies: "" });
+    expect(await context.cookies()).toEqual([]);
+    expect(sent).toEqual([]);
   });
-  await page.goto("./");
-  const contact = contactOf(page);
-  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
-  await contact
-    .getByLabel("What needs doing?", { exact: true })
-    .fill("Hang the TV.");
-  await rowFor(page, "TV mount")
-    .getByRole("button", { name: "Add", exact: true })
-    .click();
-  await page.getByRole("link", { name: "How we price", exact: true }).click();
-  await page.getByRole("link", { name: /^Back to / }).click();
-  await expect(contact.getByLabel("Email", { exact: true })).toHaveValue(
-    "sam@example.com",
-  );
-  await expect(
-    contact.getByLabel("What needs doing?", { exact: true }),
-  ).toHaveValue("Hang the TV.");
-  await expect(contact).toContainText(
-    "Your current estimate selections will be included",
-  );
-  expect(await page.evaluate(() => localStorage.length)).toBe(0);
-  expect(sent).toEqual([]);
-});
+}
 
 test("an hourly price stays on one line on desktop", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -355,25 +445,6 @@ test("chosen add-ons reach the request with their counts", async ({ page }) => {
   await expect(text).not.toContainText("$");
 });
 
-test("the viewed service survives a visit to the sources page", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("./");
-  await page.getByRole("button", { name: "TV mount", exact: true }).click();
-  await page
-    .getByRole("dialog")
-    .getByRole("link", { name: "Request a walkthrough" })
-    .click();
-  const note = contactOf(page).getByText(
-    "Your request will name the service you were viewing: TV mount.",
-  );
-  await expect(note).toBeVisible();
-  await page.getByRole("link", { name: "How we price", exact: true }).click();
-  await page.getByRole("link", { name: /^Back to / }).click();
-  await expect(note).toBeVisible();
-});
-
 test("the estimate bar shows when the request card is only partly on a tall screen", async ({
   page,
 }) => {
@@ -467,20 +538,6 @@ for (const width of [700, 800, 860, 1000, 1440]) {
     else await expect(hint).toBeHidden();
   });
 }
-
-test("a reload during a quantity edit restores a whole count", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("./");
-  await rowFor(page, "Ethernet drop")
-    .getByRole("button", { name: "Add", exact: true })
-    .click();
-  const quantity = page.getByRole("complementary").getByRole("spinbutton");
-  await quantity.fill("");
-  await page.reload();
-  await expect(quantity).toHaveValue("1");
-});
 
 test("the swipe hint follows the pills once a slow web font arrives", async ({
   page,

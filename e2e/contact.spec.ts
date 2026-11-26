@@ -50,7 +50,13 @@ test("visitor can prepare and copy a walkthrough before browsing services", asyn
     contact.getByLabel("What needs doing?", { exact: true }),
   ).toHaveValue("Fix the entry door & trim.");
   expect(submissions).toEqual([]);
-  expect(await page.evaluate(() => localStorage.length)).toBe(0);
+  expect(
+    await page.evaluate(() => ({
+      local: localStorage.length,
+      session: sessionStorage.length,
+      cookies: document.cookie,
+    })),
+  ).toEqual({ local: 0, session: 0, cookies: "" });
 });
 
 test("clipboard failure retains the current estimate and editable request", async ({
@@ -197,11 +203,19 @@ test("details return to contact and sources remain navigable", async ({
   await detail.getByRole("link", { name: "Request a walkthrough" }).click();
   await expect(detail).not.toBeVisible();
   await expect(page.getByLabel("Email", { exact: true })).toBeInViewport();
-  await page.getByRole("link", { name: "How we price", exact: true }).click();
+  const popupPromise = page.waitForEvent("popup");
+  await page
+    .getByRole("link", {
+      name: "How we price (opens in a new tab)",
+      exact: true,
+    })
+    .click();
+  const sources = await popupPromise;
   await expect(
-    page.getByRole("heading", { name: "Market band sources" }),
+    sources.getByRole("heading", { name: "Market band sources" }),
   ).toBeVisible();
-  expect(page.url()).toContain("/priced-catalog/sources.html");
+  expect(sources.url()).toContain("/priced-catalog/sources.html");
+  await sources.close();
 });
 
 test("a viewed service joins the request without changing job text or the estimate", async ({
