@@ -20,9 +20,9 @@ The page follows concept B from the decision board. A white page with blue ink a
 
 Copy feedback such as "Request copied" now belongs to the exact request text it describes. Any later change to the fields, estimate selections or viewed service hides it, so the page never reports a copy of text the visitor no longer sees.
 
-## Ground
+## Pre-change baseline
 
-App owns category filtering, open details, and estimate selections. EstimateBuilder and DetailPanel consume a configured walkthrough link. lib/contact owns email encoding and quantity formatting. The current configuration check reads every value of the site object, so TODO domain and social-image fields suppress contact even when email is configured. Browser selection reproduced the hidden action. Contact currently begins at y=11,753 in a 390 by 844 viewport.
+Before this change, App owned category filtering, open details, and estimate selections. EstimateBuilder and DetailPanel consumed a configured walkthrough link. lib/contact owned email encoding and quantity formatting. The configuration check read every value of the site object, so TODO domain and social-image fields suppressed contact even when email was configured. Browser selection reproduced the hidden action. Contact began at y=11,753 in a 390 by 844 viewport.
 
 The research scout read nine live businesses on 2026-11-15. [Indianapolis Handyman Solutions](https://www.indianapolishandymansolutions.com/) puts call and estimate actions in its hero but currently exposes a placeholder form endpoint. [McClure](https://themcclurehandyman.com/) places its form before services. [Tim's Toolbox](https://timstoolbox.net/) pairs clear pricing with a long intake. [DOM](https://domthehandyman.com/) puts rates and contact near the top. [Team Handy Dan](https://handy-man-nyc.com/contact-us/) showed an unavailable form during research. Those observations support early contact, fewer fields, and a direct email fallback. Competitor promises and prices are not imported.
 
