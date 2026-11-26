@@ -15,7 +15,7 @@ describe("first-screen navigation", () => {
     expect(page).toContain(">Services &amp; prices<");
     expect(page).toContain('id="catalog"');
     expect(page).toContain('href="#contact"');
-    expect(page).toContain(">Contact<");
+    expect(page).toContain(">Let&#x27;s talk<");
     expect(page).toContain('id="contact"');
   });
 
@@ -45,7 +45,6 @@ describe("launch contact details", () => {
     expect(page).not.toContain(
       "Draft pricing. These numbers are under review and are not yet a quote.",
     );
-    expect(page).not.toContain("<img");
     expect(page).not.toContain("insurance");
     expect(page).not.toContain("licensing");
     expect(page).not.toContain("guarantee");
@@ -53,6 +52,21 @@ describe("launch contact details", () => {
       "Aaron put shiplap in our bedroom and downstairs bathroom and painted it out. It looks awesome, and he did it right the first time.",
     );
     expect(page).toContain("David B.");
+  });
+});
+
+describe("recent work photos", () => {
+  it("describes each photo and attaches no price to it", () => {
+    const page = renderToStaticMarkup(createElement(App));
+    const figures = page.match(/<figure\b[^>]*>(?:(?!<\/figure>).)*<img\b(?:(?!<\/figure>).)*<\/figure>/gs) ?? [];
+
+    expect(figures).toHaveLength(4);
+    for (const figure of figures) {
+      expect(figure).toMatch(/<img\b[^>]*\balt="[^"]+"/);
+      expect(figure).toMatch(/\bwidth="\d+"/);
+      expect(figure).toMatch(/\bheight="\d+"/);
+      expect(figure).not.toMatch(/\$|\/hr|per hour/);
+    }
   });
 });
 

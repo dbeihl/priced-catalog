@@ -17,14 +17,14 @@ test("visitor can prepare and copy a walkthrough before browsing services", asyn
     if (request.method() !== "GET") submissions.push(request.url());
   });
   await page.goto("./");
-  const contact = page.getByRole("region", { name: "Request a walkthrough" });
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
   await expect(contact.getByLabel("Email", { exact: true })).toBeVisible();
   await expect(
     contact.getByLabel("What needs doing?", { exact: true }),
   ).toBeVisible();
   const contactBox = await contact.boundingBox();
   const catalogBox = await page
-    .getByRole("heading", { name: "Services & prices" })
+    .getByRole("heading", { name: "Small jobs. A real difference." })
     .boundingBox();
   expect(contactBox!.y).toBeLessThan(catalogBox!.y);
   await contact
@@ -68,7 +68,7 @@ test("clipboard failure retains the current estimate and editable request", asyn
     }),
   );
   await page.goto("./");
-  const contact = page.getByRole("region", { name: "Request a walkthrough" });
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
   await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
   await contact
     .getByLabel("What needs doing?", { exact: true })
@@ -126,7 +126,7 @@ test("long drafts use selectable text and whitespace-only jobs remain invalid", 
   page,
 }) => {
   await page.goto("./");
-  const contact = page.getByRole("region", { name: "Request a walkthrough" });
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
   await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
   const message = contact.getByLabel("What needs doing?", { exact: true });
   await message.fill("   ");
@@ -160,7 +160,7 @@ test("mobile contact stays above the catalog without document overflow", async (
       ),
     ).toBe(true);
     const heading = await page
-      .getByRole("heading", { name: "Request a walkthrough" })
+      .getByRole("heading", { name: "What needs a hand?" })
       .boundingBox();
     const email = await page.getByLabel("Email", { exact: true }).boundingBox();
     expect(heading!.y).toBeLessThan(844);
@@ -200,7 +200,7 @@ test("a viewed service joins the request without changing job text or the estima
   page,
 }) => {
   await page.goto("./");
-  const contact = page.getByRole("region", { name: "Request a walkthrough" });
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
   const message = contact.getByLabel("What needs doing?", { exact: true });
   await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
   await message.fill("Bathroom is leaking.");
@@ -236,4 +236,83 @@ test("a viewed service joins the request without changing job text or the estima
   expect(
     (await text.textContent())!.split("Toilet replacement").length - 1,
   ).toBe(1);
+});
+
+test("copied feedback clears when the estimate changes the request", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async () => undefined },
+    }),
+  );
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("Replace the trim.");
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(contact.getByRole("status")).toContainText("Request copied");
+  const row = page.getByRole("listitem").filter({
+    has: page.getByRole("button", { name: "TV mount", exact: true }),
+  });
+  await row.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(contact.getByRole("status")).toBeEmpty();
+  await contact
+    .getByRole("button", { name: "Copy request", exact: true })
+    .click();
+  await expect(contact.getByRole("status")).toContainText("Request copied");
+  await expect(contact.getByLabel("Your request text")).toContainText(
+    "- TV mount",
+  );
+});
+
+test("desktop request form is one wide card with the job box beside the details", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
+  const card = (await contact.boundingBox())!;
+  const email = (await contact
+    .getByLabel("Email", { exact: true })
+    .boundingBox())!;
+  const job = (await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .boundingBox())!;
+  const action = (await contact
+    .getByRole("button", { name: "Open email draft", exact: true })
+    .boundingBox())!;
+  expect(card.width).toBeGreaterThan(1000);
+  expect(job.x).toBeGreaterThan(email.x + email.width);
+  expect(action.y + action.height).toBeLessThan(card.y + card.height);
+});
+
+test("recent work photos load with plain captions and no prices", async ({
+  page,
+}) => {
+  await page.goto("./");
+  const photos = page.locator("figure:has(img)");
+  await expect(photos).toHaveCount(4);
+  await expect(photos.locator("figcaption")).toHaveText([
+    "Recent work: workshop build",
+    "Bathroom fan",
+    "Mini-split install, photo 1 of 2",
+    "Mini-split install, photo 2 of 2",
+  ]);
+  for (const photo of await photos.all()) {
+    const img = photo.getByRole("img");
+    await expect(img).toHaveAttribute("alt", /\w/);
+    await img.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth))
+      .toBeGreaterThan(0);
+    await expect(photo).not.toContainText("$");
+  }
+  await expect(
+    page.getByRole("region", { name: "Recent work" }).getByRole("img"),
+  ).toHaveCount(3);
 });
