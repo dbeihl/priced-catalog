@@ -20,7 +20,11 @@ interface Props {
   onAddOnQuantity: (key: number, addOnId: string, quantity: number) => void;
   onRemove: (key: number) => void;
   walkthroughHref?: string;
+  hideBar?: boolean;
 }
+
+const wholeCount = (input: HTMLInputElement) =>
+  Math.max(0, Math.trunc(input.valueAsNumber) || 0);
 
 function Total({ estimate }: { estimate: Estimate }) {
   if (estimate.isEmpty)
@@ -57,7 +61,7 @@ function Body({
   }
 
   return (
-    <div className="max-h-[48dvh] overflow-y-auto lg:max-h-none">
+    <div className="max-h-[48dvh] overflow-y-auto overscroll-contain min-[1200px]:max-h-none">
       <ul>
         {selections.map((selection, index) => {
           const service = byId.get(selection.serviceId);
@@ -66,7 +70,7 @@ function Body({
           const chosen = new Set((selection.addOns ?? []).map((a) => a.id));
 
           return (
-            <li key={selection.key} className="border-b border-rule px-4 py-3">
+            <li key={selection.key} className="border-b border-line px-4 py-3">
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-[13px] font-medium leading-snug">
                   {service.name}
@@ -85,11 +89,14 @@ function Body({
                     type="number"
                     id={`estimate-${fieldNamespace}-quantity-${selection.key}`}
                     name={`estimate[${fieldNamespace}][${selection.key}][quantity]`}
-                    min={0}
+                    min={1}
                     step={1}
                     value={selection.quantity ?? 1}
                     onChange={(e) =>
-                      onQuantity(selection.key, Number(e.target.value))
+                      onQuantity(selection.key, wholeCount(e.target))
+                    }
+                    onBlur={(e) =>
+                      onQuantity(selection.key, wholeCount(e.target) || 1)
                     }
                     className="fig w-20 border border-rule bg-paper px-1.5 py-0.5 text-[12px] text-ink"
                   />
@@ -138,7 +145,7 @@ function Body({
                             type="number"
                             id={`estimate-${fieldNamespace}-addon-quantity-${selection.key}-${addOn.id}`}
                             name={`estimate[${fieldNamespace}][${selection.key}][${addOn.id}][quantity]`}
-                            min={0}
+                            min={1}
                             step={1}
                             aria-label={`${addOn.name}, ${unitLabel[addOn.unit]}`}
                             value={ownQuantity}
@@ -146,7 +153,14 @@ function Body({
                               onAddOnQuantity(
                                 selection.key,
                                 addOn.id,
-                                Number(e.target.value),
+                                wholeCount(e.target),
+                              )
+                            }
+                            onBlur={(e) =>
+                              onAddOnQuantity(
+                                selection.key,
+                                addOn.id,
+                                wholeCount(e.target) || 1,
                               )
                             }
                             className="fig w-16 border border-rule bg-paper px-1.5 py-0.5 text-[12px]"
@@ -179,7 +193,7 @@ function Body({
         })}
       </ul>
 
-      <dl className="space-y-1.5 border-b border-rule px-4 py-3 text-[13px]">
+      <dl className="space-y-1.5 border-b border-line px-4 py-3 text-[13px]">
         <div className="flex justify-between gap-3">
           <dt className="text-ink-2">Labor subtotal</dt>
           <dd className="fig">
@@ -192,7 +206,7 @@ function Body({
             <dd className="fig">+{money(estimate.visitMinimumApplied)}</dd>
           </div>
         )}
-        <div className="flex justify-between gap-3 border-t border-rule pt-1.5 font-medium">
+        <div className="flex justify-between gap-3 border-t border-line pt-1.5 font-medium">
           <dt>Labor total</dt>
           <dd className="fig">
             {estimate.isRange
@@ -222,7 +236,7 @@ function Body({
         )}
         <p>{materialsNote}</p>
         {estimate.quoteRequired && (
-          <p className="border border-ink bg-mark px-2 py-1.5 text-on-mark">
+          <p className="rounded-md border border-ink bg-mark px-2 py-1.5 text-on-mark">
             One or more lines are quote-only and contribute $0 here. This
             estimate is not complete until those are quoted in writing.
           </p>
@@ -231,7 +245,10 @@ function Body({
         {walkthroughHref && (
           <a
             href={walkthroughHref}
-            className="block border border-ink px-3 py-2 text-center text-[13px] font-semibold text-ink hover:bg-mark hover:text-on-mark"
+            onClick={(event) =>
+              event.currentTarget.closest("details")?.removeAttribute("open")
+            }
+            className="block rounded-md border border-mark bg-mark px-3 py-2.5 text-center text-[14px] font-semibold text-on-mark hover:bg-paper hover:text-ink"
           >
             Request a walkthrough
           </a>
@@ -246,9 +263,9 @@ export function EstimateBuilder(props: Props) {
   return (
     <>
       {/* desktop: a running tally in the right rail */}
-      <aside className="hidden lg:block">
-        <div className="sticky top-4 border border-rule bg-field">
-          <header className="flex items-baseline justify-between gap-3 border-b border-rule px-4 py-3">
+      <aside className="hidden min-[1200px]:block">
+        <div className="sticky top-4 overflow-hidden rounded-xl border border-line bg-field">
+          <header className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-3">
             <h2 className="text-[12px] uppercase tracking-wider text-ink-2">
               Running estimate
             </h2>
@@ -265,7 +282,7 @@ export function EstimateBuilder(props: Props) {
        * shows a total does not read as tappable.
        */}
       {!props.estimate.isEmpty && (
-        <details className="group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] lg:hidden">
+        <details className={`estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden${props.hideBar ? " covering" : ""}`}>
           <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
             <svg
               aria-hidden="true"

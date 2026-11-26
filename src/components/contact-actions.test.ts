@@ -26,6 +26,7 @@ describe("walkthrough actions", () => {
           service,
           onClose: () => undefined,
           onAdd: () => undefined,
+          onContact: () => undefined,
         }),
       ),
     ).not.toContain("Request a walkthrough");
@@ -35,6 +36,7 @@ describe("walkthrough actions", () => {
           service,
           onClose: () => undefined,
           onAdd: () => undefined,
+          onContact: () => undefined,
           walkthroughHref,
         }),
       ),

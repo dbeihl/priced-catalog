@@ -17,9 +17,12 @@ function SourceCitation({
   return (
     <a
       href={`sources.html#${encodeURIComponent(sourceKey)}`}
+      target="_blank"
+      rel="noopener"
       className="underline decoration-rule underline-offset-2 hover:decoration-ink"
     >
       {label}
+      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   );
 }
@@ -49,8 +52,9 @@ export function BandRule({
 
   if (position === null || value === null) {
     return (
-      <p className="fig text-[11px] leading-tight text-ink-2">
-        Market {marketBandLabel(service)} · <SourceCitation band={service.marketBand} />
+      <p className="fig text-[13px] leading-tight text-ink-2">
+        Market {marketBandLabel(service)} ·{" "}
+        <SourceCitation band={service.marketBand} />
       </p>
     );
   }
@@ -68,12 +72,12 @@ export function BandRule({
         <div className="absolute right-0 top-0 bottom-0 w-px bg-rule" />
         {/* his price */}
         <div
-          className="absolute top-0 bottom-0 w-[3px] -translate-x-1/2 bg-mark ring-1 ring-ink/80"
+          className="band-marker absolute top-0 bottom-0 w-[3px] -translate-x-1/2 bg-mark ring-1 ring-ink/80"
           style={{ left: `${position * 100}%` }}
         />
       </div>
 
-      <p className="fig flex flex-wrap items-baseline gap-x-1.5 text-[11px] leading-tight text-ink-2">
+      <p className="fig flex flex-wrap items-baseline gap-x-1.5 text-[13px] leading-tight text-ink-2">
         <span>{money(low)}</span>
         <span aria-hidden="true">–</span>
         <span>

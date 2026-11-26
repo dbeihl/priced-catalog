@@ -1,12 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ContactForm } from "./components/ContactForm";
 import type { Category, Service } from "./types";
 import { services } from "./data/services";
 import { calculateEstimate } from "./lib/estimate";
-import {
-  buildWalkthroughMailto,
-  isContactConfigured,
-  walkthroughSelection,
-} from "./lib/contact";
+import { isContactConfigured, walkthroughSelection } from "./lib/contact";
 import {
   categoryNames,
   categoryOrder,
@@ -20,17 +17,56 @@ import {
   EstimateBuilder,
   type KeyedSelection,
 } from "./components/EstimateBuilder";
+import workshopBuild from "./assets/work/workshop-build.webp";
+import bathroomFan from "./assets/work/bathroom-fan.webp";
+import minisplitOne from "./assets/work/minisplit-install-1.webp";
+import minisplitTwo from "./assets/work/minisplit-install-2.webp";
+
+const recentWork = [
+  {
+    src: bathroomFan,
+    alt: "A square white bathroom exhaust fan in a beadboard ceiling",
+    caption: "Bathroom fan",
+  },
+  {
+    src: minisplitOne,
+    alt: "A mini-split outdoor unit mounted beside a metal-sided building",
+    caption: "Mini-split install, photo 1 of 2",
+  },
+  {
+    src: minisplitTwo,
+    alt: "A mini-split indoor unit on a plywood panel above a workbench",
+    caption: "Mini-split install, photo 2 of 2",
+  },
+];
+
+function HouseMark() {
+  return (
+    <svg
+      viewBox="0 0 36 36"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+    >
+      <path d="M5 16 18 5l13 11v15H5Z" />
+      <path d="M14 31V20h8v11M10 15h5m7 0h5" />
+    </svg>
+  );
+}
 
 let nextKey = 1;
+// ponytail: fixed band a little taller than the closed estimate bar; measure the bar if its height ever varies.
+const barBand = 80;
 
 function HowToRead() {
   return (
-    <div className="mt-5 border border-rule bg-field p-4 lg:mt-0">
+    <div className="rounded-lg border border-line bg-field p-4">
       <details>
         <summary className="cursor-pointer text-[11px] uppercase tracking-wider text-ink-2 marker:text-ink">
           How to read a row
         </summary>
-        <dl className="mt-3 space-y-3 border-t border-rule pt-3 text-[12px] leading-snug">
+        <dl className="mt-3 space-y-3 border-t border-line pt-3 text-[12px] leading-snug">
           <div className="flex gap-3">
             <dt className="fig w-[7rem] shrink-0 font-medium">
               $4.50/linear ft
@@ -62,7 +98,7 @@ function HowToRead() {
           </div>
         </dl>
       </details>
-      <p className="mt-3 border-t border-rule pt-3 text-[12px] leading-snug text-ink-2">
+      <p className="mt-3 border-t border-line pt-3 text-[12px] leading-snug text-ink-2">
         Nothing here is a quote until a walkthrough confirms it.
       </p>
     </div>
@@ -74,6 +110,38 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [selections, setSelections] = useState<KeyedSelection[]>([]);
+  const [askedAboutId, setAskedAboutId] = useState<string | null>(null);
+  const [barCoversContact, setBarCoversContact] = useState(false);
+  const pills = useRef<HTMLDivElement>(null);
+  const [pillsOverflow, setPillsOverflow] = useState(false);
+
+  useEffect(() => {
+    const el = pills.current;
+    if (!el) return;
+    const watch = new ResizeObserver(() =>
+      setPillsOverflow(el.scrollWidth > el.clientWidth),
+    );
+    for (const box of [el, ...el.children]) watch.observe(box);
+    return () => watch.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const contact = document.getElementById("contact");
+    if (!contact) return;
+    const check = () => {
+      const { top, bottom } = contact.getBoundingClientRect();
+      setBarCoversContact(top < innerHeight && bottom > innerHeight - barBand);
+    };
+    const grows = new ResizeObserver(check);
+    grows.observe(contact);
+    addEventListener("scroll", check, { passive: true });
+    addEventListener("resize", check);
+    return () => {
+      grows.disconnect();
+      removeEventListener("scroll", check);
+      removeEventListener("resize", check);
+    };
+  }, []);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -96,91 +164,135 @@ export default function App() {
     ? (services.find((s) => s.id === openId) ?? null)
     : null;
   const inEstimate = new Set(selections.map((s) => s.serviceId));
-  const contactConfigured = isContactConfigured(site);
-  const walkthroughHref = contactConfigured
-    ? buildWalkthroughMailto(
-        site.email,
-        selections.flatMap((selection) => {
-          const service = services.find((item) => item.id === selection.serviceId);
-          return service
-            ? [walkthroughSelection(service, selection.quantity)]
-            : [];
-        }),
-      )
+  const askedAbout = askedAboutId
+    ? services.find((s) => s.id === askedAboutId)?.name
     : undefined;
+  const contactConfigured = isContactConfigured(site);
+  const walkthroughHref = contactConfigured ? "#contact" : undefined;
   const detailWalkthroughHref =
-    contactConfigured && openService
-      ? buildWalkthroughMailto(site.email, [{ name: openService.name }])
-      : undefined;
+    contactConfigured && openService ? "#contact" : undefined;
 
-  const add = (serviceId: string) =>
+  const add = (serviceId: string) => {
+    setAskedAboutId((prev) => (prev === serviceId ? null : prev));
     setSelections((prev) => [
       ...prev,
       { key: nextKey++, serviceId, quantity: 1, addOns: [] },
     ]);
+  };
 
   const patch = (key: number, fn: (s: KeyedSelection) => KeyedSelection) =>
     setSelections((prev) => prev.map((s) => (s.key === key ? fn(s) : s)));
 
+  const [brand, ...brandRest] = site.name.split(" ");
+
   return (
     <div className="min-h-dvh">
-      <div className="mx-auto max-w-[86rem] px-4 pb-28 lg:px-8 lg:pb-8">
-        {/* ── Hero ── */}
-        <header className="border-b border-rule py-6 lg:py-8">
-          <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-end lg:gap-10">
-            <div>
-              <p className="fig text-[12px] uppercase tracking-[0.18em] text-ink-2">
-                {site.serviceArea}
-              </p>
-              <h1 className="mt-1 max-w-3xl text-[28px] font-semibold leading-[1.15] lg:text-[36px]">
-                {site.name}
-              </h1>
-              <ol className="mt-4 max-w-2xl space-y-1 text-[14px] leading-relaxed lg:text-[15px]">
-                <li className="border-l-2 border-ink pl-3">
-                  Prices are per project or by the hour.
-                </li>
-                <li className="border-l-2 border-ink pl-3">
-                  Materials are at cost, with receipts.
-                </li>
-                <li className="border-l-2 border-mark pl-3">
-                  Every number shows its math: the hours behind it, and what the
-                  market charges for the same job.
-                </li>
-              </ol>
-              <p className="mt-4 max-w-2xl text-[14px] leading-relaxed text-ink-2">
-                Publishing the market band means you can see when a price sits
-                at the bottom of it and when it sits at the top. That is the
-                point. You should be able to check the number, not just trust
-                it.
-              </p>
-              <nav
-                aria-label="Catalog navigation"
-                className="mt-5 flex flex-wrap gap-3"
-              >
-                <a
-                  href="#catalog"
-                  className="border border-ink bg-mark px-3 py-2 text-[13px] font-medium text-on-mark"
-                >
-                  Browse services
-                </a>
-                <a
-                  href="#contact"
-                  className="border border-ink bg-field px-3 py-2 text-[13px] font-medium"
-                >
-                  Get a walkthrough
-                </a>
-              </nav>
-            </div>
-            <HowToRead />
-          </div>
+      <div className="shell">
+        <header className="site-header">
+          <a href="#" className="brand">
+            <HouseMark />
+            <span>
+              {brand}
+              <small>{brandRest.join(" ")}</small>
+            </span>
+          </a>
+          <nav aria-label="Main navigation" className="site-nav">
+            <a href="#catalog">Services &amp; prices</a>
+            <a href="#contact" className="talk">
+              Let&apos;s talk
+            </a>
+          </nav>
         </header>
-
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-8">
-          <main id="catalog" className="scroll-mt-4">
+        <div className="hero">
+          <div className="hero-copy">
+            <p className="eyebrow">
+              {site.name} · {site.serviceArea}
+            </p>
+            <h1>
+              Let&apos;s get that
+              <br />
+              list done.
+            </h1>
+            <p className="lead">
+              From a new faucet to a room that needs a refresh. Tell us what
+              needs doing, or find your job below.
+            </p>
+          </div>
+          <figure className="hero-photo">
+            <img
+              src={workshopBuild}
+              alt="A cream metal-sided workshop with a side door and two garage doors"
+              width={1280}
+              height={960}
+            />
+            <figcaption>Recent work: workshop build</figcaption>
+          </figure>
+          <ContactForm
+            email={site.email}
+            askedAbout={askedAbout}
+            onLeaveOut={() => setAskedAboutId(null)}
+            selections={selections.flatMap((selection) => {
+              const service = services.find(
+                (item) => item.id === selection.serviceId,
+              );
+              return service
+                ? [
+                    walkthroughSelection(
+                      service,
+                      selection.quantity,
+                      selection.addOns,
+                    ),
+                  ]
+                : [];
+            })}
+          />
+        </div>
+        <ul className="assurances">
+          <li>Published prices</li>
+          <li>Materials at cost, with receipts</li>
+          <li>Confirmed at a walkthrough</li>
+        </ul>
+        <section className="work" aria-labelledby="work-heading">
+          <p className="eyebrow">Photos from recent jobs</p>
+          <h2 id="work-heading" className="section-title">
+            Recent work
+          </h2>
+          <div className="work-grid">
+            {recentWork.map((photo) => (
+              <figure key={photo.caption} className="m-0">
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  width={900}
+                  height={1200}
+                  loading="lazy"
+                />
+                <figcaption>{photo.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+        <div className="catalog-layout">
+          <main id="catalog" className="scroll-mt-4 min-w-0">
+            <div className="catalog-heading">
+              <div className="catalog-title">
+                <p className="eyebrow">Services &amp; prices</p>
+                <h2 className="section-title">
+                  Small jobs. A real difference.
+                </h2>
+              </div>
+              <p className="intro">
+                Prices are per project or by the hour. Each one keeps the hours
+                and market range behind it. {disclaimer}
+              </p>
+              <HowToRead />
+            </div>
             {/* ── Filters ── */}
-            <div className="-mx-4 border-b border-rule bg-paper px-4 py-3 lg:sticky lg:top-0 lg:z-[5] lg:mx-0 lg:px-0">
+            <div className="filter-bar relative bg-paper py-3 lg:sticky lg:top-0 lg:z-[5]">
               <label className="block">
-                <span className="sr-only">Search services</span>
+                <span className="mb-2 block text-[13px] font-semibold">
+                  Search services
+                </span>
                 <input
                   type="search"
                   id="catalog-search"
@@ -188,14 +300,15 @@ export default function App() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search the catalog"
-                  className="w-full border border-rule bg-field px-3 py-2 text-[14px]"
+                  className="w-full rounded-md border border-rule bg-paper px-3 py-2 text-[16px]"
                 />
               </label>
               <div className="mt-2">
                 <div
+                  ref={pills}
                   role="group"
                   aria-label="Filter by category"
-                  className="flex gap-1.5 overflow-x-auto pb-1"
+                  className="-m-1 flex gap-1 overflow-x-auto p-1 min-[900px]:flex-wrap"
                 >
                   {(["all", ...categoryOrder] as const).map((c) => {
                     const active = category === c;
@@ -205,10 +318,10 @@ export default function App() {
                         type="button"
                         aria-pressed={active}
                         onClick={() => setCategory(c)}
-                        className={`min-h-11 shrink-0 border px-2.5 py-1 text-[12px] ${
+                        className={`min-h-11 shrink-0 rounded-full border px-2.5 py-1 text-[12.5px] ${
                           active
-                            ? "border-ink bg-mark font-medium text-on-mark"
-                            : "border-rule bg-field text-ink-2"
+                            ? "border-ink bg-ink font-semibold text-paper"
+                            : "border-line bg-field text-ink"
                         }`}
                       >
                         {c === "all" ? "Everything" : categoryNames[c]}
@@ -216,12 +329,14 @@ export default function App() {
                     );
                   })}
                 </div>
-                <span
-                  aria-hidden="true"
-                  className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2 md:hidden"
-                >
-                  Swipe for more categories →
-                </span>
+                {pillsOverflow && (
+                  <span
+                    aria-hidden="true"
+                    className="mt-1 block text-right text-[10px] uppercase tracking-wide text-ink-2"
+                  >
+                    Swipe for more categories →
+                  </span>
+                )}
               </div>
             </div>
 
@@ -230,7 +345,7 @@ export default function App() {
               <p className="fig py-3 text-[11px] uppercase tracking-wider text-ink-2">
                 {visible.length} of {services.length} services
               </p>
-              <ul className="border-t border-rule">
+              <ul className="border-t border-line">
                 {visible.map((service) => (
                   <ServiceRow
                     key={service.id}
@@ -280,43 +395,37 @@ export default function App() {
               setSelections((prev) => prev.filter((s) => s.key !== key))
             }
             walkthroughHref={walkthroughHref}
+            hideBar={barCoversContact}
           />
         </div>
 
-        {/* ── Contact ── */}
-        <footer id="contact" className="mt-10 border-t border-rule py-8 scroll-mt-4">
-          <figure className="max-w-2xl border-l-2 border-mark pl-4">
-            <blockquote className="text-[15px] leading-relaxed text-ink">
+        <figure className="review">
+          <p className="eyebrow">A note from a customer</p>
+          <div>
+            <blockquote>
               Aaron put shiplap in our bedroom and downstairs bathroom and
               painted it out. It looks awesome, and he did it right the first
               time.
             </blockquote>
-            <figcaption className="mt-2 text-[13px] text-ink-2">
-              David B.
-            </figcaption>
-          </figure>
-          <h2 className="mt-8 text-[20px] font-semibold">Get a walkthrough</h2>
-          <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-2">
-            {disclaimer}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <a
-              href={`mailto:${site.email}`}
-              className="fig border border-ink px-3 py-2 text-[13px] hover:bg-mark hover:text-on-mark"
-            >
+            <figcaption>David B.</figcaption>
+          </div>
+        </figure>
+
+        <footer className="site-footer">
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            <span>
+              {site.name} · {site.serviceArea}
+            </span>
+            <a href="sources.html" target="_blank" rel="noopener">
+              How we price<span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <a className="contact-email" href={`mailto:${site.email}`}>
               {site.email}
             </a>
           </div>
-          <p className="fig mt-6 text-[11px] uppercase tracking-wider text-ink-2">
-            {site.serviceArea} · No forms, no tracking, nothing collected on
-            this site.
+          <p className="mt-3">
+            Nothing is sent until you open an email draft and send it yourself.
           </p>
-          <a
-            href="sources.html"
-            className="mt-3 inline-block text-[12px] text-ink-2 underline decoration-rule underline-offset-2 hover:decoration-ink"
-          >
-            How we price
-          </a>
         </footer>
       </div>
 
@@ -325,6 +434,10 @@ export default function App() {
         onClose={() => setOpenId(null)}
         onAdd={(id) => {
           add(id);
+          setOpenId(null);
+        }}
+        onContact={(id) => {
+          setAskedAboutId(inEstimate.has(id) ? null : id);
           setOpenId(null);
         }}
         walkthroughHref={detailWalkthroughHref}

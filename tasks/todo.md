@@ -1,39 +1,24 @@
-# priced-catalog — plan
+# priced-catalog - initial build plan
 
 A static site that answers one question: what should this job cost, and how do you know? Every price ships next to the hours behind it and the market band around it.
 
-Status: **built and pushed.** All four gates green, screenshots taken at 390px and 1440px. See section 7 for what differs from this plan.
+This is the initial-build record. See section 7 for what shipped at that time. The [contact-first layout plan](../docs/contact-layout-plan.md) supersedes its visual design, contact, and photo-gallery scope.
 
 ---
 
 ## 1. Design tokens
 
-### Colour
+### Visual design
 
-Superseded: the site now uses the Kamotec palette from https://kamotec.io/. The tokens live in `src/index.css`.
-
-### Type — two faces
-
-| Face                                            | Role                                                                              | Why                                                                                                                                                                                                                                           |
-| ----------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Archivo** (`@fontsource-variable/archivo`)    | Headings, labels, blurbs, description prose                                       | An industrial grotesque with signage lineage. Tight, high x-height, holds up at 13px in a table row, and carries no editorial or luxury connotation. Not Inter, not a serif display.                                                          |
-| **IBM Plex Mono** (`@fontsource/ibm-plex-mono`) | Every figure: prices, hours, quantities, band endpoints, linear feet, square feet | The utility face the brief asks for. Tabular figures mean `$4.50` and `$12.75` align down a column, and mono numerals read as _measured_ — an instrument output, not a price tag. `font-variant-numeric: tabular-nums` everywhere it is used. |
-
-Self-hosted via `@fontsource`, no external font request. His domain build must not depend on Google's CDN being reachable.
-
-### Layout concept — the takeoff sheet
-
-A contractor's takeoff sheet, not a card grid. Full-bleed ruled surface: services are **rows in a spec table** on desktop, hairline-separated, 2px corner radius at most, no drop shadows anywhere. Category filter is a left gutter of ruled tags on desktop and a horizontal scroller on mobile. The estimate builder docks as a **running tally** — bottom sheet on mobile, right rail from `lg` up — mirroring the running-total column on a real takeoff. Density is the point: a homeowner comparing three quotes should be able to see eight services at once.
-
-Mobile-first: rows collapse to stacked blocks, figures stay in their mono column so price/hours/band still align vertically.
+The [redesign section](../docs/contact-layout-plan.md#redesign-2026-11-26) owns the current palette, type, and layout. Tokens and responsive rules live in `src/index.css`. Fonts remain self-hosted, so the site does not depend on Google's CDN being reachable.
 
 ### Signature element — the band rule
 
-The one risk. Under every price, a **measured scale**: a 4px hairline track spanning that service's market band low-to-high, with his price marked by a solid `--mark` notch at its true position. Endpoints printed in mono at the ends. It turns "is $4.50 fair" into a glance without asking anyone to do arithmetic.
+See `BandRule` in `src/components/BandRule.tsx` for the market scale and its numeric fallback.
 
 It belongs here because it _is_ the product — the derivation rendered as measurement, in the vernacular of the tape and the level, and it is the one element that a brochure could not have.
 
-Constraints that keep it from becoming noise across ~30 cards: 4px at rest, no axis, no gridlines, no labels beyond the two endpoints; expands in the detail panel with the source line and band note. The notch position is never the only signal — the price and both endpoints are always printed adjacent, so it degrades to plain numbers for anyone who cannot read the position. It does not animate under `prefers-reduced-motion`.
+The notch position must never be the only signal. The numeric fallback must remain readable for anyone who cannot read the position. Reduced-motion preferences must remain respected.
 
 ---
 

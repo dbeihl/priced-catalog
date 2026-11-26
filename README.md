@@ -1,10 +1,10 @@
 # Priced catalog
 
-A website that publishes your prices next to the hours behind them and what the going rate is for the same job. No database, no logins, nothing collected about anyone who visits.
+A website that publishes your prices next to the hours behind them and what the going rate is for the same job. A contact form above the catalog prepares an email draft or copies a request for the visitor to send. No database or logins. GitHub Pages logs visitor IP addresses for security purposes.
 
-Everything you would want to change lives in two files:
+Identity and pricing settings live in two files:
 
-- `src/site.config.ts` — your name, service area, email, the visit minimum, and the page description, web address, and link-preview image. The "Request a walkthrough" buttons stay hidden until the email no longer starts with `TODO_`. Any other value still starting with `TODO_` is left off the page. The browser-tab titles in `index.html` and `sources.html` repeat the name, so change them there too.
+- `src/site.config.ts` - your name, service area, email, the visit minimum, and the page description, web address, and link-preview image. Contact actions are available when the email is configured, independently of optional page metadata. Any other value still starting with `TODO_` is left off the page. The browser-tab titles in `index.html` and `sources.html` repeat the name, so change them there too. See [Contact requests](#contact-requests) for form behavior.
 - `src/data/services.ts` — every service and every price.
 
 You do not need to understand the rest of the code to change either one.
@@ -207,3 +207,22 @@ That last part is the one that protects you. An unsigned change order is unenfor
 
 **4. Westfield and Hamilton County registration thresholds are confirmed.**
 Indiana has no statewide contractor licensing, but cities and counties set their own registration rules and dollar thresholds. Indianapolis, for example, requires Home Improvement Contractor registration for work over $500. Several items on this list sit right on that line. Call the Westfield building department and confirm what applies before the catalog is public.
+
+## Contact requests
+
+The form above the catalog requires an email and job description. Name and Town or ZIP are optional. Choose **Open email draft** to open your email application, or **Copy request** to paste the request into an email yourself. Long requests use the copy path. If clipboard access fails, select and copy the displayed request text manually. The walkthrough is a request, not a booked appointment.
+
+Estimate and detail actions return to the form without overwriting your job description. The request includes current estimate selections and add-ons with their quantities and units, without prices. Requesting a walkthrough from a service's details also names that service if it is outside the estimate. Choose **Leave [service] out** to remove that separate context. Adding it to the estimate removes the separate context, so removing the estimate entry later leaves it out of the request.
+
+The typed request, estimate, and service context stay in page memory. Pricing sources open in a new tab so you can read them without losing your request. Reloading the catalog clears that state. Nothing is submitted to a server, and no hosted form processor is configured. The [email-draft decision](docs/adr/0001-use-email-drafts-for-contact.md) explains the delivery choice. The [contact-first layout plan](docs/contact-layout-plan.md) records the research and visual direction.
+
+## Recent work photos
+
+Photos live in `src/assets/work/` and are listed in `src/App.tsx` with a short caption and a description for screen readers. Phone photos carry the location they were taken, so commit each one only as a WebP with every bit of metadata removed. For example, on a Mac:
+
+```sh
+sips -s format jpeg -Z 1200 photo.heic --out photo.jpg
+cwebp -q 74 -metadata none photo.jpg -o src/assets/work/photo.webp
+```
+
+`sips` keeps the camera's rotation as a tag, which `cwebp` drops, so rotate the JPEG first (`sips -r 90 photo.jpg`) if the photo comes out sideways. `npm test` checks images under `src/` and `public/` and fails if any is not WebP or still carries EXIF, XMP or colour-profile data.

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { services } from "../data/services";
+import { site } from "../site.config";
 import {
   buildWalkthroughMailto,
+  buildWalkthroughBody,
   isContactConfigured,
   walkthroughSelection,
 } from "./contact";
@@ -10,6 +12,43 @@ import { unitLabel } from "./format";
 const service = (id: string) => services.find((s) => s.id === id)!;
 
 describe("walkthrough email", () => {
+  it("formats a visitor request for email and copying without prices", () => {
+    const request = {
+      name: " Sam ",
+      email: "sam@example.com",
+      town: " Westfield ",
+      message: "Fix the door & trim.\nThe entry is narrow.",
+    };
+    const selections = [
+      { name: "Baseboard", quantity: 120, unit: "linear ft" },
+    ];
+    const expected =
+      "Hi,\n\nI'd like to request a walkthrough for:\nFix the door & trim.\nThe entry is narrow.\n\nName: Sam\nReply email: sam@example.com\nTown or ZIP: Westfield\n\nSelected services:\n- Baseboard: 120 linear ft\n\nThank you.";
+    expect(buildWalkthroughBody(selections, request)).toBe(expected);
+    const draft = new URL(
+      buildWalkthroughMailto("info@example.com", selections, request),
+    );
+    expect(draft.searchParams.get("body")).toBe(expected);
+    expect(draft.searchParams.get("subject")).toBe("Walkthrough request");
+  });
+
+  it("names the service the visitor was viewing apart from their job details", () => {
+    expect(
+      buildWalkthroughBody(
+        [],
+        {
+          name: "",
+          email: "sam@example.com",
+          town: "",
+          message: "Bathroom is leaking.",
+        },
+        "Toilet replacement",
+      ),
+    ).toBe(
+      "Hi,\n\nI'd like to request a walkthrough for:\nBathroom is leaking.\n\nReply email: sam@example.com\nAsked about: Toilet replacement\n\nThank you.",
+    );
+  });
+
   it("builds an email with the selected service quantities in their units and no pricing", () => {
     expect(
       buildWalkthroughMailto("aaron@example.com", [
@@ -38,9 +77,48 @@ describe("walkthrough selection", () => {
       unit: unitLabel[perUnit.pricing.unit],
     });
   });
+
+  it("names chosen add-ons, with whole counts and units where they have one", () => {
+    const floor = service("floor-lvp-tile");
+    const tv = service("tv-mount");
+    expect(
+      walkthroughSelection(floor, 120, [{ id: "transitions", quantity: 12.7 }]),
+    ).toEqual({
+      name: floor.name,
+      quantity: 120,
+      unit: "sq ft",
+      addOns: [
+        { name: "Transitions and quarter round", quantity: 12, unit: "linear ft" },
+      ],
+    });
+    expect(
+      buildWalkthroughBody([
+        walkthroughSelection(tv, 1, [{ id: "in-wall-conceal" }]),
+        walkthroughSelection(floor, 120, [{ id: "transitions", quantity: -3 }]),
+      ]),
+    ).toContain(
+      "- TV mount\n  + In-wall cable concealment\n- Floor install — LVP or tile: 120 sq ft\n  + Transitions and quarter round: 1 linear ft\n",
+    );
+    expect(
+      buildWalkthroughBody([walkthroughSelection(tv, 1, [{ id: "in-wall-conceal" }])]),
+    ).not.toContain("$");
+  });
+
+  it("never names a negative, zero or fractional count", () => {
+    const perUnit = services.find((s) => s.pricing.model === "per-unit")!;
+    const count = (quantity: number) => {
+      const selection = walkthroughSelection(perUnit, quantity);
+      return "quantity" in selection ? selection.quantity : undefined;
+    };
+    expect([-4, 0, 2.5, Number.NaN, 3].map(count)).toEqual([1, 1, 2, 1, 3]);
+  });
 });
 
 describe("contact configuration", () => {
+  it("keeps a configured email available when optional metadata is unfinished", () => {
+    expect(isContactConfigured(site)).toBe(true);
+  });
+
   it("withholds actions until the email is configured", () => {
     expect(isContactConfigured({ email: "TODO_EMAIL" })).toBe(false);
     expect(isContactConfigured({ email: "aaron@example.com" })).toBe(true);
