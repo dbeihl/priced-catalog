@@ -44,7 +44,7 @@ export function SourceRegistry() {
                       href={source.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="underline decoration-rule underline-offset-2 hover:decoration-ink"
+                      className="relative underline decoration-rule underline-offset-2 hover:decoration-ink"
                     >
                       {source.url}
                       <span className="sr-only"> (opens in a new tab)</span>

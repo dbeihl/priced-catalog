@@ -57,12 +57,18 @@ export interface WalkthroughRequest {
   message: string;
 }
 
+// ponytail: no lookbehind, so the bundle still parses on older Safari
+const wellFormed = (text: string) =>
+  text.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF]/g, (unit) =>
+    unit.length === 2 ? unit : "\uFFFD",
+  );
+
 export function buildWalkthroughBody(
   selections: WalkthroughSelection[],
   request?: WalkthroughRequest,
   askedAbout?: string,
 ) {
-  return [
+  const body = [
     "Hi,",
     "",
     "I'd like to request a walkthrough for:",
@@ -86,6 +92,7 @@ export function buildWalkthroughBody(
     "",
     "Thank you.",
   ].join("\n");
+  return wellFormed(body);
 }
 
 export function walkthroughDrafts(
