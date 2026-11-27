@@ -1163,3 +1163,67 @@ test("an add-on unit stays beside its quantity at 320 wide", async ({ page }) =>
   expect(label.y + label.height / 2).toBeGreaterThan(box.y);
   expect(label.y + label.height / 2).toBeLessThan(box.y + box.height);
 });
+
+// Keys pressed on the bar while it is out of the way over the request card.
+// Enter and Space operate it and Tab moves on; those have their own tests.
+for (const { keys, kept, scroll } of [
+  { keys: "Shift", kept: true, scroll: 0 },
+  { keys: "Control", kept: true, scroll: 0 },
+  { keys: "Alt", kept: true, scroll: 0 },
+  { keys: "Meta", kept: true, scroll: 0 },
+  { keys: "CapsLock", kept: true, scroll: 0 },
+  { keys: "Escape", kept: false, scroll: 0 },
+  { keys: "c", kept: false, scroll: 0 },
+  { keys: "ControlOrMeta+c", kept: false, scroll: 0 },
+  { keys: "Meta+Shift+4", kept: false, scroll: 0 },
+  { keys: "ArrowDown", kept: false, scroll: 1 },
+  { keys: "PageDown", kept: false, scroll: 1 },
+  { keys: "End", kept: false, scroll: 1 },
+  { keys: "ArrowUp", kept: false, scroll: -1 },
+  { keys: "PageUp", kept: false, scroll: -1 },
+  { keys: "Home", kept: false, scroll: -1 },
+] as const) {
+  test(`after a pointer Hide over the request card, ${keys} leaves the bar out of the way of the contact buttons`, async ({
+    page,
+  }) => {
+    await recordDelivery(page);
+    const { sheet, summary } = await barAwayFromCard(page, "TV mount");
+    const contact = contactOf(page);
+    await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+    await contact
+      .getByLabel("What needs doing?", { exact: true })
+      .fill("Mount the TV.");
+    const target = contact.getByRole("button", {
+      name: "Copy request",
+      exact: true,
+    });
+    const toBottom = async () => {
+      const box = (await target.boundingBox())!;
+      await page.evaluate(
+        (bottom) => window.scrollBy(0, bottom - innerHeight + 6),
+        box.y + box.height,
+      );
+    };
+    await page.evaluate(() => window.scrollBy(0, 3000));
+    await summary.click();
+    await expect(sheet).toHaveAttribute("open", "");
+    await toBottom();
+    await page.evaluate(() => window.scrollBy(0, 50));
+    await summary.click();
+    await expect(sheet).not.toHaveAttribute("open", "");
+    await expectBar(sheet, "out of the way");
+    const before = await page.evaluate(() => scrollY);
+    await page.keyboard.press(keys);
+    await expect
+      .poll(async () => Math.sign((await page.evaluate(() => scrollY)) - before))
+      .toBe(scroll);
+    if (kept) await expect(summary).toBeFocused();
+    else await expect(summary).not.toBeFocused();
+    await toBottom();
+    await expectBar(sheet, "out of the way");
+    const at = (await target.boundingBox())!;
+    await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
+    await expect.poll(async () => (await delivered(page)).copied).toBe(1);
+    await expect(sheet).not.toHaveAttribute("open", "");
+  });
+}
