@@ -297,7 +297,8 @@ function MobileSheet(props: Props) {
           (event.key === "Enter" || event.key === " ") &&
           !event.ctrlKey &&
           !event.metaKey &&
-          !event.altKey;
+          !event.altKey &&
+          !event.shiftKey;
         if (operates) return setKeyboardHeld(true);
         const concealed =
           props.hideBar && !event.currentTarget.open && !keyboardHeld;
