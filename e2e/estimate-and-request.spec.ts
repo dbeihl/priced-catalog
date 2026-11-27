@@ -701,6 +701,28 @@ for (const [size, opened] of [
   });
 }
 
+test("a pointer open keeps focus on the bar so the keyboard can follow into the sheet", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await rowFor(page, "Ethernet drop")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const sheet = page.locator("details.estimate-mobile");
+  const summary = sheet.locator("summary");
+  await summary.click();
+  await expect(sheet).toHaveAttribute("open", "");
+  await expect(summary).toBeFocused();
+  const scrolled = await page.evaluate(() => scrollY);
+  await page.keyboard.press("Tab");
+  await expect(sheet.getByRole("spinbutton")).toBeFocused();
+  expect(await page.evaluate(() => scrollY)).toBe(scrolled);
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Enter");
+  await expect(sheet).not.toHaveAttribute("open", "");
+});
+
 test("the estimate bar hides when the request card grows under it without a scroll", async ({
   page,
 }) => {
