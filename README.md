@@ -214,7 +214,7 @@ The form above the catalog requires an email and job description. Name and Town 
 
 Estimate and detail actions return to the form without overwriting your job description. The request includes current estimate selections and add-ons with their quantities and units, without prices. Requesting a walkthrough from a service's details also names that service if it is outside the estimate. Choose **Leave [service] out** to remove that separate context. Adding it to the estimate removes the separate context, so removing the estimate entry later leaves it out of the request.
 
-The typed request, estimate, and service context stay in page memory. Pricing sources open in a new tab so you can read them without losing your request. Reloading the catalog clears that state. Nothing is submitted to a server, and no hosted form processor is configured. The [email-draft decision](docs/adr/0001-use-email-drafts-for-contact.md) explains the delivery choice. The [contact-first layout plan](docs/contact-layout-plan.md) records the research and visual direction.
+The typed request, estimate, and service context stay in page memory. Pricing sources open in a new tab so you can read them without losing your request. Reloading the catalog clears that state. Opening Gmail or Outlook passes the request text to that provider in the compose URL. You still review and send the message yourself. No hosted form processor is configured. The [email-draft decision](docs/adr/0001-use-email-drafts-for-contact.md) explains the delivery choice. The [contact-first layout plan](docs/contact-layout-plan.md) records the research and visual direction.
 
 ## Recent work photos
 
