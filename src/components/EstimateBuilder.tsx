@@ -267,6 +267,16 @@ function Body({
   );
 }
 
+const modifierKeys = new Set([
+  "Shift",
+  "Control",
+  "Alt",
+  "AltGraph",
+  "Meta",
+  "CapsLock",
+  "Fn",
+]);
+
 /*
  * mobile: a bottom sheet, closed by default. Native <details>, so the
  * open/close behaviour and the keyboard path come from the platform.
@@ -284,10 +294,16 @@ function MobileSheet(props: Props) {
       onKeyDown={(event) => {
         const operates =
           event.target === event.currentTarget.firstElementChild &&
-          (event.key === "Enter" || event.key === " ");
+          (event.key === "Enter" || event.key === " ") &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.altKey;
+        if (operates) return setKeyboardHeld(true);
         const concealed =
           props.hideBar && !event.currentTarget.open && !keyboardHeld;
-        if (operates || concealed) setKeyboardHeld(true);
+        // Over the card, any other key acts on the page as if the bar were gone.
+        if (concealed && event.key !== "Tab" && !modifierKeys.has(event.key))
+          (event.target as HTMLElement).blur();
       }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget))
