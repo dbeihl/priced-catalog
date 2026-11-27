@@ -1,16 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { sourceNotes, sources } from "../data/sources";
 
 export function SourceRegistry() {
   const scroller = useRef<HTMLDivElement>(null);
   const [overflows, setOverflows] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = scroller.current;
     if (!el) return;
-    const watch = new ResizeObserver(() =>
-      setOverflows(el.scrollWidth > el.clientWidth),
-    );
+    const check = () => setOverflows(el.scrollWidth > el.clientWidth);
+    check();
+    const watch = new ResizeObserver(check);
     watch.observe(el);
     return () => watch.disconnect();
   }, []);
