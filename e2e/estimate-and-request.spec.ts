@@ -36,6 +36,10 @@ async function recordDelivery(page: Page) {
   });
 }
 
+// Playwright WebKit follows macOS: plain Tab skips buttons and links.
+const tabKey = (browserName: string, shift = false) =>
+  `${browserName === "webkit" ? "Alt+" : ""}${shift ? "Shift+" : ""}Tab`;
+
 const delivered = (page: Page) =>
   page.evaluate(() => {
     const w = window as unknown as { copied: string[]; drafts: string[] };
@@ -115,11 +119,12 @@ test("the open estimate sheet stays on screen at 1024 by 768 with six items", as
 
 test("a keyboard-focused active filter keeps readable text", async ({
   page,
+  browserName,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("./");
   await page.getByRole("searchbox", { name: "Search services" }).focus();
-  await page.keyboard.press("Tab");
+  await page.keyboard.press(tabKey(browserName));
   const active = page.getByRole("button", { name: "Everything" });
   await expect(active).toBeFocused();
   const [text, background] = await active.evaluate((el) => {
@@ -523,12 +528,15 @@ test("an open estimate sheet stays open while the request card comes into view",
   await expect(sheet).toHaveAttribute("open", "");
 });
 
-test("the filter pill focus ring is not clipped", async ({ page }) => {
+test("the filter pill focus ring is not clipped", async ({
+  page,
+  browserName,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("./");
   await page.getByRole("searchbox", { name: "Search services" }).focus();
   for (const name of ["Everything", "Water & Plumbing"]) {
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(tabKey(browserName));
     const pill = page.getByRole("button", { name, exact: true });
     await expect(pill).toBeFocused();
     const [inside, ring] = await pill.evaluate((el) => {
@@ -756,4 +764,222 @@ test("the estimate bar hides when the request card grows under it without a scro
   await expect(contact.getByLabel("Your request text")).toBeVisible();
   expect(await page.evaluate(() => scrollY)).toBe(scrolled);
   await expect(bar).toBeHidden();
+});
+
+async function barAwayFromCard(page: Page, service: string) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await rowFor(page, service)
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  await page.evaluate(() => window.scrollBy(0, 3000));
+  const sheet = page.locator("details.estimate-mobile");
+  await expect(sheet).toBeVisible();
+  await expect(contactOf(page)).not.toBeInViewport();
+  return { sheet, summary: sheet.locator("summary") };
+}
+
+for (const gesture of ["right-click", "middle-click", "press-drag-release"]) {
+  test(`a ${gesture} on the closed estimate bar leaves the contact buttons clickable`, async ({
+    page,
+  }) => {
+    await recordDelivery(page);
+    const { sheet, summary } = await barAwayFromCard(page, "TV mount");
+    const contact = contactOf(page);
+    await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+    await contact
+      .getByLabel("What needs doing?", { exact: true })
+      .fill("Mount the TV.");
+    await page.evaluate(() => window.scrollBy(0, 3000));
+    const bar = (await summary.boundingBox())!;
+    const [x, y] = [bar.x + bar.width / 2, bar.y + bar.height / 2];
+    if (gesture === "press-drag-release") {
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      await page.mouse.move(x, y - 200, { steps: 5 });
+      await page.mouse.up();
+    } else {
+      await page.mouse.click(x, y, {
+        button: gesture === "right-click" ? "right" : "middle",
+      });
+    }
+    await expect(sheet).not.toHaveAttribute("open", "");
+    const target = contact.getByRole("button", {
+      name: "Copy request",
+      exact: true,
+    });
+    const box = (await target.boundingBox())!;
+    await page.evaluate(
+      (bottom) => window.scrollBy(0, bottom - innerHeight + 6),
+      box.y + box.height,
+    );
+    await expect(sheet).toBeHidden();
+    const at = (await target.boundingBox())!;
+    await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
+    await expect.poll(async () => (await delivered(page)).copied).toBe(1);
+    await expect(sheet).not.toHaveAttribute("open", "");
+  });
+}
+
+test("after a pointer Hide, Space and Enter reopen the estimate sheet", async ({
+  page,
+}) => {
+  const { sheet, summary } = await barAwayFromCard(page, "Ethernet drop");
+  for (const key of ["Space", "Enter"]) {
+    await summary.click();
+    await expect(sheet).toHaveAttribute("open", "");
+    await summary.click();
+    await expect(sheet).not.toHaveAttribute("open", "");
+    await expect(summary).toBeVisible();
+    await page.keyboard.press(key);
+    await expect(sheet).toHaveAttribute("open", "");
+    await summary.click();
+  }
+});
+
+test("after a pointer Hide the next Tab carries on from the estimate bar", async ({
+  page,
+  browserName,
+}) => {
+  const { sheet, summary } = await barAwayFromCard(page, "Ethernet drop");
+  await summary.click();
+  await summary.click();
+  await expect(sheet).not.toHaveAttribute("open", "");
+  await page.keyboard.press(tabKey(browserName));
+  await expect(
+    page.getByRole("link", { name: "How we price (opens in a new tab)" }),
+  ).toBeFocused();
+  await expect(contactOf(page)).not.toBeInViewport();
+});
+
+for (const [name, note] of [
+  [
+    "Subfloor repair",
+    "Most per-room repairs land here. Severely damaged areas run far above it.",
+  ],
+  [
+    "New fixture location or box replacement",
+    "Swapping a non-rated box for a fan-rated one runs $50–$150 when the attic is accessible. New locations in a finished ceiling run well above that.",
+  ],
+]) {
+  test(`the quote-only ${name} detail prints its market band note`, async ({
+    page,
+  }) => {
+    await page.goto("./");
+    await page.getByRole("button", { name, exact: true }).click();
+    await expect(page.getByRole("dialog")).toContainText(note);
+  });
+}
+
+async function openEstimate(page: Page) {
+  if (page.viewportSize()!.width >= 1200) return page.locator("aside");
+  const sheet = page.locator("details.estimate-mobile");
+  if (!(await sheet.evaluate((d) => (d as HTMLDetailsElement).open)))
+    await sheet.locator("summary").click();
+  return sheet;
+}
+
+test("a cleared quantity takes the next digit typed without a leading zero", async ({
+  page,
+}) => {
+  await page.goto("./");
+  await rowFor(page, "Ethernet drop")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const quantity = (await openEstimate(page)).getByRole("spinbutton");
+  await quantity.click();
+  await quantity.press("ControlOrMeta+a");
+  await quantity.press("Backspace");
+  await quantity.pressSequentially("5");
+  await expect(quantity).toHaveValue("5");
+  await quantity.blur();
+  await expect(quantity).toHaveValue("5");
+  await quantity.fill("");
+  await quantity.blur();
+  await expect(quantity).toHaveValue("1");
+});
+
+test("a ticked add-on quantity shows its unit", async ({ page }) => {
+  await page.goto("./");
+  await rowFor(page, "Floor install — LVP or tile")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const estimate = await openEstimate(page);
+  const transitions = estimate.getByRole("checkbox", {
+    name: "Transitions and quarter round",
+  });
+  await transitions.check();
+  const row = estimate.getByRole("listitem").filter({
+    has: page.getByRole("spinbutton", {
+      name: "Transitions and quarter round, linear ft",
+    }),
+  }).last();
+  await expect(row.getByText("linear ft", { exact: true })).toBeVisible();
+});
+
+test("tabbing through the catalog never leaves focus under the estimate bar", async ({
+  page,
+  browserName,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  await page.locator("#catalog-search").focus();
+  for (let i = 0; i < 60; i++) {
+    await page.keyboard.press(tabKey(browserName));
+    const covered = await page.evaluate(() => {
+      const focused = document.activeElement!;
+      const bar = document.querySelector("details.estimate-mobile")!;
+      if (bar.contains(focused) || !bar.checkVisibility()) return null;
+      const own = focused.getBoundingClientRect();
+      return own.bottom > bar.getBoundingClientRect().top + 0.5
+        ? focused.textContent
+        : null;
+    });
+    expect(covered).toBeNull();
+  }
+});
+
+test("shift-tabbing up the catalog never leaves focus under the sticky filters", async ({
+  page,
+  browserName,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("./");
+  await page.getByRole("button", { name: "Add", exact: true }).last().focus();
+  for (let i = 0; i < 60; i++) {
+    await page.keyboard.press(tabKey(browserName, true));
+    const covered = await page.evaluate(() => {
+      const focused = document.activeElement!;
+      const filters = document.querySelector(".filter-bar")!;
+      const catalog = document.querySelector("#catalog ul")!;
+      if (!catalog.contains(focused)) return null;
+      const own = focused.getBoundingClientRect();
+      return own.top < filters.getBoundingClientRect().bottom - 0.5
+        ? focused.textContent
+        : null;
+    });
+    expect(covered).toBeNull();
+  }
+});
+
+test("a long desktop estimate scrolls inside the rail to reach its request link", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("./");
+  const adds = page.getByRole("button", { name: "Add", exact: true });
+  for (let i = 0; i < 8; i++) await adds.nth(i).click();
+  await page.evaluate(() => window.scrollBy(0, 2500));
+  const rail = page.locator("aside > div");
+  const railBox = (await rail.boundingBox())!;
+  expect(railBox.y).toBeGreaterThanOrEqual(0);
+  expect(railBox.y + railBox.height).toBeLessThanOrEqual(900);
+  const scrolled = await page.evaluate(() => scrollY);
+  const link = rail.getByRole("link", { name: "Request a walkthrough" });
+  await link.scrollIntoViewIfNeeded();
+  await expect(link).toBeInViewport({ ratio: 1 });
+  expect(await page.evaluate(() => scrollY)).toBe(scrolled);
 });
