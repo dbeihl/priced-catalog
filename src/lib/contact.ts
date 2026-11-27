@@ -57,12 +57,18 @@ export interface WalkthroughRequest {
   message: string;
 }
 
+// ponytail: no lookbehind, so the bundle still parses on older Safari
+const wellFormed = (text: string) =>
+  text.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF]/g, (unit) =>
+    unit.length === 2 ? unit : "\uFFFD",
+  );
+
 export function buildWalkthroughBody(
   selections: WalkthroughSelection[],
   request?: WalkthroughRequest,
   askedAbout?: string,
 ) {
-  return [
+  const body = [
     "Hi,",
     "",
     "I'd like to request a walkthrough for:",
@@ -86,9 +92,10 @@ export function buildWalkthroughBody(
     "",
     "Thank you.",
   ].join("\n");
+  return wellFormed(body);
 }
 
-export function buildWalkthroughMailto(
+export function walkthroughDrafts(
   email: string,
   selections: WalkthroughSelection[],
   request?: WalkthroughRequest,
@@ -98,5 +105,11 @@ export function buildWalkthroughMailto(
   const body = buildWalkthroughBody(selections, request, askedAbout);
   const encode = (value: string) =>
     encodeURIComponent(value).replace(/'/g, "%27");
-  return `mailto:${email}?subject=${encode(subject)}&body=${encode(body)}`;
+  const [to, su, text] = [email, subject, body].map(encode);
+  return {
+    body,
+    mailto: `mailto:${email}?subject=${su}&body=${text}`,
+    gmail: `https://mail.google.com/mail/?view=cm&to=${to}&su=${su}&body=${text}`,
+    outlook: `https://outlook.live.com/mail/0/deeplink/compose?to=${to}&subject=${su}&body=${text}`,
+  };
 }

@@ -283,7 +283,14 @@ export function EstimateBuilder(props: Props) {
        */}
       {!props.estimate.isEmpty && (
         <details className={`estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden${props.hideBar ? " covering" : ""}`}>
-          <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+          <summary
+            onClick={(event) => {
+              const closing = (
+                event.currentTarget.parentElement as HTMLDetailsElement
+              ).open;
+              if (event.detail > 0 && closing) event.currentTarget.blur();
+            }}
+            className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
             <svg
               aria-hidden="true"
               viewBox="0 0 12 12"

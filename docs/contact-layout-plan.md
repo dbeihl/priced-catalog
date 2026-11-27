@@ -30,13 +30,13 @@ The research scout read nine live businesses on 2026-11-15. [Indianapolis Handym
 
 The component receives the current selections and configured email. The request data shape has name, email, town, and message strings. Name and town are optional. Email and message are required. A request summary is derived from the current selections without overwriting message text. No contact data is persisted.
 
-The existing buildWalkthroughMailto(email, selections) signature remains valid. Add an optional request argument and a public plain-text request formatter for both the email body and copy output. ContactForm owns validation, draft preparation, copy feedback, and selectable fallback text. App owns the selections once.
+The [email-draft decision](adr/0001-use-email-drafts-for-contact.md#decision) owns the current formatter contract and component responsibilities.
 
 Two shapes were considered. Keeping the fields in App would mix draft validation and clipboard state with catalog state. A generalized transport system would add provider options that are outside this change. Use a dedicated ContactForm with the existing contact helper instead.
 
 ## Agreed public test boundaries
 
-Render App to test contact availability with the actual configured metadata placeholders. Test public request serialization with literal user-visible output and encoded mailto values. Drive the running product with Playwright for validation, current selections, clipboard success and failure, long draft fallback, field preservation, mobile layout, and absence of network submission. Mock only external browser clipboard and protocol-launch boundaries. No database exists in this static site.
+Render App to test contact availability with the actual configured metadata placeholders. Test public request serialization with literal user-visible output. The [verification plan](verification-plan.md) owns the current browser journeys and allowed doubles. No database exists in this static site.
 
 ## Sequence
 
@@ -49,7 +49,7 @@ Render App to test contact availability with the actual configured metadata plac
 
 ## Acceptance
 
-Contact precedes the catalog in reading order. The action is labelled Open email draft and explains that visitors must send it themselves. Copy request offers honest success and failure feedback and selectable text. Empty required fields prevent a draft. Selected names, quantities, and units follow the estimate, without prices. Long drafts use copy fallback. No contact data enters browser storage or an HTTP request.
+Contact precedes the catalog in reading order. The [contact guidance](../README.md#contact-requests) owns delivery behavior and explains what opening web mail shares with the provider. The [email-draft decision](adr/0001-use-email-drafts-for-contact.md) owns the data-handling constraints.
 
 At 390 by 844 the form heading and first field are initially visible. At 320, 1280, and 1440 pixels, all controls and prices remain reachable without document overflow. Keyboard focus, enlarged text, and the estimate disclosure must not conceal the contact controls. All 38 services, hours, market ranges, source links, and estimate calculations remain available.
 

@@ -606,7 +606,9 @@ test("the swipe hint follows the pills once a slow web font arrives", async ({
 
 test("hiding the sheet by keyboard over the request card keeps the bar and focus", async ({
   page,
+  browserName,
 }) => {
+  const option = browserName === "webkit" ? "Alt+" : "";
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("./");
   await rowFor(page, "TV mount")
@@ -624,6 +626,101 @@ test("hiding the sheet by keyboard over the request card keeps the bar and focus
   await expect(sheet).not.toHaveAttribute("open", "");
   await expect(summary).toBeVisible();
   await expect(summary).toBeFocused();
+  await page.keyboard.press(`${option}Tab`);
+  await expect(
+    page.getByRole("link", { name: "How we price (opens in a new tab)" }),
+  ).toBeFocused();
+  await expect(summary).toBeVisible();
+  await page.keyboard.press(`${option}Shift+Tab`);
+  await expect(summary).toBeFocused();
+});
+
+for (const [size, opened] of [
+  { width: 390, height: 844 },
+  { width: 1100, height: 800 },
+].flatMap((size) =>
+  (["pointer", "keyboard"] as const).map((opened) => [size, opened] as const),
+)) {
+  test(`after a ${opened} open and a pointer Hide over the request card every contact button acts at ${size.width}px`, async ({
+    page,
+  }) => {
+    await recordDelivery(page);
+    await page
+      .context()
+      .route(/^https:\/\/(mail\.google\.com|outlook\.live\.com)\//, (route) =>
+        route.fulfill({ contentType: "text/html", body: "<!doctype html>" }),
+      );
+    await page.setViewportSize(size);
+    await page.goto("./");
+    await rowFor(page, "TV mount")
+      .getByRole("button", { name: "Add", exact: true })
+      .click();
+    const contact = contactOf(page);
+    await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+    await contact
+      .getByLabel("What needs doing?", { exact: true })
+      .fill("Mount the TV.");
+    const sheet = page.locator("details.estimate-mobile");
+    const summary = sheet.locator("summary");
+
+    for (const [button, kind] of [
+      ["Copy request", "copied"],
+      ["Open email draft", "drafts"],
+      ["Open in Gmail (opens in a new tab)", "webMail"],
+      ["Open in Outlook (opens in a new tab)", "webMail"],
+    ] as const) {
+      await page.locator("#catalog-search").scrollIntoViewIfNeeded();
+      await expect(summary).toBeVisible();
+      if (opened === "pointer") await summary.click();
+      else {
+        await summary.focus();
+        await page.keyboard.press("Enter");
+      }
+      await expect(sheet).toHaveAttribute("open", "");
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await summary.click();
+      await expect(sheet).not.toHaveAttribute("open", "");
+      const target = contact.getByRole("button", { name: button, exact: true });
+      const box = (await target.boundingBox())!;
+      await page.evaluate(
+        (bottom) => window.scrollBy(0, bottom - innerHeight + 6),
+        box.y + box.height,
+      );
+      await expect(sheet).toBeHidden();
+      const at = (await target.boundingBox())!;
+      const acted = async () => ({
+        ...(await delivered(page)),
+        webMail: page.context().pages().length - 1,
+      });
+      const before = await acted();
+      await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
+      await expect.poll(async () => (await acted())[kind]).toBe(before[kind] + 1);
+      await expect(sheet).not.toHaveAttribute("open", "");
+      for (const extra of page.context().pages().slice(1)) await extra.close();
+    }
+  });
+}
+
+test("a pointer open keeps focus on the bar so the keyboard can follow into the sheet", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await rowFor(page, "Ethernet drop")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const sheet = page.locator("details.estimate-mobile");
+  const summary = sheet.locator("summary");
+  await summary.click();
+  await expect(sheet).toHaveAttribute("open", "");
+  await expect(summary).toBeFocused();
+  const scrolled = await page.evaluate(() => scrollY);
+  await page.keyboard.press("Tab");
+  await expect(sheet.getByRole("spinbutton")).toBeFocused();
+  expect(await page.evaluate(() => scrollY)).toBe(scrolled);
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Enter");
+  await expect(sheet).not.toHaveAttribute("open", "");
 });
 
 test("the estimate bar hides when the request card grows under it without a scroll", async ({
