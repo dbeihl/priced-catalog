@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 
 const contactOf = (page: Page) =>
   page.getByRole("region", { name: "What needs a hand?" });
@@ -35,6 +35,18 @@ async function recordDelivery(page: Page) {
     });
   });
 }
+
+// Out of the way means the closed bar neither shows nor catches a press.
+const barState = (bar: Locator) =>
+  bar.evaluate((el) => {
+    const style = getComputedStyle(el);
+    return style.display === "none" ||
+      (style.opacity === "0" && style.pointerEvents === "none")
+      ? "out of the way"
+      : "shown";
+  });
+const expectBar = (bar: Locator, state: "shown" | "out of the way") =>
+  expect.poll(() => barState(bar)).toBe(state);
 
 // Playwright WebKit follows macOS: plain Tab skips buttons and links.
 const tabKey = (browserName: string, shift = false) =>
@@ -507,7 +519,7 @@ test("the estimate bar shows when the request card is only partly on a tall scre
   await expect(add).toBeInViewport();
   await expect(contactOf(page)).toBeInViewport();
   await add.click();
-  await expect(page.locator("details.estimate-mobile")).toBeVisible();
+  await expectBar(page.locator("details.estimate-mobile"), "shown");
 });
 
 test("an open estimate sheet stays open while the request card comes into view", async ({
@@ -524,7 +536,7 @@ test("an open estimate sheet stays open while the request card comes into view",
   await page.evaluate(() => window.scrollTo(0, 0));
   await expect(contactOf(page)).toBeInViewport();
   await page.waitForTimeout(200);
-  await expect(sheet).toBeVisible();
+  await expectBar(sheet, "shown");
   await expect(sheet).toHaveAttribute("open", "");
 });
 
@@ -624,7 +636,7 @@ test("hiding the sheet by keyboard over the request card keeps the bar and focus
     .click();
   const sheet = page.locator("details.estimate-mobile");
   const summary = sheet.locator("summary");
-  await expect(summary).toBeVisible();
+  await expectBar(sheet, "shown");
   await summary.focus();
   await page.keyboard.press("Enter");
   await expect(sheet).toHaveAttribute("open", "");
@@ -632,13 +644,13 @@ test("hiding the sheet by keyboard over the request card keeps the bar and focus
   await expect(contactOf(page)).toBeInViewport();
   await page.keyboard.press("Enter");
   await expect(sheet).not.toHaveAttribute("open", "");
-  await expect(summary).toBeVisible();
+  await expectBar(sheet, "shown");
   await expect(summary).toBeFocused();
   await page.keyboard.press(`${option}Tab`);
   await expect(
     page.getByRole("link", { name: "How we price (opens in a new tab)" }),
   ).toBeFocused();
-  await expect(summary).toBeVisible();
+  await expectBar(sheet, "shown");
   await page.keyboard.press(`${option}Shift+Tab`);
   await expect(summary).toBeFocused();
 });
@@ -678,7 +690,7 @@ for (const [size, opened] of [
       ["Open in Outlook (opens in a new tab)", "webMail"],
     ] as const) {
       await page.locator("#catalog-search").scrollIntoViewIfNeeded();
-      await expect(summary).toBeVisible();
+      await expectBar(sheet, "shown");
       if (opened === "pointer") await summary.click();
       else {
         await summary.focus();
@@ -694,7 +706,7 @@ for (const [size, opened] of [
         (bottom) => window.scrollBy(0, bottom - innerHeight + 6),
         box.y + box.height,
       );
-      await expect(sheet).toBeHidden();
+      await expectBar(sheet, "out of the way");
       const at = (await target.boundingBox())!;
       const acted = async () => ({
         ...(await delivered(page)),
@@ -756,14 +768,14 @@ test("the estimate bar hides when the request card grows under it without a scro
     card.y + card.height,
   );
   const bar = page.locator("details.estimate-mobile");
-  await expect(bar).toBeVisible();
+  await expectBar(bar, "shown");
   const scrolled = await page.evaluate(() => scrollY);
   await contact
     .getByRole("button", { name: "Copy request", exact: true })
     .click();
   await expect(contact.getByLabel("Your request text")).toBeVisible();
   expect(await page.evaluate(() => scrollY)).toBe(scrolled);
-  await expect(bar).toBeHidden();
+  await expectBar(bar, "out of the way");
 });
 
 async function barAwayFromCard(page: Page, service: string) {
@@ -774,7 +786,7 @@ async function barAwayFromCard(page: Page, service: string) {
     .click();
   await page.evaluate(() => window.scrollBy(0, 3000));
   const sheet = page.locator("details.estimate-mobile");
-  await expect(sheet).toBeVisible();
+  await expectBar(sheet, "shown");
   await expect(contactOf(page)).not.toBeInViewport();
   return { sheet, summary: sheet.locator("summary") };
 }
@@ -813,7 +825,7 @@ for (const gesture of ["right-click", "middle-click", "press-drag-release"]) {
       (bottom) => window.scrollBy(0, bottom - innerHeight + 6),
       box.y + box.height,
     );
-    await expect(sheet).toBeHidden();
+    await expectBar(sheet, "out of the way");
     const at = (await target.boundingBox())!;
     await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
     await expect.poll(async () => (await delivered(page)).copied).toBe(1);
@@ -830,7 +842,7 @@ test("after a pointer Hide, Space and Enter reopen the estimate sheet", async ({
     await expect(sheet).toHaveAttribute("open", "");
     await summary.click();
     await expect(sheet).not.toHaveAttribute("open", "");
-    await expect(summary).toBeVisible();
+    await expectBar(sheet, "shown");
     await page.keyboard.press(key);
     await expect(sheet).toHaveAttribute("open", "");
     await summary.click();
@@ -965,21 +977,189 @@ test("shift-tabbing up the catalog never leaves focus under the sticky filters",
   }
 });
 
-test("a long desktop estimate scrolls inside the rail to reach its request link", async ({
+test("a long desktop estimate scrolls by wheel over its list to reach the request link", async ({
   page,
+  browserName,
+  isMobile,
 }) => {
+  test.skip(browserName === "webkit" && isMobile, "mobile WebKit has no wheel");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("./");
-  const adds = page.getByRole("button", { name: "Add", exact: true });
-  for (let i = 0; i < 8; i++) await adds.nth(i).click();
+  for (const name of [
+    "Ethernet drop",
+    "TV mount",
+    "Floor install — LVP or tile",
+    "Toilet replacement",
+    "Smart switch or dimmer swap",
+    "Baseboard — new install",
+    "Crown molding",
+    "Garbage disposal replacement",
+  ])
+    await rowFor(page, name)
+      .getByRole("button", { name: "Add", exact: true })
+      .click();
   await page.evaluate(() => window.scrollBy(0, 2500));
   const rail = page.locator("aside > div");
   const railBox = (await rail.boundingBox())!;
   expect(railBox.y).toBeGreaterThanOrEqual(0);
   expect(railBox.y + railBox.height).toBeLessThanOrEqual(900);
-  const scrolled = await page.evaluate(() => scrollY);
-  const link = rail.getByRole("link", { name: "Request a walkthrough" });
-  await link.scrollIntoViewIfNeeded();
-  await expect(link).toBeInViewport({ ratio: 1 });
-  expect(await page.evaluate(() => scrollY)).toBe(scrolled);
+  const line = (await rail.getByRole("listitem").nth(2).boundingBox())!;
+  await page.mouse.move(line.x + line.width / 2, line.y + line.height / 2);
+  for (let tick = 0; tick < 20; tick++) await page.mouse.wheel(0, 120);
+  await expect
+    .poll(() =>
+      rail.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1),
+    )
+    .toBe(true);
+  await expect(
+    rail.getByRole("link", { name: "Request a walkthrough" }),
+  ).toBeInViewport({ ratio: 1 });
+});
+
+
+for (const key of ["Escape", "ArrowDown", "Shift"]) {
+  test(`after a pointer open and Hide, pressing ${key} leaves the bar out of the way of the contact buttons`, async ({
+    page,
+  }) => {
+    await recordDelivery(page);
+    const { sheet, summary } = await barAwayFromCard(page, "TV mount");
+    const contact = contactOf(page);
+    await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+    await contact
+      .getByLabel("What needs doing?", { exact: true })
+      .fill("Mount the TV.");
+    await page.evaluate(() => window.scrollBy(0, 3000));
+    await summary.click();
+    await expect(sheet).toHaveAttribute("open", "");
+    await summary.click();
+    await expect(sheet).not.toHaveAttribute("open", "");
+    await page.keyboard.press(key);
+    const target = contact.getByRole("button", {
+      name: "Copy request",
+      exact: true,
+    });
+    const box = (await target.boundingBox())!;
+    await page.evaluate(
+      (bottom) => window.scrollBy(0, bottom - innerHeight + 6),
+      box.y + box.height,
+    );
+    await expectBar(sheet, "out of the way");
+    const at = (await target.boundingBox())!;
+    await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
+    await expect.poll(async () => (await delivered(page)).copied).toBe(1);
+    await expect(sheet).not.toHaveAttribute("open", "");
+  });
+}
+
+test("removing the last item by keyboard does not hold the next estimate bar over the contact buttons", async ({
+  page,
+}) => {
+  await recordDelivery(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const sheet = page.locator("details.estimate-mobile");
+  await sheet.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(sheet).toHaveAttribute("open", "");
+  await sheet.getByRole("button", { name: "Remove" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(sheet).toHaveCount(0);
+  const contact = contactOf(page);
+  await contact.getByLabel("Email", { exact: true }).fill("sam@example.com");
+  await contact
+    .getByLabel("What needs doing?", { exact: true })
+    .fill("Run a cable.");
+  await rowFor(page, "Ethernet drop")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const target = contact.getByRole("button", {
+    name: "Copy request",
+    exact: true,
+  });
+  const box = (await target.boundingBox())!;
+  await page.evaluate(
+    (bottom) => window.scrollBy(0, bottom - innerHeight + 6),
+    box.y + box.height,
+  );
+  await expectBar(sheet, "out of the way");
+  const at = (await target.boundingBox())!;
+  await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
+  await expect.poll(async () => (await delivered(page)).copied).toBe(1);
+});
+
+test("pressing a keyboard-held bar over the request card opens the sheet", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await rowFor(page, "TV mount")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const sheet = page.locator("details.estimate-mobile");
+  const summary = sheet.locator("summary");
+  await summary.focus();
+  await page.keyboard.press("Enter");
+  await expect(sheet).toHaveAttribute("open", "");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(contactOf(page)).toBeInViewport();
+  await page.keyboard.press("Enter");
+  await expect(sheet).not.toHaveAttribute("open", "");
+  await expectBar(sheet, "shown");
+  await summary.click();
+  await expect(sheet).toHaveAttribute("open", "");
+  await expectBar(sheet, "shown");
+});
+
+test("after a pointer Hide over the request card the keyboard keeps its place on the bar", async ({
+  page,
+  browserName,
+}) => {
+  const { sheet, summary } = await barAwayFromCard(page, "Ethernet drop");
+  await summary.click();
+  await expect(sheet).toHaveAttribute("open", "");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(contactOf(page)).toBeInViewport();
+  await summary.click();
+  await expect(sheet).not.toHaveAttribute("open", "");
+  await expectBar(sheet, "out of the way");
+  await expect(summary).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(sheet).toHaveAttribute("open", "");
+  await expectBar(sheet, "shown");
+  await summary.click();
+  await expect(sheet).not.toHaveAttribute("open", "");
+  await page.keyboard.press("Enter");
+  await expect(sheet).toHaveAttribute("open", "");
+  await summary.click();
+  await expect(sheet).not.toHaveAttribute("open", "");
+  await page.keyboard.press(tabKey(browserName));
+  await expect(
+    page.getByRole("link", { name: "How we price (opens in a new tab)" }),
+  ).toBeFocused();
+});
+
+test("an add-on unit stays beside its quantity at 320 wide", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto("./");
+  await rowFor(page, "Floor install — LVP or tile")
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
+  const estimate = await openEstimate(page);
+  await estimate
+    .getByRole("checkbox", { name: "Transitions and quarter round" })
+    .check();
+  const quantityName = "Transitions and quarter round, linear ft";
+  const input = estimate.getByRole("spinbutton", { name: quantityName });
+  const unit = estimate
+    .getByRole("listitem")
+    .filter({ has: page.getByRole("spinbutton", { name: quantityName }) })
+    .last()
+    .getByText("linear ft", { exact: true });
+  const [box, label] = [(await input.boundingBox())!, (await unit.boundingBox())!];
+  expect(label.x).toBeGreaterThan(box.x + box.width);
+  expect(label.y + label.height / 2).toBeGreaterThan(box.y);
+  expect(label.y + label.height / 2).toBeLessThan(box.y + box.height);
 });

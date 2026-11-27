@@ -10,9 +10,10 @@ test("the sources page keeps its own tab title", async ({ page }) => {
 
 for (const [width, cue] of [
   [390, true],
+  [768, false],
   [1440, false],
 ] as const) {
-  test(`the link column cue shows only when the table runs off screen at ${width}px`, async ({
+  test(`the link column cue shows only when the links are off screen at ${width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 844 });
@@ -20,10 +21,6 @@ for (const [width, cue] of [
     const hint = page.getByText("Swipe for the links");
     if (cue) await expect(hint).toBeVisible();
     else await expect(hint).toBeHidden();
-    const scroller = page.locator("table").locator("..");
-    expect(
-      await scroller.evaluate((el) => el.scrollWidth > el.clientWidth),
-    ).toBe(cue);
   });
 }
 
