@@ -34,6 +34,153 @@ const webMailButton = (page: Page, name: string) =>
       exact: true,
     });
 
+const phoneAgents = [
+  [
+    "iPhone",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+  ],
+  [
+    "iPod",
+    "Mozilla/5.0 (iPod touch; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+  ],
+  [
+    "Android phone",
+    "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+  ],
+] as const;
+
+async function blockExternalRequests(page: Page) {
+  await page.route("**/*", (route) => {
+    if (new URL(route.request().url()).origin === "http://localhost:4173") {
+      return route.continue();
+    }
+    return route.abort();
+  });
+}
+
+async function setUserAgent(page: Page, userAgent: string) {
+  await page.addInitScript((agent) => {
+    Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
+      value: agent,
+    });
+  }, userAgent);
+}
+
+for (const [device, userAgent] of phoneAgents) {
+  test(`${device} visitors can copy the email address without filling the form`, async ({
+    page,
+  }) => {
+    await blockExternalRequests(page);
+    await setUserAgent(page, userAgent);
+    await page.addInitScript(() => {
+      (window as unknown as { copied: string[] }).copied = [];
+      Object.defineProperty(navigator, "clipboard", {
+        value: {
+          writeText: async (text: string) => {
+            (window as unknown as { copied: string[] }).copied.push(text);
+          },
+        },
+      });
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("./");
+    const contact = page.getByRole("region", { name: "What needs a hand?" });
+    const actions = contact.locator(".contact-actions");
+    await expect(actions.getByRole("button")).toHaveText([
+      "Open email draft ↗",
+      "Copy email address",
+      "Copy request",
+    ]);
+    await expect(page.locator("body")).not.toContainText(/Gmail|Outlook/);
+    await actions
+      .getByRole("button", { name: "Copy email address", exact: true })
+      .click();
+    await expect(contact.getByRole("status")).toContainText(
+      "Email address copied",
+    );
+    expect(
+      await page.evaluate(() => (window as unknown as { copied: string[] }).copied),
+    ).toEqual(["info@kamotec.io"]);
+    await expect(contact.getByLabel("Email", { exact: true })).toHaveValue("");
+    await expect(
+      contact.getByLabel("What needs doing?", { exact: true }),
+    ).toHaveValue("");
+  });
+}
+
+test("phone address-copy failure leaves the address visible and selectable", async ({
+  page,
+}) => {
+  await blockExternalRequests(page);
+  await setUserAgent(page, phoneAgents[0][1]);
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async () => {
+          throw new Error("Clipboard denied");
+        },
+      },
+    }),
+  );
+  await page.goto("./");
+  const contact = page.getByRole("region", { name: "What needs a hand?" });
+  await contact
+    .getByRole("button", { name: "Copy email address", exact: true })
+    .click();
+  await expect(contact.getByRole("status")).toContainText(
+    "Select and copy the email address below",
+  );
+  const address = contact.getByRole("link", { name: "info@kamotec.io" });
+  await expect(address).toBeVisible();
+  expect(
+    await address.evaluate((element) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      return selection?.toString();
+    }),
+  ).toBe("info@kamotec.io");
+});
+
+for (const [device, userAgent, width] of [
+  [
+    "iPad",
+    "Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Safari/604.1",
+    1024,
+  ],
+  [
+    "Android tablet",
+    "Mozilla/5.0 (Linux; Android 14; SM-X900) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36",
+    1024,
+  ],
+  [
+    "narrow desktop",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36",
+    320,
+  ],
+] as const) {
+  test(`${device} keeps the Gmail and Outlook web buttons`, async ({ page }) => {
+    await blockExternalRequests(page);
+    await setUserAgent(page, userAgent);
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("./");
+    const contact = page.getByRole("region", { name: "What needs a hand?" });
+    await expect(contact.getByRole("button")).toHaveText([
+      "Open email draft ↗",
+      "Open in Gmail (opens in a new tab) ↗",
+      "Open in Outlook (opens in a new tab) ↗",
+      "Copy request",
+    ]);
+    await expect(contact).toContainText("Opens a draft in your email app, Gmail or Outlook.");
+    await expect(
+      contact.getByRole("button", { name: "Copy email address", exact: true }),
+    ).toHaveCount(0);
+  });
+}
+
 test("visitor can prepare and copy a walkthrough before browsing services", async ({
   page,
 }) => {
