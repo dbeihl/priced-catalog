@@ -54,9 +54,10 @@ function setMeta(
   document.head.append(element);
 }
 
-export function applyMetadata(site: SiteMetadataInput) {
+export function applyMetadata(site: SiteMetadataInput, page?: string) {
   const metadata = buildMetadata(site);
-  if (metadata.title) document.title = metadata.title;
+  if (metadata.title)
+    document.title = page ? `${page} | ${metadata.title}` : metadata.title;
   setMeta("name", "description", metadata.description);
   setMeta("property", "og:title", metadata.openGraph.title);
   setMeta("property", "og:description", metadata.openGraph.description);

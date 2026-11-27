@@ -6,7 +6,7 @@ Verify contact-first behavior on built output while keeping delivery local to an
 
 ## Commands
 
-Run npm run typecheck, npm run lint, npm test, npm run build, and npm run test:e2e. Playwright builds the production files, serves them under /priced-catalog/, and drives Chromium on desktop and a 390 by 844 mobile viewport. The contact suite also checks widths 320, 1280, and 1440.
+Run npm run typecheck, npm run lint, npm test, npm run build, and npm run test:e2e. Playwright builds the production files and serves them under /priced-catalog/. The browser projects and device settings are defined in `playwright.config.ts`. CI runs Chromium only; local runs also include desktop and phone WebKit. Install the local browser binaries with `npx playwright install chromium webkit` before the first run. The suites also set viewport sizes for individual layout checks.
 
 Compare src/data/services.ts, src/data/sources.ts, src/site.config.ts, and SOURCES.md with origin/master. They must be byte-identical. All 38 services and the existing estimate arithmetic remain available.
 
@@ -14,7 +14,7 @@ Compare src/data/services.ts, src/data/sources.ts, src/site.config.ts, and SOURC
 
 Follow every persona in docs/personas.md. Check required email and job details, optional name and town, native email validation, whitespace-only descriptions, draft wording, Gmail and Outlook compose links carrying the same recipient, subject and body as Copy request, copying, denied clipboard access, selectable text, long requests, current selection quantities, removal, retained message text, detail-to-contact navigation, the sources page, recent-work photos and their captions, and copied feedback clearing after an estimate change. Browser doubles are allowed only for clipboard, external protocol and web mail boundaries; tests capture the compose URL and never reach Google or Microsoft. Source links, including citation deep links and the guide links on the sources page, must open a new tab with an accessible cue and keep all four fields, estimate selections and viewed-service context on the original page. Local storage, session storage and cookies must stay empty. No HTTP form submission or storage write may occur.
 
-Check full-page context at 1440 and 1280, the initial mobile form at 390 and 320, keyboard focus, reduced viewport height, enlarged text, and the estimate bar, including that a pointer Hide over the request card leaves every contact button usable. The independent tester records screenshots and the tested commit. Their evidence must be on the PR before ready.
+Check full-page context at 1440 and 1280, the initial mobile form at 390 and 320, reduced viewport height, and enlarged text. In `e2e/estimate-and-request.spec.ts`, verify focus stays clear of the fixed estimate bar and sticky filters, a long desktop estimate scrolls to its request link, and pointer Hide preserves the keyboard's place and allows Space or Enter to reopen the sheet. Right-click, middle-click, drag-release, and non-activating keys must leave the contact buttons usable. Check replacement of cleared quantities, visible add-on units, and quote-only market notes. `src/lib/contact.test.ts` covers counted units in request text. In `e2e/sources.spec.ts`, check the sources-page title, the horizontal-scroll cue on narrow screens, and cold citation deep links after fonts load. The independent tester records screenshots and the tested commit. Their evidence must be on the PR before ready.
 
 ## Known limits
 

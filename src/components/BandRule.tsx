@@ -52,10 +52,15 @@ export function BandRule({
 
   if (position === null || value === null) {
     return (
-      <p className="fig text-[13px] leading-tight text-ink-2">
-        Market {marketBandLabel(service)} ·{" "}
-        <SourceCitation band={service.marketBand} />
-      </p>
+      <>
+        <p className="fig text-[13px] leading-tight text-ink-2">
+          Market {marketBandLabel(service)} ·{" "}
+          <SourceCitation band={service.marketBand} />
+        </p>
+        {expanded && note && (
+          <p className="mt-1.5 text-[12px] leading-snug text-ink-2">{note}</p>
+        )}
+      </>
     );
   }
 

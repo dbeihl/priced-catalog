@@ -145,6 +145,30 @@ describe("walkthrough selection", () => {
     ).not.toContain("$");
   });
 
+  it("counts every unit that takes a quantity the way it reads aloud", () => {
+    const line = (id: string, quantity: number) =>
+      buildWalkthroughBody([walkthroughSelection(service(id), quantity)])
+        .split("\n")
+        .find((l) => l.startsWith("- "));
+    expect(
+      [
+        ["ethernet-drop", 1],
+        ["ethernet-drop", 2],
+        ["floor-lvp-tile", 2],
+        ["smart-switch", 2],
+        ["baseboard-new", 2],
+        ["hourly-work", 2],
+      ].map(([id, quantity]) => line(id as string, quantity as number)),
+    ).toEqual([
+      "- Ethernet drop: 1 drop",
+      "- Ethernet drop: 2 drops",
+      "- Floor install — LVP or tile: 2 sq ft",
+      "- Smart switch or dimmer swap: 2 each",
+      "- Baseboard — new install: 2 linear ft",
+      "- Hourly work: something not listed: 2 hr",
+    ]);
+  });
+
   it("never names a negative, zero or fractional count", () => {
     const perUnit = services.find((s) => s.pricing.model === "per-unit")!;
     const count = (quantity: number) => {

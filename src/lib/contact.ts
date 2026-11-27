@@ -1,6 +1,6 @@
 import type { Service } from "../types";
 import { needsQuantity, type AddOnSelection } from "./estimate";
-import { unitLabel } from "./format";
+import { countedUnit } from "./format";
 
 type RequestLine =
   { name: string } | { name: string; quantity: number; unit: string };
@@ -18,7 +18,7 @@ export function walkthroughSelection(
     ? {
         name: service.name,
         quantity: wholeCount(quantity),
-        unit: unitLabel[service.pricing.unit],
+        unit: countedUnit(service.pricing.unit, wholeCount(quantity)),
       }
     : { name: service.name };
   const addOns = chosen.flatMap(({ id, quantity }) => {
@@ -30,7 +30,7 @@ export function walkthroughSelection(
           {
             name: addOn.name,
             quantity: wholeCount(quantity),
-            unit: unitLabel[addOn.unit],
+            unit: countedUnit(addOn.unit, wholeCount(quantity)),
           },
         ];
   });

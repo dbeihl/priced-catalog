@@ -15,6 +15,13 @@ export default defineConfig({
       name: "mobile",
       use: { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } },
     },
+    // ponytail: local only, CI installs Chromium alone; WebKit is not real Safari
+    ...(process.env.CI
+      ? []
+      : [
+          { name: "webkit", use: { ...devices["Desktop Safari"] } },
+          { name: "webkit-mobile", use: { ...devices["iPhone 13"] } },
+        ]),
   ],
   webServer: {
     command: "npm run build && npm run preview -- --port 4173 --strictPort",
