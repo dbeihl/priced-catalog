@@ -19,4 +19,4 @@ Journey: `e2e/contact.spec.ts`, direct request, validation, clipboard failure, a
 
 Searches or filters services, checks price, hours, market band, and source, then adds services and quantities to an estimate. Returns to contact with those selections and a preserved message. Can remove selections without losing typed contact details.
 
-Journeys: `e2e/contact.spec.ts` covers estimate-to-contact and service details. `e2e/estimate-and-request.spec.ts` covers source navigation with preserved request state, add-ons, quantities, and removal of service context.
+Journeys: `e2e/contact.spec.ts` covers estimate-to-contact and service details. `e2e/estimate-and-request.spec.ts` covers source navigation with preserved request state, add-ons, quantities, removal of service context, estimate scrolling, and keyboard focus. `e2e/sources.spec.ts` covers the sources-page title, horizontal-scroll cue, and citation deep links.
