@@ -95,7 +95,7 @@ for (const size of [
         box.y + box.height,
       );
       await job.focus();
-      await expect(page.locator("details.estimate-mobile")).toBeHidden();
+      await expectBar(page.locator("details.estimate-mobile"), "out of the way");
       const at = (await target.boundingBox())!;
       const before = await delivered(page);
       await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
