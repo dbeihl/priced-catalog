@@ -1176,12 +1176,14 @@ for (const { keys, kept, scroll } of [
   { keys: "c", kept: false, scroll: 0 },
   { keys: "ControlOrMeta+c", kept: false, scroll: 0 },
   { keys: "Meta+Shift+4", kept: false, scroll: 0 },
+  { keys: "Shift+Enter", kept: false, scroll: 0 },
   { keys: "ArrowDown", kept: false, scroll: 1 },
   { keys: "PageDown", kept: false, scroll: 1 },
   { keys: "End", kept: false, scroll: 1 },
   { keys: "ArrowUp", kept: false, scroll: -1 },
   { keys: "PageUp", kept: false, scroll: -1 },
   { keys: "Home", kept: false, scroll: -1 },
+  { keys: "Shift+Space", kept: false, scroll: -1 },
 ] as const) {
   test(`after a pointer Hide over the request card, ${keys} leaves the bar out of the way of the contact buttons`, async ({
     page,
