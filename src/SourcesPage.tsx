@@ -3,7 +3,8 @@ import { SourceRegistry } from "./components/SourceRegistry";
 import { site } from "./site.config";
 
 // Rows render on the client after the browser's own fragment scroll has run,
-// so citation deep links (sources.html#<key>) scroll to their row here.
+// so citation deep links (sources.html#<key>) scroll to their row here, once
+// the web font has settled the row heights.
 export function scrollToHashTarget(
   hash: string,
   getElementById: (id: string) => { scrollIntoView(): void } | null,
@@ -19,7 +20,9 @@ export function scrollToHashTarget(
 
 export default function SourcesPage() {
   useEffect(() => {
-    scrollToHashTarget(location.hash, (id) => document.getElementById(id));
+    void document.fonts.ready.then(() =>
+      scrollToHashTarget(location.hash, (id) => document.getElementById(id)),
+    );
   }, []);
 
   return (

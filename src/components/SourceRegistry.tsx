@@ -1,6 +1,20 @@
+import { useEffect, useRef, useState } from "react";
 import { sourceNotes, sources } from "../data/sources";
 
 export function SourceRegistry() {
+  const scroller = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const watch = new ResizeObserver(() =>
+      setOverflows(el.scrollWidth > el.clientWidth),
+    );
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, []);
+
   return (
     <section id="sources" className="mt-4 border-t border-line py-8">
       <div className="max-w-3xl space-y-2 text-[14px] leading-relaxed text-ink-2">
@@ -16,7 +30,18 @@ export function SourceRegistry() {
         </p>
       </div>
 
-      <div className="mt-5 overflow-x-auto rounded-lg border border-line bg-field">
+      {overflows && (
+        <p
+          aria-hidden="true"
+          className="mt-5 text-right text-[10px] uppercase tracking-wide text-ink-2"
+        >
+          Swipe for the links →
+        </p>
+      )}
+      <div
+        ref={scroller}
+        className={`${overflows ? "mt-1" : "mt-5"} overflow-x-auto rounded-lg border border-line bg-field`}
+      >
         <table className="w-full min-w-[46rem] border-collapse text-left text-[12px] leading-snug">
           <thead className="border-b border-line bg-paper text-[11px] uppercase tracking-wider text-ink-2">
             <tr>

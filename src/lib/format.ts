@@ -26,6 +26,18 @@ export const unitLabel: Record<Unit, string> = {
   hour: "hr",
 };
 
+const pluralLabel: Partial<Record<Unit, string>> = {
+  project: "projects",
+  drop: "drops",
+  room: "rooms",
+  visit: "visits",
+  day: "days",
+};
+
+/** The unit after a count: "2 drops", "2 sq ft". Abbreviations stay as they are. */
+export const countedUnit = (unit: Unit, count: number): string =>
+  (count === 1 ? undefined : pluralLabel[unit]) ?? unitLabel[unit];
+
 /** Short unit for a rate suffix: "/linear ft". */
 export const perUnit = (unit: Unit): string => `/${unitLabel[unit]}`;
 

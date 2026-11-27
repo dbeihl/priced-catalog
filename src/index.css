@@ -590,6 +590,17 @@ button {
 .estimate-mobile {
   padding-bottom: env(safe-area-inset-bottom);
 }
-.estimate-mobile.covering:not([open], :focus-within) {
+@media (max-width: 1199px) {
+  html {
+    scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+@media (min-width: 1024px) {
+  /* ponytail: clears the 146px sticky filter bar; raise it if the bar grows */
+  #catalog ul :is(a, button, input) {
+    scroll-margin-top: 10rem;
+  }
+}
+.estimate-mobile.covering:not([open], .keyboard-held) {
   display: none;
 }

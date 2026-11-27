@@ -5,7 +5,7 @@ import "./index.css";
 import { site } from "./site.config";
 import { applyMetadata } from "./site-metadata";
 
-applyMetadata(site);
+applyMetadata(site, "Market band sources");
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

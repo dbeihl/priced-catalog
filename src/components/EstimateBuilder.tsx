@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Service } from "../types";
 import {
   needsQuantity,
@@ -91,7 +92,7 @@ function Body({
                     name={`estimate[${fieldNamespace}][${selection.key}][quantity]`}
                     min={1}
                     step={1}
-                    value={selection.quantity ?? 1}
+                    value={(selection.quantity ?? 1) || ""}
                     onChange={(e) =>
                       onQuantity(selection.key, wholeCount(e.target))
                     }
@@ -141,30 +142,38 @@ function Body({
                           </span>
                         </label>
                         {on && addOn.unit !== undefined && (
-                          <input
-                            type="number"
-                            id={`estimate-${fieldNamespace}-addon-quantity-${selection.key}-${addOn.id}`}
-                            name={`estimate[${fieldNamespace}][${selection.key}][${addOn.id}][quantity]`}
-                            min={1}
-                            step={1}
-                            aria-label={`${addOn.name}, ${unitLabel[addOn.unit]}`}
-                            value={ownQuantity}
-                            onChange={(e) =>
-                              onAddOnQuantity(
-                                selection.key,
-                                addOn.id,
-                                wholeCount(e.target),
-                              )
-                            }
-                            onBlur={(e) =>
-                              onAddOnQuantity(
-                                selection.key,
-                                addOn.id,
-                                wholeCount(e.target) || 1,
-                              )
-                            }
-                            className="fig w-16 border border-rule bg-paper px-1.5 py-0.5 text-[12px]"
-                          />
+                          <>
+                            <input
+                              type="number"
+                              id={`estimate-${fieldNamespace}-addon-quantity-${selection.key}-${addOn.id}`}
+                              name={`estimate[${fieldNamespace}][${selection.key}][${addOn.id}][quantity]`}
+                              min={1}
+                              step={1}
+                              aria-label={`${addOn.name}, ${unitLabel[addOn.unit]}`}
+                              value={ownQuantity || ""}
+                              onChange={(e) =>
+                                onAddOnQuantity(
+                                  selection.key,
+                                  addOn.id,
+                                  wholeCount(e.target),
+                                )
+                              }
+                              onBlur={(e) =>
+                                onAddOnQuantity(
+                                  selection.key,
+                                  addOn.id,
+                                  wholeCount(e.target) || 1,
+                                )
+                              }
+                              className="fig w-16 border border-rule bg-paper px-1.5 py-0.5 text-[12px]"
+                            />
+                            <span
+                              aria-hidden="true"
+                              className="text-[12px] text-ink-2"
+                            >
+                              {unitLabel[addOn.unit]}
+                            </span>
+                          </>
                         )}
                       </li>
                     );
@@ -260,11 +269,12 @@ function Body({
 
 export function EstimateBuilder(props: Props) {
   const count = props.selections.length;
+  const [keyboardHeld, setKeyboardHeld] = useState(false);
   return (
     <>
       {/* desktop: a running tally in the right rail */}
       <aside className="hidden min-[1200px]:block">
-        <div className="sticky top-4 overflow-hidden rounded-xl border border-line bg-field">
+        <div className="sticky top-4 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-xl border border-line bg-field">
           <header className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-3">
             <h2 className="text-[12px] uppercase tracking-wider text-ink-2">
               Running estimate
@@ -282,14 +292,19 @@ export function EstimateBuilder(props: Props) {
        * shows a total does not read as tappable.
        */}
       {!props.estimate.isEmpty && (
-        <details className={`estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden${props.hideBar ? " covering" : ""}`}>
+        <details
+          onPointerDown={() => setKeyboardHeld(false)}
+          onKeyDown={() => setKeyboardHeld(true)}
+          onFocus={(event) =>
+            event.target.matches(":focus-visible") && setKeyboardHeld(true)
+          }
+          onBlur={(event) =>
+            !event.currentTarget.contains(event.relatedTarget) &&
+            setKeyboardHeld(false)
+          }
+          className={`estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden${props.hideBar ? " covering" : ""}${keyboardHeld ? " keyboard-held" : ""}`}
+        >
           <summary
-            onClick={(event) => {
-              const closing = (
-                event.currentTarget.parentElement as HTMLDetailsElement
-              ).open;
-              if (event.detail > 0 && closing) event.currentTarget.blur();
-            }}
             className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
             <svg
               aria-hidden="true"
