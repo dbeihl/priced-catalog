@@ -62,7 +62,7 @@ function Body({
   }
 
   return (
-    <div className="max-h-[48dvh] overflow-y-auto overscroll-contain min-[1200px]:max-h-none">
+    <div className="max-h-[48dvh] overflow-y-auto overscroll-contain min-[1200px]:max-h-none min-[1200px]:overflow-visible min-[1200px]:overscroll-auto">
       <ul>
         {selections.map((selection, index) => {
           const service = byId.get(selection.serviceId);
@@ -142,7 +142,7 @@ function Body({
                           </span>
                         </label>
                         {on && addOn.unit !== undefined && (
-                          <>
+                          <span className="flex items-center gap-2">
                             <input
                               type="number"
                               id={`estimate-${fieldNamespace}-addon-quantity-${selection.key}-${addOn.id}`}
@@ -173,7 +173,7 @@ function Body({
                             >
                               {unitLabel[addOn.unit]}
                             </span>
-                          </>
+                          </span>
                         )}
                       </li>
                     );
@@ -267,14 +267,75 @@ function Body({
   );
 }
 
-export function EstimateBuilder(props: Props) {
+/*
+ * mobile: a bottom sheet, closed by default. Native <details>, so the
+ * open/close behaviour and the keyboard path come from the platform.
+ * The caret and the Show/Hide word are there because a bar that only
+ * shows a total does not read as tappable.
+ */
+function MobileSheet(props: Props) {
   const count = props.selections.length;
   const [keyboardHeld, setKeyboardHeld] = useState(false);
+  return (
+    <details
+      onFocus={(event) => {
+        if (event.target.matches(":focus-visible")) setKeyboardHeld(true);
+      }}
+      onKeyDown={(event) => {
+        const operates =
+          event.target === event.currentTarget.firstElementChild &&
+          (event.key === "Enter" || event.key === " ");
+        const concealed =
+          props.hideBar && !event.currentTarget.open && !keyboardHeld;
+        if (operates || concealed) setKeyboardHeld(true);
+      }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget))
+          setKeyboardHeld(false);
+      }}
+      className={`estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden${props.hideBar ? " covering" : ""}${keyboardHeld ? " keyboard-held" : ""}`}
+    >
+      <summary
+        onClick={(event) => {
+          if (event.detail > 0) setKeyboardHeld(false);
+        }}
+        className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden"
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 12 12"
+          className="h-3 w-3 shrink-0 transition-transform group-open:rotate-90"
+        >
+          <path
+            d="M4 2l5 4-5 4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="square"
+          />
+        </svg>
+        <span className="text-[12px] uppercase tracking-wider text-ink-2">
+          {count} {count === 1 ? "item" : "items"}
+        </span>
+        <span className="ml-auto flex items-baseline gap-2">
+          <Total estimate={props.estimate} />
+          <span className="text-[11px] uppercase tracking-wide text-ink-2">
+            <span className="group-open:hidden">Show</span>
+            <span className="hidden group-open:inline">Hide</span>
+          </span>
+        </span>
+      </summary>
+      <Body {...props} fieldNamespace="mobile" />
+    </details>
+  );
+}
+
+export function EstimateBuilder(props: Props) {
   return (
     <>
       {/* desktop: a running tally in the right rail */}
       <aside className="hidden min-[1200px]:block">
-        <div className="sticky top-4 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-xl border border-line bg-field">
+        <div className="sticky top-4 max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-line bg-field">
           <header className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-3">
             <h2 className="text-[12px] uppercase tracking-wider text-ink-2">
               Running estimate
@@ -284,55 +345,7 @@ export function EstimateBuilder(props: Props) {
           <Body {...props} fieldNamespace="desktop" />
         </div>
       </aside>
-
-      {/*
-       * mobile: a bottom sheet, closed by default. Native <details>, so the
-       * open/close behaviour and the keyboard path come from the platform.
-       * The caret and the Show/Hide word are there because a bar that only
-       * shows a total does not read as tappable.
-       */}
-      {!props.estimate.isEmpty && (
-        <details
-          onPointerDown={() => setKeyboardHeld(false)}
-          onKeyDown={() => setKeyboardHeld(true)}
-          onFocus={(event) =>
-            event.target.matches(":focus-visible") && setKeyboardHeld(true)
-          }
-          onBlur={(event) =>
-            !event.currentTarget.contains(event.relatedTarget) &&
-            setKeyboardHeld(false)
-          }
-          className={`estimate-mobile group fixed inset-x-0 bottom-0 z-10 border-t border-ink bg-field shadow-[0_-6px_16px_-8px_var(--shadow)] min-[1200px]:hidden${props.hideBar ? " covering" : ""}${keyboardHeld ? " keyboard-held" : ""}`}
-        >
-          <summary
-            className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 12 12"
-              className="h-3 w-3 shrink-0 transition-transform group-open:rotate-90"
-            >
-              <path
-                d="M4 2l5 4-5 4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="square"
-              />
-            </svg>
-            <span className="text-[12px] uppercase tracking-wider text-ink-2">
-              {count} {count === 1 ? "item" : "items"}
-            </span>
-            <span className="ml-auto flex items-baseline gap-2">
-              <Total estimate={props.estimate} />
-              <span className="text-[11px] uppercase tracking-wide text-ink-2">
-                <span className="group-open:hidden">Show</span>
-                <span className="hidden group-open:inline">Hide</span>
-              </span>
-            </span>
-          </summary>
-          <Body {...props} fieldNamespace="mobile" />
-        </details>
-      )}
+      {!props.estimate.isEmpty && <MobileSheet {...props} />}
     </>
   );
 }

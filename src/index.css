@@ -601,6 +601,8 @@ button {
     scroll-margin-top: 10rem;
   }
 }
+/* stays focusable so a keyboard user keeps their place */
 .estimate-mobile.covering:not([open], .keyboard-held) {
-  display: none;
+  opacity: 0;
+  pointer-events: none;
 }

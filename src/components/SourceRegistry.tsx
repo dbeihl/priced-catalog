@@ -8,7 +8,8 @@ export function SourceRegistry() {
   useLayoutEffect(() => {
     const el = scroller.current;
     if (!el) return;
-    const check = () => setOverflows(el.scrollWidth > el.clientWidth);
+    // ponytail: a few pixels of overflow hide nothing worth a cue
+    const check = () => setOverflows(el.scrollWidth - el.clientWidth > 16);
     check();
     const watch = new ResizeObserver(check);
     watch.observe(el);
