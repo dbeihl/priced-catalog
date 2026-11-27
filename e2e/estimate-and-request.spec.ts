@@ -1212,11 +1212,22 @@ for (const { keys, kept, scroll } of [
     await summary.click();
     await expect(sheet).not.toHaveAttribute("open", "");
     await expectBar(sheet, "out of the way");
+    // Playwright WebKit drops an arrow-key scroll sent right after a scroll.
+    await page.waitForTimeout(200);
     const before = await page.evaluate(() => scrollY);
     await page.keyboard.press(keys);
     await expect
       .poll(async () => Math.sign((await page.evaluate(() => scrollY)) - before))
       .toBe(scroll);
+    let last = NaN;
+    await expect
+      .poll(async () => {
+        const now = await page.evaluate(() => scrollY);
+        const settled = now === last;
+        last = now;
+        return settled;
+      })
+      .toBe(true);
     if (kept) await expect(summary).toBeFocused();
     else await expect(summary).not.toBeFocused();
     await toBottom();
