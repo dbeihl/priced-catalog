@@ -27,7 +27,7 @@ for (const [width, cue] of [
   });
 }
 
-test("a cold load of a citation deep link shows the whole row", async ({
+test("a cold load of a citation deep link puts its row at the top", async ({
   page,
 }) => {
   const key = "Plumbing By The Book / RateYourPlumber, 2026";
@@ -42,6 +42,6 @@ test("a cold load of a citation deep link shows the whole row", async ({
       return [r.top, r.bottom, innerHeight];
     });
   // Scroll offsets are whole pixels and the row starts on a fraction of one.
-  expect(top).toBeGreaterThanOrEqual(-0.5);
+  expect(Math.abs(top)).toBeLessThan(0.5);
   expect(bottom).toBeLessThanOrEqual(height);
 });
