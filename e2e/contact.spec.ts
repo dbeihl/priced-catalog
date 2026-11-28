@@ -116,6 +116,7 @@ test("phone address-copy failure leaves the address visible and selectable", asy
 }) => {
   await blockExternalRequests(page);
   await setUserAgent(page, phoneAgents[0][1]);
+  await page.setViewportSize({ width: 932, height: 430 });
   await page.addInitScript(() =>
     Object.defineProperty(navigator, "clipboard", {
       value: {
@@ -130,8 +131,8 @@ test("phone address-copy failure leaves the address visible and selectable", asy
   await contact
     .getByRole("button", { name: "Copy email address", exact: true })
     .click();
-  await expect(contact.getByRole("status")).toContainText(
-    "Select and copy the email address below",
+  await expect(contact.getByRole("status")).toHaveText(
+    "Copy was unavailable. Select and copy this address: info@kamotec.io",
   );
   const address = contact.getByRole("link", { name: "info@kamotec.io" });
   await expect(address).toBeVisible();
@@ -145,6 +146,52 @@ test("phone address-copy failure leaves the address visible and selectable", asy
       return selection?.toString();
     }),
   ).toBe("info@kamotec.io");
+});
+
+test("phone contact actions stay full width while address copy is pending", async ({
+  page,
+}) => {
+  await blockExternalRequests(page);
+  await setUserAgent(page, phoneAgents[0][1]);
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: () =>
+          new Promise<void>((resolve) => {
+            (window as unknown as { finishAddressCopy: () => void }).finishAddressCopy =
+              resolve;
+          }),
+      },
+    });
+  });
+
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("./");
+    const actions = page
+      .getByRole("region", { name: "What needs a hand?" })
+      .locator(".contact-actions");
+    const buttons = actions.getByRole("button");
+    const positions = () =>
+      actions.evaluate((container) => {
+        const parent = container.getBoundingClientRect();
+        return Array.from(container.querySelectorAll("button"), (button) => {
+          const box = button.getBoundingClientRect();
+          return [box.x - parent.x, box.y - parent.y, box.width, box.height];
+        });
+      });
+    const before = await positions();
+    expect(new Set(before.map((box) => box[2])).size).toBe(1);
+    expect(before[0]![1]).toBeLessThan(before[1]![1]);
+    expect(before[1]![1]).toBeLessThan(before[2]![1]);
+
+    await buttons.nth(1).click();
+    await expect(buttons.nth(1)).toHaveText("Copying email address...");
+    expect(await positions()).toEqual(before);
+    await page.evaluate(() =>
+      (window as unknown as { finishAddressCopy: () => void }).finishAddressCopy(),
+    );
+  }
 });
 
 for (const [device, userAgent, width] of [
