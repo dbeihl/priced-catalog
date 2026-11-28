@@ -1,23 +1,11 @@
 import { useEffect } from "react";
 import { SourceRegistry } from "./components/SourceRegistry";
+import { scrollToHashTarget } from "./sources-page-hash";
 import { site } from "./site.config";
 
 // Rows render on the client after the browser's own fragment scroll has run,
 // so citation deep links (sources.html#<key>) scroll to their row here, once
 // the web font has settled the row heights.
-export function scrollToHashTarget(
-  hash: string,
-  getElementById: (id: string) => { scrollIntoView(): void } | null,
-) {
-  let id: string;
-  try {
-    id = decodeURIComponent(hash.slice(1));
-  } catch {
-    return;
-  }
-  if (id) getElementById(id)?.scrollIntoView();
-}
-
 export default function SourcesPage() {
   useEffect(() => {
     void document.fonts.ready.then(() =>
