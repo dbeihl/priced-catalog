@@ -4,7 +4,7 @@ A website that publishes your prices next to the hours behind them and what the 
 
 Identity and pricing settings live in two files:
 
-- `src/site.config.ts` - your name, service area, email, the visit minimum, and the page description, web address, and link-preview image. Contact actions are available when the email is configured, independently of optional page metadata. Any other value still starting with `TODO_` is left off the page. The catalog's browser-tab title uses the configured name; the sources page uses "Market band sources | [name]". Update the fallback titles in `index.html` and `sources.html` when renaming the site, too. See [Contact requests](#contact-requests) for form behavior.
+- `src/site.config.ts` - your name, service area, email, the visit minimum, and the page description, web address, and link-preview image. Contact actions are available when the email is configured, independently of optional page metadata. Any other value still starting with `TODO_` is left off the page. The catalog's browser-tab title uses the configured name; the sources page uses "Market band sources | [name]". The hard-coded titles in `index.html` and `sources.html` are fallbacks. Update them when renaming the site. See [Contact requests](#contact-requests) for form behavior.
 - `src/data/services.ts` — every service and every price.
 
 You do not need to understand the rest of the code to change either one.
@@ -130,7 +130,7 @@ Copy an existing service block that is closest to the one you want, paste it dir
   },
 ```
 
-A priced service needs both `basis` and `marketBand`. If you cannot say how many hours a job takes and what other people charge for it, its price is not ready yet. Until it is, list it with `pricing: { model: "quote-only", unit: "project" }`. For quote-only services, `basis` and `marketBand` are optional. Include them when supported by evidence; the service details show the market band and its note even without a listed price. The site shows "Ask for a quote" with a link to the contact section instead of an Add button.
+A priced service needs both `basis` and `marketBand`. If you cannot say how many hours a job takes and what other people charge for it, its price is not ready yet. Until it is, list it with `pricing: { model: "quote-only", unit: "project" }`. For quote-only services, `basis` and `marketBand` are optional. Include them when supported by evidence; the service details show the market band and its note even without a listed price. When `basis` is missing, the service's action is an "Ask for a quote" link to the contact section. When `basis` is present, the service shows an Add button, even if its pricing model is still quote-only.
 
 ## 4. Hide a service
 
@@ -186,7 +186,7 @@ The site is currently built to live at `/priced-catalog/` on GitHub Pages. To pu
 VITE_BASE_PATH=/ npm run build
 ```
 
-For a new owner, update the identity and contact settings described [at the start of this guide](#priced-catalog).
+For a new owner, follow the [identity, contact, and fallback title instructions](#priced-catalog) at the start of this guide.
 
 ---
 
