@@ -428,6 +428,9 @@ button {
     margin-top: 0.3rem;
     font-size: 13px;
   }
+  .contact-details {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  }
   .work-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
@@ -437,6 +440,11 @@ button {
   .work-grid figure:first-child img {
     aspect-ratio: 4 / 3;
     object-position: 50% 30%;
+  }
+}
+@media (max-width: 389px) {
+  .contact-details {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (min-width: 600px) {
