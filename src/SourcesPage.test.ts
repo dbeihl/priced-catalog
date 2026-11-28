@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { scrollToHashTarget } from "./SourcesPage";
+import { scrollToHashTarget } from "./sources-page-hash";
 
 describe("scrollToHashTarget", () => {
   it("scrolls the row named by an encoded citation fragment into view", () => {
