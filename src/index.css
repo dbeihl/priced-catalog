@@ -229,6 +229,12 @@ button {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+.contact-actions-phone {
+  flex-direction: column;
+}
+.contact-actions-phone button {
+  width: 100%;
+}
 .contact-actions button {
   min-height: 46px;
   padding: 0.7rem 1rem;

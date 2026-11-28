@@ -107,7 +107,7 @@ export function ContactForm({
       await navigator.clipboard.writeText(email);
       setStatus("Email address copied. Paste it into the To field of your email.");
     } catch {
-      setStatus("Copy was unavailable. Select and copy the email address below.");
+      setStatus(`Copy was unavailable. Select and copy this address: ${email}`);
     } finally {
       setCopyingAddress(false);
     }
@@ -221,7 +221,11 @@ export function ContactForm({
                 website. If nothing opens, copy the request and paste it into
                 an email to {email}.
               </p>
-              <div className="contact-actions">
+              <div
+                className={
+                  phone ? "contact-actions contact-actions-phone" : "contact-actions"
+                }
+              >
                 <button type="submit" className="primary-action">
                   Open email draft <span aria-hidden="true">↗</span>
                 </button>
