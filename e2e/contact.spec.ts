@@ -50,6 +50,10 @@ const phoneAgents = [
 ] as const;
 const desktopUserAgent =
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36";
+const layoutUserAgents = [
+  ["phone", phoneAgents[0][1]],
+  ["desktop", desktopUserAgent],
+] as const;
 
 async function blockExternalRequests(page: Page) {
   await page.route("**/*", (route) => {
@@ -68,6 +72,39 @@ async function setUserAgent(page: Page, userAgent: string) {
     });
   }, userAgent);
 }
+
+test("Email placeholder fits at narrow widths on phone and desktop browsers", async ({
+  page,
+}) => {
+  await blockExternalRequests(page);
+
+  for (const [device, userAgent] of layoutUserAgents) {
+    await setUserAgent(page, userAgent);
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto("./");
+      const email = page.getByLabel("Email", { exact: true });
+      const measurement = await email.evaluate((input) => {
+        const style = getComputedStyle(input);
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d")!;
+        context.font = style.font;
+        return {
+          contentWidth:
+            input.clientWidth -
+            parseFloat(style.paddingLeft) -
+            parseFloat(style.paddingRight),
+          placeholderWidth: context.measureText(input.placeholder).width,
+        };
+      });
+
+      expect.soft(
+        measurement.placeholderWidth,
+        `${device} browser at ${width}px: ${JSON.stringify(measurement)}`,
+      ).toBeLessThanOrEqual(measurement.contentWidth);
+    }
+  }
+});
 
 for (const [device, userAgent] of phoneAgents) {
   test(`${device} visitors can copy the email address without filling the form`, async ({
