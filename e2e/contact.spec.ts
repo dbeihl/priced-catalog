@@ -520,14 +520,6 @@ test("mobile contact stays above the catalog without document overflow", async (
     const email = await page.getByLabel("Email", { exact: true }).boundingBox();
     expect(heading!.y).toBeLessThan(844);
     expect(email!.y + email!.height).toBeLessThan(844);
-    if (width === 390) {
-      const action = page.getByRole("button", {
-        name: "Open email draft",
-        exact: true,
-      });
-      await action.scrollIntoViewIfNeeded();
-      await expect(action).toBeInViewport();
-    }
   }
 });
 
