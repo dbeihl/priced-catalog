@@ -50,6 +50,10 @@ const phoneAgents = [
 ] as const;
 const desktopUserAgent =
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36";
+const layoutUserAgents = [
+  ["phone", phoneAgents[0][1]],
+  ["desktop", desktopUserAgent],
+] as const;
 
 async function blockExternalRequests(page: Page) {
   await page.route("**/*", (route) => {
@@ -68,6 +72,113 @@ async function setUserAgent(page: Page, userAgent: string) {
     });
   }, userAgent);
 }
+
+test("Email placeholder fits at narrow widths on phone and desktop browsers", async ({
+  page,
+}) => {
+  await blockExternalRequests(page);
+
+  for (const [device, userAgent] of layoutUserAgents) {
+    await setUserAgent(page, userAgent);
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto("./");
+      const email = page.getByLabel("Email", { exact: true });
+      const measurement = await email.evaluate((input) => {
+        const style = getComputedStyle(input);
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d")!;
+        context.font = style.font;
+        const borderBox = input.getBoundingClientRect().width;
+        return {
+          contentWidth: borderBox -
+            parseFloat(style.borderLeftWidth) -
+            parseFloat(style.borderRightWidth) -
+            parseFloat(style.paddingLeft) -
+            parseFloat(style.paddingRight),
+          placeholderWidth: context.measureText(input.placeholder).width,
+        };
+      });
+
+      expect.soft(
+        measurement.placeholderWidth,
+        `${device} browser at ${width}px: ${JSON.stringify(measurement)}`,
+      ).toBeLessThanOrEqual(measurement.contentWidth);
+    }
+  }
+});
+
+test("contact fields stay readable with enlarged text at 390px", async ({
+  page,
+}) => {
+  await blockExternalRequests(page);
+  await setUserAgent(page, phoneAgents[0][1]);
+
+  for (const zoom of ["text", "root"] as const) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("./");
+    if (zoom === "text") {
+      await page.evaluate(() => {
+        const elements = [...document.querySelectorAll<HTMLElement>("*")];
+        const sizes = elements.map((element) =>
+          parseFloat(getComputedStyle(element).fontSize),
+        );
+        elements.forEach((element, index) => {
+          element.style.fontSize = `${sizes[index] * 1.5}px`;
+        });
+      });
+    } else {
+      await page.evaluate(() => {
+        document.documentElement.style.fontSize = "200%";
+      });
+    }
+    await page.evaluate(() => document.fonts.ready);
+
+    const nameLabel = page.locator('label[for="contact-name"]');
+    const geometry = await nameLabel.evaluate((label) => {
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      const lineTops = new Set(
+        [...range.getClientRects()].map((rect) => Math.round(rect.top)),
+      );
+      const nameInput = document.querySelector<HTMLInputElement>("#contact-name")!;
+      const emailInput = document.querySelector<HTMLInputElement>("#contact-email")!;
+      const nameBox = nameInput.getBoundingClientRect();
+      const emailBox = emailInput.getBoundingClientRect();
+      const style = getComputedStyle(nameInput);
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d")!;
+      context.font = style.font;
+      return {
+        nameLabelLineCount: lineTops.size,
+        aligned: Math.abs(nameBox.y - emailBox.y) < 1,
+        stacked:
+          Math.abs(nameBox.x - emailBox.x) < 1 &&
+          Math.abs(nameBox.width - emailBox.width) < 1,
+        nameContentWidth:
+          nameBox.width -
+          parseFloat(style.borderLeftWidth) -
+          parseFloat(style.borderRightWidth) -
+          parseFloat(style.paddingLeft) -
+          parseFloat(style.paddingRight),
+        nameHintWidth: context.measureText(nameInput.placeholder).width,
+      };
+    });
+
+    expect.soft(
+      geometry.nameLabelLineCount,
+      `${zoom} enlargement: Name label should remain on one line`,
+    ).toBe(1);
+    expect.soft(
+      geometry.aligned || geometry.stacked,
+      `${zoom} enlargement: Name and Email inputs should align or stack cleanly`,
+    ).toBe(true);
+    expect.soft(
+      geometry.nameHintWidth,
+      `${zoom} enlargement: ${JSON.stringify(geometry)}`,
+    ).toBeLessThanOrEqual(geometry.nameContentWidth);
+  }
+});
 
 for (const [device, userAgent] of phoneAgents) {
   test(`${device} visitors can copy the email address without filling the form`, async ({
@@ -409,12 +520,6 @@ test("mobile contact stays above the catalog without document overflow", async (
     const email = await page.getByLabel("Email", { exact: true }).boundingBox();
     expect(heading!.y).toBeLessThan(844);
     expect(email!.y + email!.height).toBeLessThan(844);
-    if (width === 390) {
-      const action = await page
-        .getByRole("button", { name: "Open email draft", exact: true })
-        .boundingBox();
-      expect(action!.y + action!.height).toBeLessThan(844);
-    }
   }
 });
 

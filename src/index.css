@@ -428,6 +428,9 @@ button {
     margin-top: 0.3rem;
     font-size: 13px;
   }
+  .contact-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .work-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
