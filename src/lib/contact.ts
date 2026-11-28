@@ -50,6 +50,10 @@ export function isContactConfigured(contact: ContactConfig) {
   return contact.email.trim().length > 0 && !contact.email.startsWith("TODO_");
 }
 
+export function isPhoneUserAgent(userAgent: string) {
+  return /\b(?:iPhone|iPod|Android)\b/i.test(userAgent) && /\bMobile\b/i.test(userAgent);
+}
+
 export interface WalkthroughRequest {
   name: string;
   email: string;

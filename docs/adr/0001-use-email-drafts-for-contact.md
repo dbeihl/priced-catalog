@@ -20,4 +20,8 @@ Pricing source links open in a new tab with an accessible cue. The original page
 
 The email-draft button opened nothing for a visitor without a default mail app. Web mail compose links provide a path for that visitor without a hosted form backend or third-party script. The website sends no email. The [contact guidance](../../README.md#contact-requests) describes what opening web mail shares with the provider.
 
+## Amendment, 2026-11-27: phone email actions
+
+Use the phone actions described in [Contact requests](../../README.md#contact-requests). A web page cannot reliably determine whether another app opened, so use the default `mailto:` path without custom app schemes or timer fallbacks.
+
 The [contact-first layout plan](../contact-layout-plan.md) records the research and verification boundaries.

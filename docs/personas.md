@@ -11,7 +11,7 @@ Journey: `e2e/david.spec.ts`.
 
 ## Homeowner with a known repair
 
-Needs to ask about a job before choosing any catalog service. Enters email and job details in the top form, opens an email draft or a Gmail or Outlook compose page, or copies the request, and sends it from their own email. Must understand that the website submits nothing.
+Needs to ask about a job before choosing any catalog service. Uses the top form and the [contact actions](../README.md#contact-requests) to prepare a request and sends it from their own email. Must understand that the website submits nothing.
 
 Journey: `e2e/contact.spec.ts`, direct request, validation, clipboard failure, and long-request fallback.
 

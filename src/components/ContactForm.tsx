@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import {
   isContactConfigured,
+  isPhoneUserAgent,
   walkthroughDrafts,
   type WalkthroughRequest,
   type WalkthroughSelection,
@@ -31,7 +32,10 @@ export function ContactForm({
   });
   const [feedback, setFeedback] = useState({ text: "", body: "" });
   const [copying, setCopying] = useState(false);
+  const [copyingAddress, setCopyingAddress] = useState(false);
   const [showRequest, setShowRequest] = useState(false);
+  const phone =
+    typeof navigator !== "undefined" && isPhoneUserAgent(navigator.userAgent);
   const drafts = walkthroughDrafts(email, selections, request, askedAbout);
   const body = drafts.body;
   const status = feedback.body === body ? feedback.text : "";
@@ -94,6 +98,18 @@ export function ContactForm({
       );
     } finally {
       setCopying(false);
+    }
+  }
+
+  async function copyEmailAddress() {
+    setCopyingAddress(true);
+    try {
+      await navigator.clipboard.writeText(email);
+      setStatus("Email address copied. Paste it into the To field of your email.");
+    } catch {
+      setStatus(`Copy was unavailable. Select and copy this address: ${email}`);
+    } finally {
+      setCopyingAddress(false);
     }
   }
 
@@ -196,16 +212,32 @@ export function ContactForm({
                 </p>
               )}
               <p id="contact-delivery" className="contact-note">
-                Opens a draft in your email app, Gmail or Outlook. You review
-                and send it yourself; nothing is sent from this website. If
-                nothing opens, copy the request and paste it into an email to{" "}
-                {email}.
+                {phone ? (
+                  <>Opens a draft in your email app.</>
+                ) : (
+                  <>Opens a draft in your email app, Gmail or Outlook.</>
+                )}{" "}
+                You review and send it yourself; nothing is sent from this
+                website. If nothing opens, copy the request and paste it into
+                an email to {email}.
               </p>
-              <div className="contact-actions">
+              <div
+                className={
+                  phone ? "contact-actions contact-actions-phone" : "contact-actions"
+                }
+              >
                 <button type="submit" className="primary-action">
                   Open email draft <span aria-hidden="true">↗</span>
                 </button>
-                {webMail.map(({ key, name }) => (
+                {phone ? (
+                  <button
+                    type="button"
+                    onClick={copyEmailAddress}
+                    disabled={copyingAddress}
+                  >
+                    {copyingAddress ? "Copying email address..." : "Copy email address"}
+                  </button>
+                ) : webMail.map(({ key, name }) => (
                   <button
                     key={key}
                     type="button"
