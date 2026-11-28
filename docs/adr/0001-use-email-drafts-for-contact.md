@@ -22,6 +22,6 @@ The email-draft button opened nothing for a visitor without a default mail app. 
 
 ## Amendment, 2026-11-27: phone email actions
 
-Use the phone actions described in [Contact requests](../../README.md#contact-requests). A web page cannot reliably determine whether another app opened, so use the default `mailto:` path without custom app schemes or timer fallbacks.
+On phones, remove the Gmail and Outlook buttons and offer Open email draft, Copy email address, and Copy request. A web page cannot reliably determine whether another app opened, so use the default `mailto:` path without custom app schemes or timer fallbacks. Keep the existing Gmail and Outlook web compose buttons on desktop.
 
 The [contact-first layout plan](../contact-layout-plan.md) records the research and verification boundaries.
