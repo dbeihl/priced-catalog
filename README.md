@@ -130,7 +130,7 @@ Copy an existing service block that is closest to the one you want, paste it dir
   },
 ```
 
-A priced service needs both `basis` and `marketBand`. If you cannot say how many hours a job takes and what other people charge for it, its price is not ready yet. Until it is, list it with `pricing: { model: "quote-only", unit: "project" }`. For quote-only services, `basis` and `marketBand` are optional. Include them when supported by evidence; the service details show the market band and its note even without a listed price. When `basis` is missing, the service shows "Ask for a quote" with a link to the contact section. When `basis` is present, the service shows an Add button, even if its pricing model is still quote-only.
+A priced service needs both `basis` and `marketBand`. If you cannot say how many hours a job takes and what other people charge for it, its price is not ready yet. Until it is, list it with `pricing: { model: "quote-only", unit: "project" }`. For quote-only services, `basis` and `marketBand` are optional. Include them when supported by evidence; the service details show the market band and its note even without a listed price. When `basis` is missing, the service's action is an "Ask for a quote" link to the contact section. When `basis` is present, the service shows an Add button, even if its pricing model is still quote-only.
 
 ## 4. Hide a service
 
@@ -186,7 +186,7 @@ The site is currently built to live at `/priced-catalog/` on GitHub Pages. To pu
 VITE_BASE_PATH=/ npm run build
 ```
 
-For a new owner, update the identity and contact settings in `src/site.config.ts`. The page titles stay hard-coded in `index.html` and `sources.html`, so update those files too.
+For a new owner, follow the [identity, contact, and fallback title instructions](#priced-catalog) at the start of this guide.
 
 ---
 
