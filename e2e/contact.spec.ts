@@ -48,6 +48,8 @@ const phoneAgents = [
     "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
   ],
 ] as const;
+const desktopUserAgent =
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36";
 
 async function blockExternalRequests(page: Page) {
   await page.route("**/*", (route) => {
@@ -523,6 +525,7 @@ test("recent work photos load with plain captions and no prices", async ({
 test("Gmail and Outlook open a compose window with the copied request", async ({
   page,
 }) => {
+  await setUserAgent(page, desktopUserAgent);
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", {
       value: {
@@ -598,6 +601,7 @@ test("web mail opens nothing for an invalid or overlong request and works from t
   page,
   browserName,
 }) => {
+  await setUserAgent(page, desktopUserAgent);
   const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
   await stubWebMail(page);
   await page.goto("./");

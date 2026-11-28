@@ -67,6 +67,7 @@ function luminance([r, g, b]: number[]) {
 }
 
 for (const size of [
+  { width: 320, height: 844 },
   { width: 390, height: 844 },
   { width: 1100, height: 800 },
 ]) {
@@ -656,6 +657,7 @@ test("hiding the sheet by keyboard over the request card keeps the bar and focus
 });
 
 for (const [size, opened] of [
+  { width: 320, height: 844 },
   { width: 390, height: 844 },
   { width: 1100, height: 800 },
 ].flatMap((size) =>
@@ -680,15 +682,27 @@ for (const [size, opened] of [
     await contact
       .getByLabel("What needs doing?", { exact: true })
       .fill("Mount the TV.");
+    const phone = await page.evaluate(
+      () =>
+        /\b(?:iPhone|iPod|Android)\b/i.test(navigator.userAgent) &&
+        /\bMobile\b/i.test(navigator.userAgent),
+    );
     const sheet = page.locator("details.estimate-mobile");
     const summary = sheet.locator("summary");
 
-    for (const [button, kind] of [
+    const buttons: [string, "copied" | "drafts" | "webMail"][] = [
       ["Copy request", "copied"],
       ["Open email draft", "drafts"],
-      ["Open in Gmail (opens in a new tab)", "webMail"],
-      ["Open in Outlook (opens in a new tab)", "webMail"],
-    ] as const) {
+    ];
+    if (phone) buttons.push(["Copy email address", "copied"]);
+    else {
+      buttons.push(
+        ["Open in Gmail (opens in a new tab)", "webMail"],
+        ["Open in Outlook (opens in a new tab)", "webMail"],
+      );
+    }
+
+    for (const [button, kind] of buttons) {
       await page.locator("#catalog-search").scrollIntoViewIfNeeded();
       await expectBar(sheet, "shown");
       if (opened === "pointer") await summary.click();

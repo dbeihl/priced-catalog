@@ -20,4 +20,8 @@ Pricing source links open in a new tab with an accessible cue. The original page
 
 The email-draft button opened nothing for a visitor without a default mail app. Web mail compose links provide a path for that visitor without a hosted form backend or third-party script. The website sends no email. The [contact guidance](../../README.md#contact-requests) describes what opening web mail shares with the provider.
 
+## Amendment, 2026-11-27: phone email actions
+
+On phones, remove the Gmail and Outlook buttons and offer the default email draft, Copy email address, and Copy request. A web page cannot reliably determine whether another app opened, so do not use app links or timer fallbacks. Keep the existing Gmail and Outlook web compose links on desktop.
+
 The [contact-first layout plan](../contact-layout-plan.md) records the research and verification boundaries.
